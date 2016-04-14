@@ -3,6 +3,11 @@ import Sailfish.Silica 1.0
 
 Page {
     id: main
+    objectName: "main"
+
+    function getPhoneNumber() {
+        pageStack.push(Qt.resolvedUrl("Register.qml"))
+    }
 
     SilicaListView {
         id: listView
@@ -14,9 +19,19 @@ Page {
                 text: qsTr("About Whisperfish")
                 onClicked: pageStack.push(Qt.resolvedUrl("About.qml"))
             }
+            MenuItem {
+                text: qsTr("Bob")
+                onClicked: getPhoneNumber()
+            }
         }
 
         VerticalScrollDecorator {}
+
+        ViewPlaceholder {
+            enabled: listView.count == 0
+            text: "No contacts found"
+            hintText: "None of our contacts appear to be in Signal"
+        }
 
         delegate: BackgroundItem {
             id: delegate

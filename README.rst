@@ -56,6 +56,8 @@ Additionally, the following go packages are required. To install them run::
     $ go get github.com/janimo/textsecure
     $ go get github.com/jmoiron/sqlx
     $ go get github.com/mattn/go-sqlite3
+    $ go get gopkg.in/yaml.v2
+    $ go get github.com/ttacon/libphonenumber
 
 Clone the Whisperfish repo::
 
