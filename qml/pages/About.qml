@@ -26,7 +26,7 @@ Page {
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.bold: true
-                text: "Whisperfish v" + Qt.application.version
+                text: qsTr("Whisperfish v") + Qt.application.version
             }
 
             TextArea {
@@ -47,7 +47,7 @@ Page {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "<a href=\"https://github.com/aebruno/whisperfish\">Source Code</a>"
+                text: qsTr("<a href=\"https://github.com/aebruno/whisperfish\">Source Code</a>")
                 onClicked: {
                     Qt.openUrlExternally("https://github.com/aebruno/whisperfish")
                 }
@@ -87,7 +87,7 @@ Page {
 			}
 
 			Label {
-				text: "Compiled using GO Runtime " + whisperfish.runtimeVersion()
+				text: qsTr("Compiled using GO Runtime ") + whisperfish.runtimeVersion()
 				anchors.horizontalCenter: parent.horizontalCenter
 				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2

@@ -15,14 +15,13 @@ const (
 )
 
 type Whisperfish struct {
-	Root qml.Object
+	window        *qml.Window
+	engine        *qml.Engine
+	contactsModel Contacts
 }
 
-var engine *qml.Engine
-var win *qml.Window
-
 func main() {
-	if err := qml.SailfishRun(APPNAME, "", VERSION, run); err != nil {
+	if err := qml.SailfishRun(APPNAME, "", VERSION, runGui); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		log.WithFields(log.Fields{
 			"error": err,
@@ -30,39 +29,45 @@ func main() {
 	}
 }
 
-func runBackend() {
-	refreshContacts()
-}
-
-func run() error {
+func runGui() error {
 	whisperfish := Whisperfish{}
-	engine = qml.SailfishNewEngine()
+	whisperfish.Init(qml.SailfishNewEngine())
 
 	log.WithFields(log.Fields{
-		"path": engine.SailfishGetConfigLocation(),
+		"path": whisperfish.engine.SailfishGetConfigLocation(),
 	}).Info("Configuration file location")
 	log.WithFields(log.Fields{
-		"path": engine.SailfishGetConfigLocation(),
+		"path": whisperfish.engine.SailfishGetDataLocation(),
 	}).Info("Data file location")
 
-	initModels()
-	engine.Context().SetVar("whisperfish", &whisperfish)
-	controls, err := engine.SailfishSetSource("qml/harbour-whisperfish.qml")
+	controls, err := whisperfish.engine.SailfishSetSource("qml/harbour-whisperfish.qml")
 	if err != nil {
 		return err
 	}
 
 	window := controls.SailfishCreateWindow()
-	win = window
-	whisperfish.Root = window.Root()
+	whisperfish.window = window
 
 	window.SailfishShow()
 
-	go runBackend()
+	go whisperfish.runBackend()
 
 	window.Wait()
 
 	return nil
+}
+
+// Runs backend
+func (w *Whisperfish) runBackend() {
+	w.contactsModel.Init()
+}
+
+// Initializes qml context
+func (w *Whisperfish) Init(engine *qml.Engine) {
+	w.engine = engine
+	w.engine.Context().SetVar("whisperfish", w)
+	w.engine.Context().SetVar("contactsModel", &w.contactsModel)
+	w.engine.Translator(fmt.Sprintf("/usr/share/%s/qml/i18n", APPNAME))
 }
 
 // Returns the GO runtime version used for building the application
