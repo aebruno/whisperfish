@@ -1,10 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/janimo/textsecure"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/ttacon/libphonenumber"
 	"gopkg.in/qml.v1"
 )
 
@@ -70,6 +74,16 @@ func getSailfishContacts() ([]textsecure.Contact, error) {
 			"error": err,
 		}).Error("Failed to query contacts database")
 		return nil, err
+	}
+
+	// Reformat numbers in E.164 format
+	for i := range contacts {
+		n := contacts[i].Tel
+		n = strings.TrimPrefix(n, "+")
+		num, err := libphonenumber.Parse(fmt.Sprintf("+%s", n), "")
+		if err == nil {
+			contacts[i].Tel = libphonenumber.Format(num, libphonenumber.E164)
+		}
 	}
 
 	return contacts, nil
