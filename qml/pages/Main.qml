@@ -19,6 +19,12 @@ Page {
         pageStack.push(Qt.resolvedUrl("Password.qml"))
     }
 
+    function registered() {
+        registeredRemorse.execute("Registration complete!", function() { console.log("Registration complete") })
+    }
+
+    RemorsePopup { id: registeredRemorse }
+
     SilicaListView {
         id: listView
         model: contactsModel.len

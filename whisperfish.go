@@ -5,9 +5,11 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/janimo/textsecure"
 	"github.com/ttacon/libphonenumber"
 	"gopkg.in/qml.v1"
 )
@@ -26,13 +28,15 @@ type Whisperfish struct {
 	engine        *qml.Engine
 	contactsModel Contacts
 	configDir     string
+	configFile    string
 	dataDir       string
+	storageDir    string
 	settings      *Settings
+	config        *textsecure.Config
 }
 
 func main() {
 	if err := qml.SailfishRun(APPNAME, "", VERSION, runGui); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Fatal("Sailfish application failed")
@@ -62,10 +66,44 @@ func runGui() error {
 
 // Runs backend
 func (w *Whisperfish) runBackend() {
-	w.contactsModel.Init()
-	w.getPhoneNumber()
-	w.getVerificationCode()
-	w.getStoragePassword()
+	/*
+		w.contactsModel.Init()
+		w.getPhoneNumber()
+		w.getVerificationCode()
+		w.getStoragePassword()
+		w.registrationDone()
+	*/
+	client := &textsecure.Client{
+		GetConfig:           func() (*textsecure.Config, error) { return w.getConfig() },
+		GetPhoneNumber:      func() string { return w.getPhoneNumber() },
+		GetVerificationCode: func() string { return w.getVerificationCode() },
+		GetStoragePassword:  func() string { return w.getStoragePassword() },
+		MessageHandler:      func(msg *textsecure.Message) { w.messageHandler(msg) },
+		ReceiptHandler:      func(source string, devID uint32, timestamp uint64) { w.receiptHandler(source, devID, timestamp) },
+		RegistrationDone:    func() { w.registrationDone() },
+		GetLocalContacts:    getSailfishContacts,
+	}
+
+	err := textsecure.Setup(client)
+	if _, ok := err.(*strconv.NumError); ok {
+		os.RemoveAll(w.storageDir)
+		log.Fatal("Switching to unencrypted session store, removing %s\nThis will reset your sessions and reregister your phone.", w.storageDir)
+	}
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Fatal("Failed to setup textsecure client")
+		return
+	}
+
+	w.contactsModel.Refresh()
+
+	for {
+		if err := textsecure.StartListening(); err != nil {
+			log.Println(err)
+			time.Sleep(3 * time.Second)
+		}
+	}
 }
 
 // Initializes qml context
@@ -75,6 +113,7 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 
 	w.configDir = filepath.Join(w.engine.SailfishGetConfigLocation(), APPNAME)
 	w.dataDir = w.engine.SailfishGetDataLocation()
+	w.storageDir = filepath.Join(w.dataDir, "storage")
 
 	os.MkdirAll(w.configDir, 0700)
 	os.MkdirAll(w.dataDir, 0700)
@@ -104,6 +143,28 @@ func (w *Whisperfish) RuntimeVersion() string {
 // Returns the Whisperfish application version
 func (w *Whisperfish) Version() string {
 	return VERSION
+}
+
+// Get the config file for Signal
+func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
+	w.configFile = filepath.Join(w.configDir, "config.yml")
+	var errConfig error
+	if _, err := os.Stat(w.configFile); err == nil {
+		w.config, errConfig = textsecure.ReadConfig(w.configFile)
+	} else {
+		w.config = &textsecure.Config{}
+	}
+
+	w.config.StorageDir = w.storageDir
+	w.config.UserAgent = fmt.Sprintf("Whisperfish v%s", VERSION)
+	w.config.UnencryptedStorage = true
+	w.config.LogLevel = "debug"
+	w.config.AlwaysTrustPeerID = true
+	rootCA := filepath.Join(w.configDir, "rootCA.crt")
+	if _, err := os.Stat(rootCA); err == nil {
+		w.config.RootCA = rootCA
+	}
+	return w.config, errConfig
 }
 
 // Prompt the user for storage password
@@ -137,6 +198,19 @@ func (w *Whisperfish) getPhoneNumber() string {
 	return tel
 }
 
+// Registration done
+func (w *Whisperfish) registrationDone() {
+	log.Println("Registered")
+	status := w.getCurrentPageStatus()
+	for status == PAGE_STATUS_ACTIVATING || status == PAGE_STATUS_DEACTIVATING {
+		// If current page is in transition need to wait before pushing dialog on stack
+		time.Sleep(100 * time.Millisecond)
+		status = w.getCurrentPageStatus()
+	}
+	w.window.Root().ObjectByName("main").Call("registered")
+	//textsecure.WriteConfig(w.configFile, w.config)
+}
+
 // Get the current page status
 func (w *Whisperfish) getCurrentPageStatus() int {
 	return w.window.Root().ObjectByName("main").Object("currentPage").Int("status")
@@ -159,4 +233,14 @@ func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 	})
 	text := <-ch
 	return text
+}
+
+// Message handler
+func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
+	log.Printf("Recieved message from: %s", msg.Source())
+}
+
+// Receipt handler
+func (w *Whisperfish) receiptHandler(source string, devID uint32, timestamp uint64) {
+	log.Printf("Receipt handler source %s timestamp %d", source, timestamp)
 }
