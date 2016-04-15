@@ -5,8 +5,18 @@ Page {
     id: main
     objectName: "main"
 
+    property QtObject currentPage: pageStack.currentPage
+
     function getPhoneNumber() {
         pageStack.push(Qt.resolvedUrl("Register.qml"))
+    }
+
+    function getVerificationCode() {
+        pageStack.push(Qt.resolvedUrl("Verify.qml"))
+    }
+
+    function getStoragePassword() {
+        pageStack.push(Qt.resolvedUrl("Password.qml"))
     }
 
     SilicaListView {

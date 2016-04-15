@@ -2,42 +2,42 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 Dialog {
-    id: registerDialog
-    objectName: "registerDialog"
-    property string tel
+    id: verifyDialog
+    objectName: "verifyDialog"
+    property string code
 
-    canAccept: !telField.errorHighlight
+    canAccept: !codeField.errorHighlight
 
     onDone: {
-        if (result == DialogResult.Accepted && !telField.errorHighlight) {
-            tel = telField.text
-            numberEntered(tel)
+        if (result == DialogResult.Accepted && !codeField.errorHighlight) {
+            code = codeField.text
+            codeEntered(code)
         }
     }
 
-    signal numberEntered(string text)
+    signal codeEntered(string text)
 
     Column {
         width: parent.width
         spacing: Theme.paddingLarge
 
         DialogHeader {
-            acceptText: "Register"
+            acceptText: "Verify"
         }
 
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: qsTr("Connect with Signal")
+            text: qsTr("Verify Device")
         }
 
         TextField {
-            id: telField
+            id: codeField
             width: parent.width
-            inputMethodHints: Qt.ImhDialableCharactersOnly | Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText
             validator: RegExpValidator{ regExp: /[0-9]+/;}
-            label: "Phone number (E.164 format)"
-            placeholderText: "Your Phone Number"
+            label: "Code"
+            placeholderText: "Code"
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight? "red" : Theme.primaryColor
@@ -49,7 +49,7 @@ Dialog {
             width: parent.width
             horizontalAlignment: TextEdit.Center
             readOnly: true
-            text: qsTr("Signal will send you a code using SMS to verify your phone number.")
+            text: qsTr("Signal will now send you a confirmation code via SMS message. Please enter it here.")
         }
 
     }

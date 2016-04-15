@@ -5,14 +5,20 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/ttacon/libphonenumber"
 	"gopkg.in/qml.v1"
 )
 
 const (
-	VERSION = "0.1.1"
-	APPNAME = "harbour-whisperfish"
+	VERSION                  = "0.1.1"
+	APPNAME                  = "harbour-whisperfish"
+	PAGE_STATUS_INACTIVE     = 0
+	PAGE_STATUS_ACTIVATING   = 1
+	PAGE_STATUS_ACTIVE       = 2
+	PAGE_STATUS_DEACTIVATING = 3
 )
 
 type Whisperfish struct {
@@ -57,8 +63,9 @@ func runGui() error {
 // Runs backend
 func (w *Whisperfish) runBackend() {
 	w.contactsModel.Init()
-	tel := w.getPhoneNumber()
-	log.Printf("Hello %s", tel)
+	w.getPhoneNumber()
+	w.getVerificationCode()
+	w.getStoragePassword()
 }
 
 // Initializes qml context
@@ -80,7 +87,7 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 		if err = w.settings.Save(settingsFile); err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Fatal("Failed to write out default settings file")
+			}).Error("Failed to write out default settings file")
 		}
 	}
 
@@ -99,15 +106,51 @@ func (w *Whisperfish) Version() string {
 	return VERSION
 }
 
+// Prompt the user for storage password
+func (w *Whisperfish) getStoragePassword() string {
+	pass := w.getTextFromDialog("getStoragePassword", "passwordDialog", "passwordEntered")
+	log.Printf("Password: %s", pass)
+
+	return pass
+}
+
+// Prompt the user to enter the verification code
+func (w *Whisperfish) getVerificationCode() string {
+	code := w.getTextFromDialog("getVerificationCode", "verifyDialog", "codeEntered")
+	log.Printf("Code: %s", code)
+
+	return code
+}
+
 // Prompt the user to enter telephone number for Registration
 func (w *Whisperfish) getPhoneNumber() string {
 	n := w.getTextFromDialog("getPhoneNumber", "registerDialog", "numberEntered")
-	log.Printf("Phone number is: %s", n)
-	return n
+	num, err := libphonenumber.Parse(fmt.Sprintf("+%s", n), "")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to parse phone number")
+	}
+
+	tel := libphonenumber.Format(num, libphonenumber.E164)
+	log.Printf("Using phone number: %s", tel)
+	return tel
+}
+
+// Get the current page status
+func (w *Whisperfish) getCurrentPageStatus() int {
+	return w.window.Root().ObjectByName("main").Object("currentPage").Int("status")
 }
 
 // Get text from dialog window
 func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
+	status := w.getCurrentPageStatus()
+	for status == PAGE_STATUS_ACTIVATING || status == PAGE_STATUS_DEACTIVATING {
+		// If current page is in transition need to wait before pushing dialog on stack
+		time.Sleep(100 * time.Millisecond)
+		status = w.getCurrentPageStatus()
+	}
+
 	w.window.Root().ObjectByName("main").Call(fun)
 	p := w.window.Root().ObjectByName(obj)
 	ch := make(chan string)
