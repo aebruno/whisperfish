@@ -200,6 +200,8 @@ func (w *Whisperfish) getPhoneNumber() string {
 
 // Registration done
 func (w *Whisperfish) registrationDone() {
+	textsecure.WriteConfig(w.configFile, w.config)
+
 	log.Println("Registered")
 	status := w.getCurrentPageStatus()
 	for status == PAGE_STATUS_ACTIVATING || status == PAGE_STATUS_DEACTIVATING {
@@ -208,7 +210,6 @@ func (w *Whisperfish) registrationDone() {
 		status = w.getCurrentPageStatus()
 	}
 	w.window.Root().ObjectByName("main").Call("registered")
-	//textsecure.WriteConfig(w.configFile, w.config)
 }
 
 // Get the current page status
