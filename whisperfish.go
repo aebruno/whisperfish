@@ -9,6 +9,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/godbus/dbus"
 	"github.com/janimo/textsecure"
 	"github.com/ttacon/libphonenumber"
 	"gopkg.in/qml.v1"
@@ -239,6 +240,34 @@ func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 // Message handler
 func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 	log.Printf("Recieved message from: %s", msg.Source())
+	w.Notify(msg)
+}
+
+// Send new message notification
+// From https://lists.sailfishos.org/pipermail/devel/2016-April/007036.html
+func (w *Whisperfish) Notify(msg *textsecure.Message) error {
+	conn, err := dbus.SessionBus()
+	if err != nil {
+		return err
+	}
+
+	title := w.contactsModel.Name(msg.Source())
+	body := "New message"
+
+	var m map[string]dbus.Variant
+	m = make(map[string]dbus.Variant)
+	m["category"] = dbus.MakeVariant("x-nemo.messaging.im")
+
+	obj := conn.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+	call := obj.Call("org.freedesktop.Notifications.Notify", 0, "",
+		uint32(0),
+		"", title, body, []string{},
+		m,
+		int32(0))
+	if call.Err != nil {
+		return err
+	}
+	return nil
 }
 
 // Receipt handler
