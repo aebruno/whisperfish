@@ -19,6 +19,7 @@ type Contacts struct {
 	Len      int
 }
 
+// Get contact by index i
 func (c *Contacts) Contact(i int) textsecure.Contact {
 	if i == -1 {
 		return textsecure.Contact{}
@@ -26,6 +27,19 @@ func (c *Contacts) Contact(i int) textsecure.Contact {
 	return c.contacts[i]
 }
 
+// Get name of contact with number tel
+func (c *Contacts) Name(tel string) string {
+	for _, r := range c.contacts {
+		if r.Tel == tel {
+			return r.Name
+		}
+	}
+
+	// name not found. just return number
+	return tel
+}
+
+// Refresh list of local contacts that are registered with Signal
 func (c *Contacts) Refresh() error {
 	signalContacts, err := textsecure.GetRegisteredContacts()
 	if err != nil {
@@ -39,6 +53,7 @@ func (c *Contacts) Refresh() error {
 	return nil
 }
 
+// Initialize list of local contacts
 func (c *Contacts) Init() error {
 	var err error
 	c.contacts, err = getSailfishContacts()
@@ -52,6 +67,7 @@ func (c *Contacts) Init() error {
 	return nil
 }
 
+// Get local sailfish contacts
 func getSailfishContacts() ([]textsecure.Contact, error) {
 	db, err := sqlx.Open("sqlite3", QTCONTACTS_PATH)
 	if err != nil {
