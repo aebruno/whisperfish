@@ -7,7 +7,13 @@ import (
 )
 
 type Settings struct {
-	Incognito bool `yaml:"incognito"`
+	Incognito    bool `yaml:"incognito"`
+	EnableNotify bool `yaml:"enable_notify"`
+}
+
+func (s *Settings) SetDefault() {
+	s.Incognito = false
+	s.EnableNotify = true
 }
 
 func (s *Settings) Load(file string) error {

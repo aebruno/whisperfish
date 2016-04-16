@@ -123,6 +123,7 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	w.settings = &Settings{}
 
 	if err := w.settings.Load(settingsFile); err != nil {
+		w.settings.SetDefault()
 		// write out default settings file
 		if err = w.settings.Save(settingsFile); err != nil {
 			log.WithFields(log.Fields{
@@ -240,7 +241,9 @@ func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 // Message handler
 func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 	log.Printf("Recieved message from: %s", msg.Source())
-	w.Notify(msg)
+	if w.settings.EnableNotify {
+		w.Notify(msg)
+	}
 }
 
 // Send new message notification
