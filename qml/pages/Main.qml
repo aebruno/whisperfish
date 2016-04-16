@@ -35,10 +35,6 @@ Page {
                 text: qsTr("About Whisperfish")
                 onClicked: pageStack.push(Qt.resolvedUrl("About.qml"))
             }
-            MenuItem {
-                text: qsTr("Bob")
-                onClicked: getPhoneNumber()
-            }
         }
 
         VerticalScrollDecorator {}

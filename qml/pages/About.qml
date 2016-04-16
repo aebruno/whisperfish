@@ -58,7 +58,7 @@ Page {
             }
 
             Label {
-                text: qsTr("Whisperfish uses <a href=\"https://github.com/WhisperSystems/libsignal-protocol-c\">libsignal-protocol-c</a>, Signal Protocol C Library developed by Open Whipser Systems.")
+                text: qsTr("<a href=\"https://github.com/janimo/textsecure\">TextSecure client package for Go</a> (C) janimo.")
                 anchors.horizontalCenter: parent.horizontalCenter
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
@@ -77,7 +77,7 @@ Page {
 				x: Theme.paddingLarge
 			}
 			Label {
-				text: qsTr("<a href='https://golang.org/'>GO</a> Copyright (c) 2012 The Go Authors. All rights reserved.")
+				text: qsTr("<a href='https://golang.org/'>GO</a> Copyright (C) 2012 The Go Authors. All rights reserved.")
 				anchors.horizontalCenter: parent.horizontalCenter
 				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
