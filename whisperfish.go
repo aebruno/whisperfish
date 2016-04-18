@@ -11,6 +11,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/godbus/dbus"
 	"github.com/janimo/textsecure"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/ttacon/libphonenumber"
 	"gopkg.in/qml.v1"
 )
@@ -28,12 +30,14 @@ type Whisperfish struct {
 	window        *qml.Window
 	engine        *qml.Engine
 	contactsModel Contacts
+	sessionModel  SessionModel
 	configDir     string
 	configFile    string
 	dataDir       string
 	storageDir    string
 	settings      *Settings
 	config        *textsecure.Config
+	db            *sqlx.DB
 }
 
 func main() {
@@ -42,6 +46,25 @@ func main() {
 			"error": err,
 		}).Fatal("Sailfish application failed")
 	}
+}
+
+func NewDb(path string) (*sqlx.DB, error) {
+	db, err := sqlx.Open("sqlite3", path)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(SESSION_SCHEMA)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func runGui() error {
@@ -67,13 +90,6 @@ func runGui() error {
 
 // Runs backend
 func (w *Whisperfish) runBackend() {
-	/*
-		w.contactsModel.Init()
-		w.getPhoneNumber()
-		w.getVerificationCode()
-		w.getStoragePassword()
-		w.registrationDone()
-	*/
 	client := &textsecure.Client{
 		GetConfig:           func() (*textsecure.Config, error) { return w.getConfig() },
 		GetPhoneNumber:      func() string { return w.getPhoneNumber() },
@@ -97,7 +113,8 @@ func (w *Whisperfish) runBackend() {
 		return
 	}
 
-	w.contactsModel.Refresh()
+	w.RefreshContacts()
+	w.RefreshSessions()
 
 	for {
 		if err := textsecure.StartListening(); err != nil {
@@ -107,7 +124,19 @@ func (w *Whisperfish) runBackend() {
 	}
 }
 
-// Initializes qml context
+// Refresh contacts
+func (w *Whisperfish) RefreshContacts() {
+	w.contactsModel.Refresh()
+}
+
+// Refresh session model
+func (w *Whisperfish) RefreshSessions() {
+	w.sessionModel.Update(w.db, &w.contactsModel)
+	w.engine.Context().SetVar("sessionModel", &w.sessionModel)
+	qml.Changed(&w.sessionModel, &w.sessionModel.Length)
+}
+
+// Initializes Whisperfish application and qml context
 func (w *Whisperfish) Init(engine *qml.Engine) {
 	w.engine = engine
 	w.engine.Translator(fmt.Sprintf("/usr/share/%s/qml/i18n", APPNAME))
@@ -115,9 +144,12 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	w.configDir = filepath.Join(w.engine.SailfishGetConfigLocation(), APPNAME)
 	w.dataDir = w.engine.SailfishGetDataLocation()
 	w.storageDir = filepath.Join(w.dataDir, "storage")
+	dbDir := filepath.Join(w.dataDir, "db")
+	dbFile := filepath.Join(dbDir, fmt.Sprintf("%s.db", APPNAME))
 
 	os.MkdirAll(w.configDir, 0700)
 	os.MkdirAll(w.dataDir, 0700)
+	os.MkdirAll(dbDir, 0700)
 
 	settingsFile := filepath.Join(w.configDir, "settings.yml")
 	w.settings = &Settings{}
@@ -132,9 +164,18 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 		}
 	}
 
+	var err error
+	w.db, err = NewDb(dbFile)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to open database")
+	}
+
 	// initialize model delegates
 	w.engine.Context().SetVar("whisperfish", w)
 	w.engine.Context().SetVar("contactsModel", &w.contactsModel)
+	w.engine.Context().SetVar("sessionModel", &w.sessionModel)
 }
 
 // Returns the GO runtime version used for building the application
@@ -241,6 +282,11 @@ func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 // Message handler
 func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 	log.Printf("Recieved message from: %s", msg.Source())
+
+	w.sessionModel.AddMessage(w.db, msg.Message(), msg.Source(), time.Now())
+	w.RefreshSessions()
+	w.window.Root().ObjectByName("main").Call("refreshSessions")
+
 	if w.settings.EnableNotify {
 		w.Notify(msg)
 	}
