@@ -21,11 +21,13 @@ welcome!
 Features
 -------------------------------------------------------------------------------
 
-- [ ] Registration
-- [ ] Contact Discovery
-- [ ] Direct and group messages
-- [ ] Photo/video attachments in both direct and group mode
-- [ ] Storing conversations
+- [x] Registration
+- [x] Contact Discovery
+- [x] Direct messages
+- [ ] Group messages
+- [x] Storing conversations
+- [ ] Archiving conversations
+- [ ] Photo/video attachments
 - [ ] Encrypted message store
 
 -------------------------------------------------------------------------------
@@ -70,6 +72,31 @@ If you have the SailfishOS Emulator you can install the rpm into the emulator
 with directly with::
 
     $ ./deploy
+
+-------------------------------------------------------------------------------
+Developing (without MerSDK)
+-------------------------------------------------------------------------------
+
+It's possible to build and run the tests without installing MerSDK. Here's
+some instructions for building on Debian::
+
+    $ sudo apt-get install libqt5quick5 qtdeclarative5-dev qt5-qmake \
+                           libglib2.0-dev qt5-default libffi-dev libsqlite3-dev \
+                           qtbase5-private-dev qtdeclarative5-private-dev
+
+    $ git clone https://git.merproject.org/mer-core/mlite.git
+    $ cd mlite
+    $ qmake
+    $ make
+    $ sudo make install
+    $ git clone https://github.com/sailfish-sdk/libsailfishapp
+    $ cd libsailfishapp
+    $ qmake
+    $ sudo make install
+    $ cd $GOPATH/src/gopkg.in
+    $ git clone https://github.com/aebruno/qml.git qml.v1
+    $ cd qml.v1
+    $ go install
 
 -------------------------------------------------------------------------------
 i18n Translations (help wanted)
