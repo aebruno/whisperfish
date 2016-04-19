@@ -14,7 +14,7 @@ var (
 	SESSION_SCHEMA = `
 		create table if not exists session 
 		(id integer primary key, source text, message string, timestamp timestamp,
-		 sent integer default 0, recieved integer default 0, unread integer default 0, is_group integer default 0)
+		 sent integer default 0, received integer default 0, unread integer default 0, is_group integer default 0)
 	`
 )
 
@@ -29,7 +29,7 @@ type Session struct {
 	Date      string     `db:"-"`
 	Unread    bool       `db:"unread"`
 	Sent      bool       `db:"sent"`
-	Recieved  bool       `db:"recieved"`
+	Received  bool       `db:"received"`
 	messages  []*Message `db:"-"`
 	Length    int        `db:"-"`
 }
@@ -46,7 +46,7 @@ func (s *SessionModel) Get(i int) *Session {
 	return s.sessions[i]
 }
 
-func (s *SessionModel) Add(db *sqlx.DB, source string, message string, timestamp time.Time, unread, sent, recieved bool) (*Session, error) {
+func (s *SessionModel) Add(db *sqlx.DB, source string, message string, timestamp time.Time, unread, sent, received bool) (*Session, error) {
 	sess, err := FetchSessionBySource(db, source)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -61,7 +61,7 @@ func (s *SessionModel) Add(db *sqlx.DB, source string, message string, timestamp
 	sess.Timestamp = timestamp
 	sess.Unread = unread
 	sess.Sent = sent
-	sess.Recieved = recieved
+	sess.Received = received
 
 	err = SaveSession(db, sess)
 	if err != nil {
@@ -132,7 +132,7 @@ func FetchSessionBySource(db *sqlx.DB, source string) (*Session, error) {
 		s.unread,
 		s.sent,
 		s.is_group,
-		s.recieved
+		s.received
 	from 
 		session as s
 	where s.source = ?`, source)
@@ -154,7 +154,7 @@ func FetchSession(db *sqlx.DB, id int64) (*Session, error) {
 		s.is_group,
 		s.unread,
 		s.sent,
-		s.recieved
+		s.received
 	from 
 		session as s
 	where s.id = ?`, id)
@@ -176,7 +176,7 @@ func FetchAllSessions(db *sqlx.DB) ([]*Session, error) {
 		s.is_group,
 		s.unread,
 		s.sent,
-		s.recieved
+		s.received
 	from 
 		session as s
 	order by s.timestamp desc`)
@@ -188,7 +188,7 @@ func FetchAllSessions(db *sqlx.DB) ([]*Session, error) {
 }
 
 func SaveSession(db *sqlx.DB, session *Session) error {
-	cols := []string{"source", "message", "timestamp", "is_group", "unread", "sent", "recieved"}
+	cols := []string{"source", "message", "timestamp", "is_group", "unread", "sent", "received"}
 	if session.ID > int64(0) {
 		cols = append(cols, "id")
 	}
@@ -227,5 +227,15 @@ func MarkSessionRead(db *sqlx.DB, id int64) error {
 	if err != nil {
 		return err
 	}
+	return err
+}
+
+func MarkSessionSent(db *sqlx.DB, id int64, msg string, ts time.Time) error {
+	_, err := db.Exec(`update session set timestamp = ?, message = ?, unread = 0, sent = 1 where id = ?`, ts, msg, id)
+	return err
+}
+
+func MarkSessionReceived(db *sqlx.DB, id int64, ts time.Time) error {
+	_, err := db.Exec(`update session set received = 1 where id = ?`, id)
 	return err
 }

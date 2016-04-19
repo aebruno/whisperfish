@@ -20,10 +20,10 @@ BackgroundItem {
 
     Image {
         source: {
-            if(sent) {
-                "/usr/share/harbour-whisperfish/icons/ic_done_white_18dp.png"
-            } else if(recieved) {
+            if(received) {
                 "/usr/share/harbour-whisperfish/icons/ic_done_all_white_18dp.png"
+            } else if(sent) {
+                "/usr/share/harbour-whisperfish/icons/ic_done_white_18dp.png"
             } else {
                 ""
             }
@@ -71,6 +71,8 @@ BackgroundItem {
         whisperfish.setSession(id)
         sessionView.model.get(index).unread = false
         whisperfish.refreshConversation(id)
+        messageModel.name = qsTr(""+name)
+        messageModel.tel = qsTr(""+source)
         pageStack.push(Qt.resolvedUrl("../pages/Conversation.qml"));
     }
 }

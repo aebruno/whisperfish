@@ -48,9 +48,6 @@ func TestMessage(t *testing.T) {
 		if m.Message != text {
 			t.Errorf("Incorrect message text: got '%s' should be '%s'", m.Message, text)
 		}
-		if m.RecievedAt != nil {
-			t.Error("Recieved at date should be null")
-		}
 	}
 }
 

@@ -9,6 +9,11 @@ import (
 )
 
 const (
+	msgFlagGroupNew     = 1
+	msgFlagGroupUpdate  = 2
+	msgFlagGroupLeave   = 4
+	msgFlagResetSession = 8
+
 	ContentTypeMessage int = iota
 	ContentTypeImage
 	ContentTypeVideo
@@ -21,29 +26,29 @@ var (
 	MESSAGE_SCHEMA = `
 		create table if not exists message 
 		(id integer primary key, session_id integer, source text, message string, timestamp timestamp,
-        recieved_at timestamp default null, sent integer default 0, recieved integer default 0,
-        flags integer default 0, attachment text, ctype integer default 0)
+        sent integer default 0, received integer default 0, flags integer default 0, attachment text, 
+		ctype integer default 0)
 	`
 )
 
 type Message struct {
-	ID          int64      `db:"id"`
-	SID         int64      `db:"session_id"`
-	Source      string     `db:"source"`
-	Message     string     `db:"message"`
-	Timestamp   time.Time  `db:"timestamp"`
-	RecievedAt  *time.Time `db:"recieved_at"`
-	Sent        bool       `db:"sent"`
-	Recieved    bool       `db:"recieved"`
-	Attachment  string     `db:"attachment"`
-	Flags       int        `db:"flags"`
-	ContentType int        `db:"ctype"`
-	Date        string     `db:"date"`
+	ID          int64     `db:"id"`
+	SID         int64     `db:"session_id"`
+	Source      string    `db:"source"`
+	Message     string    `db:"message"`
+	Timestamp   time.Time `db:"timestamp"`
+	Sent        bool      `db:"sent"`
+	Received    bool      `db:"received"`
+	Attachment  string    `db:"attachment"`
+	Flags       int       `db:"flags"`
+	ContentType int       `db:"ctype"`
+	Date        string    `db:"date"`
 }
 
 type MessageModel struct {
 	messages []*Message
-	Session  *Session
+	Name     string
+	Tel      string
 	Length   int
 }
 
@@ -67,7 +72,7 @@ func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64) error {
 }
 
 func SaveMessage(db *sqlx.DB, msg *Message) error {
-	cols := []string{"session_id", "source", "message", "timestamp", "recieved_at", "sent", "recieved", "flags", "attachment", "ctype"}
+	cols := []string{"session_id", "source", "message", "timestamp", "sent", "received", "flags", "attachment", "ctype"}
 	if msg.ID > int64(0) {
 		cols = append(cols, "id")
 	}
@@ -104,10 +109,9 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 		m.ctype,
 		m.timestamp,
 		strftime('%H:%M, %m/%d/%Y', m.timestamp) as date,
-		m.recieved_at,
 		m.flags,
 		m.sent,
-		m.recieved
+		m.received
 	from 
 		message as m
     where m.session_id = ?
@@ -121,5 +125,15 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 
 func DeleteMessage(db *sqlx.DB, id int64) error {
 	_, err := db.Exec(`delete from message where id = ?`, id)
+	return err
+}
+
+func MarkMessageSent(db *sqlx.DB, id int64, ts time.Time) error {
+	_, err := db.Exec(`update message set timestamp = ?, sent = 1 where id = ?`, ts, id)
+	return err
+}
+
+func MarkMessageReceived(db *sqlx.DB, sid int64, ts time.Time) error {
+	_, err := db.Exec(`update message set received = 1 where strftime("%s", timestamp) = strftime("%s", datetime(?, 'unixepoch')) and session_id = ?`, ts.Unix(), sid)
 	return err
 }

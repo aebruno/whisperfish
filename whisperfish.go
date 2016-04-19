@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -333,7 +334,7 @@ func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 
 // Message handler
 func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
-	log.Printf("Recieved message from: %s", msg.Source())
+	log.Printf("Received message from: %s", msg.Source())
 
 	session, err := w.sessionModel.Add(w.db, msg.Source(), msg.Message(), time.Now(), true, false, false)
 	if err != nil {
@@ -404,7 +405,153 @@ func (w *Whisperfish) notify(msg *textsecure.Message) error {
 	return nil
 }
 
+// Send message
+func (w *Whisperfish) SendMessage(source string, message string) {
+	session, err := FetchSession(w.db, w.activeSessionID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"sid":   w.activeSessionID,
+		}).Error("Failed to fetch active session")
+	}
+	log.Printf("Sending messsage to %s: %s", session.Source, message)
+
+	err = w.sendMessageHelper(session.Source, message, "")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"sid":   w.activeSessionID,
+		}).Error("Failed to send message")
+	}
+}
+
+func (w *Whisperfish) sendMessageHelper(to, msg, file string) error {
+	session, err := w.sessionModel.Add(w.db, to, msg, time.Now(), false, true, false)
+	if err != nil {
+		return err
+	}
+
+	message := &Message{
+		SID:       session.ID,
+		Source:    to,
+		Message:   msg,
+		Timestamp: time.Now(),
+		Sent:      true,
+	}
+
+	err = SaveMessage(w.db, message)
+	if err != nil {
+		return err
+	}
+
+	go w.sendMessage(session, message)
+	return nil
+}
+
+func (w *Whisperfish) sendMessage(s *Session, m *Message) {
+	var att io.Reader
+	var err error
+
+	if m.Attachment != "" {
+		att, err = os.Open(m.Attachment)
+		if err != nil {
+			return
+		}
+	}
+
+	ts := w.sendMessageLoop(s.Source, m.Message, s.IsGroup, att, m.Flags)
+
+	timestamp := time.Unix(0, int64(1000000*ts)).Local()
+
+	err = MarkSessionSent(w.db, s.ID, m.Message, timestamp)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"id":    s.ID,
+		}).Error("Failed to mark session sent")
+	}
+
+	err = MarkMessageSent(w.db, m.ID, timestamp)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"id":    m.ID,
+		}).Error("Failed to mark message sent")
+	}
+
+	w.RefreshConversation(s.ID)
+	w.RefreshSessions()
+}
+
+func (w *Whisperfish) sendMessageLoop(to, message string, group bool, att io.Reader, flags int) uint64 {
+	var err error
+	var ts uint64
+	for {
+		err = nil
+		if flags == msgFlagResetSession {
+			ts, err = textsecure.EndSession(to, "TERMINATE")
+		} else if flags == msgFlagGroupLeave {
+			err = textsecure.LeaveGroup(to)
+		} else if flags == msgFlagGroupUpdate {
+			// TODO: implement me
+			//_, err = textsecure.UpdateGroup(to, groups[to].Name, strings.Split(groups[to].Members, ","))
+		} else if att == nil {
+			if group {
+				ts, err = textsecure.SendGroupMessage(to, message)
+			} else {
+				ts, err = textsecure.SendMessage(to, message)
+			}
+		} else {
+			if group {
+				ts, err = textsecure.SendGroupAttachment(to, message, att)
+			} else {
+				ts, err = textsecure.SendAttachment(to, message, att)
+			}
+		}
+		if err == nil {
+			break
+		}
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to send message")
+		//If sending failed, try again after a while
+		time.Sleep(3 * time.Second)
+	}
+	return ts
+}
+
 // Receipt handler
-func (w *Whisperfish) receiptHandler(source string, devID uint32, timestamp uint64) {
-	log.Printf("Receipt handler source %s timestamp %d", source, timestamp)
+func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
+	log.Printf("Receipt handler source %s timestamp %d", source, ts)
+
+	session, err := FetchSessionBySource(w.db, source)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":  err,
+			"source": source,
+		}).Error("Failed to fetch session")
+	}
+
+	timestamp := time.Unix(0, int64(1000000*ts)).Local()
+
+	err = MarkSessionReceived(w.db, session.ID, timestamp)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"id":    session.ID,
+		}).Error("Failed to mark session received")
+	}
+
+	err = MarkMessageReceived(w.db, session.ID, timestamp)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to mark message sent")
+	}
+
+	if w.activeSessionID == session.ID && w.getCurrentPageID() == "conversation" {
+		w.RefreshConversation(session.ID)
+	}
+
+	w.RefreshSessions()
 }

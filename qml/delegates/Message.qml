@@ -23,7 +23,7 @@ BackgroundItem {
         contentHeight: msgLabel.paintedHeight + dateLabel.paintedHeight
         Column {
             width: parent.width * 0.75
-            anchors.left: msg.sent ? parent.right : undefined
+            anchors.left: msg.sent ? parent.left : undefined
             anchors.right: !msg.sent ? parent.right : undefined
             anchors.leftMargin: Theme.paddingLarge
             anchors.rightMargin: Theme.paddingLarge
@@ -45,7 +45,16 @@ BackgroundItem {
                 id: dateLabel
                 width: parent.width
                 font.pixelSize: Theme.fontSizeExtraSmall
-                text: msg.date
+                text: {
+                    if(msg.received) {
+                        msg.date+" **"
+                    } else if(msg.sent) {
+                        msg.date+" *"
+                    } else {
+                        msg.date
+                    }
+                }
+                    
                 horizontalAlignment: msg.sent ? Text.AlignLeft : Text.AlignRight
                 color: msg.sent ? Theme.secondaryHighlightColor : Theme.secondaryColor
             }
