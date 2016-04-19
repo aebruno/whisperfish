@@ -9,7 +9,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func newDb() (*sqlx.DB, error) {
+func newTestDb() (*sqlx.DB, error) {
 	db, err := sqlx.Open("sqlite3", ":memory:")
 	if err != nil {
 		return nil, err
@@ -25,17 +25,22 @@ func newDb() (*sqlx.DB, error) {
 		return nil, err
 	}
 
+	_, err = db.Exec(MESSAGE_SCHEMA)
+	if err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }
 
 func TestSession(t *testing.T) {
-	db, err := newDb()
+	db, err := newTestDb()
 	if err != nil {
 		t.Error(err)
 	}
 
 	tel := "+1771111006"
-	sess := &Session{Tel: tel, Message: "Hello", Timestamp: time.Now()}
+	sess := &Session{Source: tel, Message: "Hello", Timestamp: time.Now()}
 	err = SaveSession(db, sess)
 	if err != nil {
 		t.Error(err)
@@ -47,21 +52,21 @@ func TestSession(t *testing.T) {
 
 	id := sess.ID
 
-	sess, err = FetchSessionByTel(db, tel)
+	sess, err = FetchSessionBySource(db, tel)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if sess.Tel != tel || sess.ID != id {
+	if sess.Source != tel || sess.ID != id {
 		t.Error("Failed to fetch session by tel")
 	}
 
-	sess, err = FetchSessionById(db, id)
+	sess, err = FetchSession(db, id)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if sess.Tel != tel || sess.ID != id {
+	if sess.Source != tel || sess.ID != id {
 		t.Error("Failed to fetch session by id")
 	}
 
@@ -76,13 +81,13 @@ func TestSession(t *testing.T) {
 }
 
 func TestSessionSave(t *testing.T) {
-	db, err := newDb()
+	db, err := newTestDb()
 	if err != nil {
 		t.Error(err)
 	}
 
 	tel := "+1771111006"
-	sess := &Session{Tel: tel, Message: "Hello", Timestamp: time.Now()}
+	sess := &Session{Source: tel, Message: "Hello", Timestamp: time.Now()}
 
 	for i := 0; i < 10; i++ {
 		sess.Message = fmt.Sprintf("Hello: %d", i)
@@ -99,5 +104,43 @@ func TestSessionSave(t *testing.T) {
 
 	if len(sessions) != 1 {
 		t.Errorf("Incorrect number of sessions: got %d should be 1", len(sessions))
+	}
+}
+
+func TestSessionDelete(t *testing.T) {
+	db, err := newTestDb()
+	if err != nil {
+		t.Error(err)
+	}
+
+	tel := "+1771111006"
+	sess := &Session{Source: tel, Message: "Hello", Timestamp: time.Now()}
+
+	err = SaveSession(db, sess)
+	if err != nil {
+		t.Error(err)
+	}
+
+	sessions, err := FetchAllSessions(db)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(sessions) != 1 {
+		t.Errorf("Incorrect number of sessions: got %d should be 1", len(sessions))
+	}
+
+	err = DeleteSession(db, sess.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	sessions, err = FetchAllSessions(db)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(sessions) != 0 {
+		t.Errorf("Incorrect number of sessions: got %d should be 0", len(sessions))
 	}
 }

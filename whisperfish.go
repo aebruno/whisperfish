@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,17 +28,19 @@ const (
 )
 
 type Whisperfish struct {
-	window        *qml.Window
-	engine        *qml.Engine
-	contactsModel Contacts
-	sessionModel  SessionModel
-	configDir     string
-	configFile    string
-	dataDir       string
-	storageDir    string
-	settings      *Settings
-	config        *textsecure.Config
-	db            *sqlx.DB
+	window          *qml.Window
+	engine          *qml.Engine
+	contactsModel   Contacts
+	sessionModel    SessionModel
+	messageModel    MessageModel
+	configDir       string
+	configFile      string
+	dataDir         string
+	storageDir      string
+	settings        *Settings
+	config          *textsecure.Config
+	db              *sqlx.DB
+	activeSessionID int64
 }
 
 func main() {
@@ -60,6 +63,11 @@ func NewDb(path string) (*sqlx.DB, error) {
 	}
 
 	_, err = db.Exec(SESSION_SCHEMA)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(MESSAGE_SCHEMA)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +126,9 @@ func (w *Whisperfish) runBackend() {
 
 	for {
 		if err := textsecure.StartListening(); err != nil {
-			log.Println(err)
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Error processing Websocket event from Signal")
 			time.Sleep(3 * time.Second)
 		}
 	}
@@ -131,9 +141,45 @@ func (w *Whisperfish) RefreshContacts() {
 
 // Refresh session model
 func (w *Whisperfish) RefreshSessions() {
-	w.sessionModel.Update(w.db, &w.contactsModel)
-	w.engine.Context().SetVar("sessionModel", &w.sessionModel)
+	w.sessionModel.Length = 0
 	qml.Changed(&w.sessionModel, &w.sessionModel.Length)
+
+	err := w.sessionModel.Refresh(w.db, &w.contactsModel)
+	if err != nil && err != sql.ErrNoRows {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to fetch sessions from database")
+	}
+
+	qml.Changed(&w.sessionModel, &w.sessionModel.Length)
+}
+
+// Set active session
+func (w *Whisperfish) SetSession(sessionID int64) {
+	w.activeSessionID = sessionID
+
+	err := MarkSessionRead(w.db, sessionID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"sid":   w.activeSessionID,
+		}).Error("Failed to mark session read")
+	}
+}
+
+// Refresh conversation model
+func (w *Whisperfish) RefreshConversation(sessionID int64) {
+	w.messageModel.Length = 0
+	qml.Changed(&w.messageModel, &w.messageModel.Length)
+
+	err := w.messageModel.RefreshConversation(w.db, sessionID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to fetch messages from database")
+	}
+
+	qml.Changed(&w.messageModel, &w.messageModel.Length)
 }
 
 // Initializes Whisperfish application and qml context
@@ -176,6 +222,7 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	w.engine.Context().SetVar("whisperfish", w)
 	w.engine.Context().SetVar("contactsModel", &w.contactsModel)
 	w.engine.Context().SetVar("sessionModel", &w.sessionModel)
+	w.engine.Context().SetVar("messageModel", &w.messageModel)
 }
 
 // Returns the GO runtime version used for building the application
@@ -260,6 +307,11 @@ func (w *Whisperfish) getCurrentPageStatus() int {
 	return w.window.Root().ObjectByName("main").Object("currentPage").Int("status")
 }
 
+// Get the current page id
+func (w *Whisperfish) getCurrentPageID() string {
+	return w.window.Root().ObjectByName("main").Object("currentPage").String("objectName")
+}
+
 // Get text from dialog window
 func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 	status := w.getCurrentPageStatus()
@@ -283,18 +335,51 @@ func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 	log.Printf("Recieved message from: %s", msg.Source())
 
-	w.sessionModel.AddMessage(w.db, msg.Message(), msg.Source(), time.Now())
+	session, err := w.sessionModel.Add(w.db, msg.Source(), msg.Message(), time.Now(), true, false, false)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to fetch session from database")
+		return
+	}
+
+	message := &Message{
+		SID:       session.ID,
+		Source:    msg.Source(),
+		Message:   msg.Message(),
+		Timestamp: time.Now(),
+	}
+
+	err = SaveMessage(w.db, message)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"sid":   session.ID,
+		}).Error("Failed to save message to database")
+		return
+	}
+
+	if w.activeSessionID == session.ID && w.getCurrentPageID() == "conversation" {
+		w.RefreshConversation(session.ID)
+		err := MarkSessionRead(w.db, session.ID)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+				"sid":   w.activeSessionID,
+			}).Error("Failed to mark session read")
+		}
+	}
+
 	w.RefreshSessions()
-	w.window.Root().ObjectByName("main").Call("refreshSessions")
 
 	if w.settings.EnableNotify {
-		w.Notify(msg)
+		w.notify(msg)
 	}
 }
 
 // Send new message notification
 // From https://lists.sailfishos.org/pipermail/devel/2016-April/007036.html
-func (w *Whisperfish) Notify(msg *textsecure.Message) error {
+func (w *Whisperfish) notify(msg *textsecure.Message) error {
 	conn, err := dbus.SessionBus()
 	if err != nil {
 		return err

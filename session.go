@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -12,23 +13,25 @@ import (
 var (
 	SESSION_SCHEMA = `
 		create table if not exists session 
-		(id integer primary key, tel text, message string, timestamp timestamp,
+		(id integer primary key, source text, message string, timestamp timestamp,
 		 sent integer default 0, recieved integer default 0, unread integer default 0, is_group integer default 0)
 	`
 )
 
 type Session struct {
-	ID        int64     `db:"id"`
-	Tel       string    `db:"tel"`
-	Name      string    `db:"-"`
-	IsGroup   bool      `db:"is_group"`
-	Message   string    `db:"message"`
-	Section   string    `db:"-"`
-	Timestamp time.Time `db:"timestamp"`
-	Date      string    `db:"-"`
-	Unread    bool      `db:"unread"`
-	Sent      bool      `db:"sent"`
-	Recieved  bool      `db:"recieved"`
+	ID        int64      `db:"id"`
+	Source    string     `db:"source"`
+	Name      string     `db:"-"`
+	IsGroup   bool       `db:"is_group"`
+	Message   string     `db:"message"`
+	Section   string     `db:"-"`
+	Timestamp time.Time  `db:"timestamp"`
+	Date      string     `db:"-"`
+	Unread    bool       `db:"unread"`
+	Sent      bool       `db:"sent"`
+	Recieved  bool       `db:"recieved"`
+	messages  []*Message `db:"-"`
+	Length    int        `db:"-"`
 }
 
 type SessionModel struct {
@@ -43,15 +46,59 @@ func (s *SessionModel) Get(i int) *Session {
 	return s.sessions[i]
 }
 
+func (s *SessionModel) Add(db *sqlx.DB, source string, message string, timestamp time.Time, unread, sent, recieved bool) (*Session, error) {
+	sess, err := FetchSessionBySource(db, source)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			sess = &Session{}
+		} else {
+			return nil, err
+		}
+	}
+
+	sess.Source = source
+	sess.Message = message
+	sess.Timestamp = timestamp
+	sess.Unread = unread
+	sess.Sent = sent
+	sess.Recieved = recieved
+
+	err = SaveSession(db, sess)
+	if err != nil {
+		return nil, err
+	}
+
+	return sess, nil
+}
+
+func (s *SessionModel) Refresh(db *sqlx.DB, c *Contacts) error {
+	var err error
+	s.sessions, err = FetchAllSessions(db)
+	if err != nil {
+		return err
+	}
+
+	for i := range s.sessions {
+		sess := s.sessions[i]
+		sess.Name = c.Name(sess.Source)
+		sess.UpdateDate()
+		s.sessions[i] = sess
+	}
+
+	s.Length = len(s.sessions)
+
+	return nil
+}
+
 func (s *Session) UpdateDate() {
-	ts := s.Timestamp.Local()
-	now := time.Now().Local()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).Local()
+	ts := s.Timestamp
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 	diff := today.Sub(ts)
-	if diff.Hours() < 0.0 {
+	if diff.Seconds() <= 0.0 {
 		s.Section = "Today"
 		s.Date = humanize.RelTime(ts, time.Now(), "", "")
-	} else if diff.Hours() > 0 && diff.Hours() < (24*7) {
+	} else if diff.Seconds() >= 0 && diff.Hours() <= (24*7) {
 		s.Section = ts.Weekday().String()
 		s.Date = ts.Format("15:04")
 	} else {
@@ -60,59 +107,26 @@ func (s *Session) UpdateDate() {
 	}
 }
 
-func (s *SessionModel) AddMessage(db *sqlx.DB, text string, source string, timestamp time.Time) {
-	sess, err := FetchSessionByTel(db, source)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			sess = &Session{}
-		} else {
-			log.WithFields(log.Fields{
-				"error": err,
-				"tel":   source,
-			}).Fatal("Failed to fetch session from database")
-			return
-		}
-	}
-
-	sess.Tel = source
-	sess.Message = text
-	sess.Timestamp = timestamp
-
-	err = SaveSession(db, sess)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"tel":   source,
-		}).Fatal("Failed to update session in database")
-		return
-	}
-}
-
-func (s *SessionModel) Update(db *sqlx.DB, c *Contacts) {
+func (s *Session) Refresh(db *sqlx.DB, c *Contacts) {
 	var err error
-	s.sessions, err = FetchAllSessions(db)
+	s.messages, err = FetchAllMessages(db, s.ID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Fatal("Failed to fetch sessions from database")
+			"sid":   s.ID,
+		}).Fatal("Failed to fetch messages from database")
 	}
 
-	for i := range s.sessions {
-		sess := s.sessions[i]
-		sess.Name = c.Name(sess.Tel)
-		sess.UpdateDate()
-		s.sessions[i] = sess
-	}
-
-	s.Length = len(s.sessions)
+	s.Name = c.Name(s.Source)
+	s.Length = len(s.messages)
 }
 
-func FetchSessionByTel(db *sqlx.DB, tel string) (*Session, error) {
+func FetchSessionBySource(db *sqlx.DB, source string) (*Session, error) {
 	session := Session{}
 	err := db.Get(&session, `
 	select
 		s.id,
-		s.tel,
+		s.source,
 		s.message,
 		s.timestamp,
 		s.unread,
@@ -121,7 +135,7 @@ func FetchSessionByTel(db *sqlx.DB, tel string) (*Session, error) {
 		s.recieved
 	from 
 		session as s
-	where s.tel = ?`, tel)
+	where s.source = ?`, source)
 	if err != nil {
 		return nil, err
 	}
@@ -129,12 +143,12 @@ func FetchSessionByTel(db *sqlx.DB, tel string) (*Session, error) {
 	return &session, nil
 }
 
-func FetchSessionById(db *sqlx.DB, id int64) (*Session, error) {
+func FetchSession(db *sqlx.DB, id int64) (*Session, error) {
 	session := Session{}
 	err := db.Get(&session, `
 	select
 		s.id,
-		s.tel,
+		s.source,
 		s.message,
 		s.timestamp,
 		s.is_group,
@@ -156,7 +170,7 @@ func FetchAllSessions(db *sqlx.DB) ([]*Session, error) {
 	err := db.Select(&sessions, `
 	select
 		s.id,
-		s.tel,
+		s.source,
 		s.message,
 		s.timestamp,
 		s.is_group,
@@ -174,24 +188,16 @@ func FetchAllSessions(db *sqlx.DB) ([]*Session, error) {
 }
 
 func SaveSession(db *sqlx.DB, session *Session) error {
-	query := `insert or replace into session`
-	params := []interface{}{
-		session.Tel,
-		session.Message,
-		session.Timestamp,
-		session.IsGroup,
-		session.Unread,
-		session.Sent,
-		session.Recieved,
-	}
-	if session.ID <= int64(0) {
-		query += ` (tel,message,timestamp,is_group,unread,sent,recieved) values (?,?,?,?,?,?,?)`
-	} else {
-		query += ` (id,tel,message,timestamp,is_group,unread,sent,recieved) values (?,?,?,?,?,?,?,?)`
-		params = append([]interface{}{session.ID}, params...)
+	cols := []string{"source", "message", "timestamp", "is_group", "unread", "sent", "recieved"}
+	if session.ID > int64(0) {
+		cols = append(cols, "id")
 	}
 
-	res, err := db.Exec(query, params...)
+	query := "insert or replace into session ("
+	query += strings.Join(cols, ",")
+	query += ") values (:" + strings.Join(cols, ",:") + ")"
+
+	res, err := db.NamedExec(query, session)
 	if err != nil {
 		return err
 	}
@@ -204,4 +210,22 @@ func SaveSession(db *sqlx.DB, session *Session) error {
 	}
 
 	return nil
+}
+
+func DeleteSession(db *sqlx.DB, id int64) error {
+	_, err := db.Exec(`delete from session where id = ?`, id)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(`delete from message where session_id = ?`, id)
+
+	return err
+}
+
+func MarkSessionRead(db *sqlx.DB, id int64) error {
+	_, err := db.Exec(`update session set unread = 0 where id = ?`, id)
+	if err != nil {
+		return err
+	}
+	return err
 }
