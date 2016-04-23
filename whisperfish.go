@@ -157,9 +157,21 @@ func (w *Whisperfish) RefreshSessions() {
 
 // Set active session
 func (w *Whisperfish) SetSession(sessionID int64) {
-	w.activeSessionID = sessionID
+	session, err := FetchSession(w.db, sessionID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"id":    sessionID,
+		}).Error("Failed to fetch session")
+	}
 
-	err := MarkSessionRead(w.db, sessionID)
+	w.activeSessionID = sessionID
+	w.messageModel.Name = w.contactsModel.Name(session.Source)
+	w.messageModel.Tel = session.Source
+	qml.Changed(&w.messageModel, &w.messageModel.Name)
+	qml.Changed(&w.messageModel, &w.messageModel.Tel)
+
+	err = MarkSessionRead(w.db, sessionID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -169,11 +181,11 @@ func (w *Whisperfish) SetSession(sessionID int64) {
 }
 
 // Refresh conversation model
-func (w *Whisperfish) RefreshConversation(sessionID int64) {
+func (w *Whisperfish) RefreshConversation() {
 	w.messageModel.Length = 0
 	qml.Changed(&w.messageModel, &w.messageModel.Length)
 
-	err := w.messageModel.RefreshConversation(w.db, sessionID)
+	err := w.messageModel.RefreshConversation(w.db, w.activeSessionID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -360,14 +372,16 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 		return
 	}
 
-	if w.activeSessionID == session.ID && w.getCurrentPageID() == "conversation" {
-		w.RefreshConversation(session.ID)
-		err := MarkSessionRead(w.db, session.ID)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-				"sid":   w.activeSessionID,
-			}).Error("Failed to mark session read")
+	if w.activeSessionID == session.ID {
+		w.RefreshConversation()
+		if w.getCurrentPageID() == "conversation" {
+			err := MarkSessionRead(w.db, session.ID)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+					"sid":   w.activeSessionID,
+				}).Error("Failed to mark session read")
+			}
 		}
 	}
 
@@ -407,16 +421,7 @@ func (w *Whisperfish) notify(msg *textsecure.Message) error {
 
 // Send message
 func (w *Whisperfish) SendMessage(source string, message string) {
-	session, err := FetchSession(w.db, w.activeSessionID)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"sid":   w.activeSessionID,
-		}).Error("Failed to fetch active session")
-	}
-	log.Printf("Sending messsage to %s: %s", session.Source, message)
-
-	err = w.sendMessageHelper(session.Source, message, "")
+	err := w.sendMessageHelper(source, message, "")
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -430,6 +435,12 @@ func (w *Whisperfish) sendMessageHelper(to, msg, file string) error {
 	if err != nil {
 		return err
 	}
+
+	w.activeSessionID = session.ID
+	w.messageModel.Name = w.contactsModel.Name(session.Source)
+	w.messageModel.Tel = session.Source
+	qml.Changed(&w.messageModel, &w.messageModel.Name)
+	qml.Changed(&w.messageModel, &w.messageModel.Tel)
 
 	message := &Message{
 		SID:       session.ID,
@@ -479,7 +490,7 @@ func (w *Whisperfish) sendMessage(s *Session, m *Message) {
 		}).Error("Failed to mark message sent")
 	}
 
-	w.RefreshConversation(s.ID)
+	w.RefreshConversation()
 	w.RefreshSessions()
 }
 
@@ -549,8 +560,8 @@ func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
 		}).Error("Failed to mark message sent")
 	}
 
-	if w.activeSessionID == session.ID && w.getCurrentPageID() == "conversation" {
-		w.RefreshConversation(session.ID)
+	if w.activeSessionID == session.ID {
+		w.RefreshConversation()
 	}
 
 	w.RefreshSessions()

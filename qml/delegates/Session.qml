@@ -70,9 +70,7 @@ BackgroundItem {
     onClicked: {
         whisperfish.setSession(id)
         sessionView.model.get(index).unread = false
-        whisperfish.refreshConversation(id)
-        messageModel.name = qsTr(""+name)
-        messageModel.tel = qsTr(""+source)
+        whisperfish.refreshConversation()
         pageStack.push(Qt.resolvedUrl("../pages/Conversation.qml"));
     }
 }

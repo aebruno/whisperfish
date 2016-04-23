@@ -39,6 +39,24 @@ func (c *Contacts) Name(tel string) string {
 	return tel
 }
 
+// Find contact by tel
+func (c *Contacts) Find(tel string) textsecure.Contact {
+	n := strings.TrimPrefix(tel, "+")
+	num, err := libphonenumber.Parse(fmt.Sprintf("+%s", n), "")
+	if err != nil {
+		return textsecure.Contact{}
+	}
+
+	n = libphonenumber.Format(num, libphonenumber.E164)
+	for i, r := range c.contacts {
+		if r.Tel == n {
+			return c.contacts[i]
+		}
+	}
+
+	return textsecure.Contact{}
+}
+
 // Refresh list of local contacts that are registered with Signal
 func (c *Contacts) Refresh() error {
 	signalContacts, err := textsecure.GetRegisteredContacts()
