@@ -46,8 +46,8 @@ func (s *SessionModel) Get(i int) *Session {
 	return s.sessions[i]
 }
 
-func (s *SessionModel) Add(db *sqlx.DB, source string, message string, timestamp time.Time, unread, sent, received bool) (*Session, error) {
-	sess, err := FetchSessionBySource(db, source)
+func (s *SessionModel) Add(db *sqlx.DB, message *Message, unread bool) (*Session, error) {
+	sess, err := FetchSessionBySource(db, message.Source)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			sess = &Session{}
@@ -56,14 +56,21 @@ func (s *SessionModel) Add(db *sqlx.DB, source string, message string, timestamp
 		}
 	}
 
-	sess.Source = source
-	sess.Message = message
-	sess.Timestamp = timestamp
+	sess.Source = message.Source
+	sess.Message = message.Message
+	sess.Timestamp = message.Timestamp
 	sess.Unread = unread
-	sess.Sent = sent
-	sess.Received = received
+	sess.Sent = message.Sent
+	sess.Received = message.Received
 
 	err = SaveSession(db, sess)
+	if err != nil {
+		return nil, err
+	}
+
+	message.SID = sess.ID
+
+	err = SaveMessage(db, message)
 	if err != nil {
 		return nil, err
 	}

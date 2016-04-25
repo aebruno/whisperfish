@@ -1,8 +1,13 @@
 package main
 
 import (
+	"io/ioutil"
+	"os"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/janimo/textsecure"
 )
 
 func TestMessage(t *testing.T) {
@@ -92,5 +97,39 @@ func TestMessageDelete(t *testing.T) {
 
 	if len(messages) != 0 {
 		t.Errorf("Incorrect number of messages: got %d should be 0", len(messages))
+	}
+}
+
+func TestMessageAttachment(t *testing.T) {
+	tel := "+1771111006"
+	text := "Hello World"
+	sid := int64(1)
+	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: time.Now()}
+
+	data := "dummy attachment"
+
+	a := &textsecure.Attachment{
+		R:        strings.NewReader(data),
+		MimeType: "text/plain",
+	}
+
+	dir, err := ioutil.TempDir("", "attachment-test")
+	if err != nil {
+		t.Error(err)
+	}
+	defer os.RemoveAll(dir)
+
+	err = msg.SaveAttachment(dir, a)
+	if err != nil {
+		t.Error(err)
+	}
+
+	data2, err := ioutil.ReadFile(msg.Attachment)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if data != string(data2) {
+		t.Error("Failed to write attachment data to file")
 	}
 }

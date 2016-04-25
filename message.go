@@ -1,11 +1,17 @@
 package main
 
 import (
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/janimo/textsecure"
 	"github.com/jmoiron/sqlx"
+	"github.com/rogpeppe/fastuuid"
 )
 
 const (
@@ -27,22 +33,22 @@ var (
 		create table if not exists message 
 		(id integer primary key, session_id integer, source text, message string, timestamp timestamp,
         sent integer default 0, received integer default 0, flags integer default 0, attachment text, 
-		ctype integer default 0)
+		mime_type string)
 	`
 )
 
 type Message struct {
-	ID          int64     `db:"id"`
-	SID         int64     `db:"session_id"`
-	Source      string    `db:"source"`
-	Message     string    `db:"message"`
-	Timestamp   time.Time `db:"timestamp"`
-	Sent        bool      `db:"sent"`
-	Received    bool      `db:"received"`
-	Attachment  string    `db:"attachment"`
-	Flags       int       `db:"flags"`
-	ContentType int       `db:"ctype"`
-	Date        string    `db:"date"`
+	ID         int64     `db:"id"`
+	SID        int64     `db:"session_id"`
+	Source     string    `db:"source"`
+	Message    string    `db:"message"`
+	Timestamp  time.Time `db:"timestamp"`
+	Sent       bool      `db:"sent"`
+	Received   bool      `db:"received"`
+	Attachment string    `db:"attachment"`
+	MimeType   string    `db:"mime_type"`
+	Flags      int       `db:"flags"`
+	Date       string    `db:"date"`
 }
 
 type MessageModel struct {
@@ -50,6 +56,35 @@ type MessageModel struct {
 	Name     string
 	Tel      string
 	Length   int
+}
+
+func (m *Message) SaveAttachment(dir string, a *textsecure.Attachment) error {
+	g, err := fastuuid.NewGenerator()
+	if err != nil {
+		return err
+	}
+
+	uuid := fmt.Sprintf("%x", g.Next())
+	adir := filepath.Join(dir, string(uuid[0]))
+	os.MkdirAll(adir, 0700)
+
+	fname := filepath.Join(adir, uuid)
+
+	f, err := os.OpenFile(fname, os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return nil
+	}
+	defer f.Close()
+
+	_, err = io.Copy(f, a.R)
+	if err != nil {
+		return err
+	}
+
+	m.MimeType = a.MimeType
+	m.Attachment = fname
+
+	return nil
 }
 
 func (m *MessageModel) Get(i int) *Message {
@@ -72,7 +107,7 @@ func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64) error {
 }
 
 func SaveMessage(db *sqlx.DB, msg *Message) error {
-	cols := []string{"session_id", "source", "message", "timestamp", "sent", "received", "flags", "attachment", "ctype"}
+	cols := []string{"session_id", "source", "message", "timestamp", "sent", "received", "flags", "attachment", "mime_type"}
 	if msg.ID > int64(0) {
 		cols = append(cols, "id")
 	}
@@ -106,7 +141,7 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 		m.source,
 		m.message,
 		m.attachment,
-		m.ctype,
+		m.mime_type,
 		m.timestamp,
 		strftime('%H:%M, %m/%d/%Y', m.timestamp) as date,
 		m.flags,

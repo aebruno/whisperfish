@@ -38,6 +38,7 @@ type Whisperfish struct {
 	configFile      string
 	dataDir         string
 	storageDir      string
+	attachDir       string
 	settings        *Settings
 	config          *textsecure.Config
 	db              *sqlx.DB
@@ -203,11 +204,13 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	w.configDir = filepath.Join(w.engine.SailfishGetConfigLocation(), APPNAME)
 	w.dataDir = w.engine.SailfishGetDataLocation()
 	w.storageDir = filepath.Join(w.dataDir, "storage")
+	w.attachDir = filepath.Join(w.storageDir, "attachments")
 	dbDir := filepath.Join(w.dataDir, "db")
 	dbFile := filepath.Join(dbDir, fmt.Sprintf("%s.db", APPNAME))
 
 	os.MkdirAll(w.configDir, 0700)
 	os.MkdirAll(w.dataDir, 0700)
+	os.MkdirAll(w.attachDir, 0700)
 	os.MkdirAll(dbDir, 0700)
 
 	settingsFile := filepath.Join(w.configDir, "settings.yml")
@@ -348,27 +351,26 @@ func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 	log.Printf("Received message from: %s", msg.Source())
 
-	session, err := w.sessionModel.Add(w.db, msg.Source(), msg.Message(), time.Now(), true, false, false)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to fetch session from database")
-		return
-	}
-
 	message := &Message{
-		SID:       session.ID,
 		Source:    msg.Source(),
 		Message:   msg.Message(),
 		Timestamp: time.Now(),
 	}
 
-	err = SaveMessage(w.db, message)
+	if len(msg.Attachments()) > 0 {
+		err := message.SaveAttachment(w.attachDir, msg.Attachments()[0])
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Failed to save attachment")
+		}
+	}
+
+	session, err := w.sessionModel.Add(w.db, message, true)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-			"sid":   session.ID,
-		}).Error("Failed to save message to database")
+		}).Error("Failed to add message to database")
 		return
 	}
 
@@ -431,7 +433,14 @@ func (w *Whisperfish) SendMessage(source string, message string) {
 }
 
 func (w *Whisperfish) sendMessageHelper(to, msg, file string) error {
-	session, err := w.sessionModel.Add(w.db, to, msg, time.Now(), false, true, false)
+	message := &Message{
+		Source:    to,
+		Message:   msg,
+		Timestamp: time.Now(),
+		Sent:      true,
+	}
+
+	session, err := w.sessionModel.Add(w.db, message, false)
 	if err != nil {
 		return err
 	}
@@ -441,19 +450,6 @@ func (w *Whisperfish) sendMessageHelper(to, msg, file string) error {
 	w.messageModel.Tel = session.Source
 	qml.Changed(&w.messageModel, &w.messageModel.Name)
 	qml.Changed(&w.messageModel, &w.messageModel.Tel)
-
-	message := &Message{
-		SID:       session.ID,
-		Source:    to,
-		Message:   msg,
-		Timestamp: time.Now(),
-		Sent:      true,
-	}
-
-	err = SaveMessage(w.db, message)
-	if err != nil {
-		return err
-	}
 
 	go w.sendMessage(session, message)
 	return nil
