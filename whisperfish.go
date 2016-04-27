@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -20,12 +21,12 @@ import (
 )
 
 const (
-	VERSION                  = "0.1.1"
-	APPNAME                  = "harbour-whisperfish"
-	PAGE_STATUS_INACTIVE     = 0
-	PAGE_STATUS_ACTIVATING   = 1
-	PAGE_STATUS_ACTIVE       = 2
-	PAGE_STATUS_DEACTIVATING = 3
+	Version                = "0.1.1"
+	Appname                = "harbour-whisperfish"
+	PageStatusInactive     = 0
+	PageStatusActivating   = 1
+	PageStatusActive       = 2
+	PageStatusDeactivating = 3
 )
 
 type Whisperfish struct {
@@ -46,7 +47,7 @@ type Whisperfish struct {
 }
 
 func main() {
-	if err := qml.SailfishRun(APPNAME, "", VERSION, runGui); err != nil {
+	if err := qml.SailfishRun(Appname, "", Version, runGui); err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Fatal("Sailfish application failed")
@@ -64,12 +65,12 @@ func NewDb(path string) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec(SESSION_SCHEMA)
+	_, err = db.Exec(SessionSchema)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(MESSAGE_SCHEMA)
+	_, err = db.Exec(MessageSchema)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +168,11 @@ func (w *Whisperfish) SetSession(sessionID int64) {
 	}
 
 	w.activeSessionID = sessionID
-	w.messageModel.Name = w.contactsModel.Name(session.Source)
+	if session.IsGroup {
+		w.messageModel.Name = session.GroupName
+	} else {
+		w.messageModel.Name = w.contactsModel.Name(session.Source)
+	}
 	w.messageModel.Tel = session.Source
 	qml.Changed(&w.messageModel, &w.messageModel.Name)
 	qml.Changed(&w.messageModel, &w.messageModel.Tel)
@@ -199,14 +204,14 @@ func (w *Whisperfish) RefreshConversation() {
 // Initializes Whisperfish application and qml context
 func (w *Whisperfish) Init(engine *qml.Engine) {
 	w.engine = engine
-	w.engine.Translator(fmt.Sprintf("/usr/share/%s/qml/i18n", APPNAME))
+	w.engine.Translator(fmt.Sprintf("/usr/share/%s/qml/i18n", Appname))
 
-	w.configDir = filepath.Join(w.engine.SailfishGetConfigLocation(), APPNAME)
+	w.configDir = filepath.Join(w.engine.SailfishGetConfigLocation(), Appname)
 	w.dataDir = w.engine.SailfishGetDataLocation()
 	w.storageDir = filepath.Join(w.dataDir, "storage")
 	w.attachDir = filepath.Join(w.storageDir, "attachments")
 	dbDir := filepath.Join(w.dataDir, "db")
-	dbFile := filepath.Join(dbDir, fmt.Sprintf("%s.db", APPNAME))
+	dbFile := filepath.Join(dbDir, fmt.Sprintf("%s.db", Appname))
 
 	os.MkdirAll(w.configDir, 0700)
 	os.MkdirAll(w.dataDir, 0700)
@@ -248,7 +253,7 @@ func (w *Whisperfish) RuntimeVersion() string {
 
 // Returns the Whisperfish application version
 func (w *Whisperfish) Version() string {
-	return VERSION
+	return Version
 }
 
 // Get the config file for Signal
@@ -262,7 +267,7 @@ func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
 	}
 
 	w.config.StorageDir = w.storageDir
-	w.config.UserAgent = fmt.Sprintf("Whisperfish v%s", VERSION)
+	w.config.UserAgent = fmt.Sprintf("Whisperfish v%s", Version)
 	w.config.UnencryptedStorage = true
 	w.config.LogLevel = "debug"
 	w.config.AlwaysTrustPeerID = true
@@ -310,7 +315,7 @@ func (w *Whisperfish) registrationDone() {
 
 	log.Println("Registered")
 	status := w.getCurrentPageStatus()
-	for status == PAGE_STATUS_ACTIVATING || status == PAGE_STATUS_DEACTIVATING {
+	for status == PageStatusActivating || status == PageStatusDeactivating {
 		// If current page is in transition need to wait before pushing dialog on stack
 		time.Sleep(100 * time.Millisecond)
 		status = w.getCurrentPageStatus()
@@ -331,7 +336,7 @@ func (w *Whisperfish) getCurrentPageID() string {
 // Get text from dialog window
 func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 	status := w.getCurrentPageStatus()
-	for status == PAGE_STATUS_ACTIVATING || status == PAGE_STATUS_DEACTIVATING {
+	for status == PageStatusActivating || status == PageStatusDeactivating {
 		// If current page is in transition need to wait before pushing dialog on stack
 		time.Sleep(100 * time.Millisecond)
 		status = w.getCurrentPageStatus()
@@ -355,18 +360,24 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 		Source:    msg.Source(),
 		Message:   msg.Message(),
 		Timestamp: time.Now(),
+		Flags:     msg.Flags(),
 	}
 
 	if len(msg.Attachments()) > 0 {
-		err := message.SaveAttachment(w.attachDir, msg.Attachments()[0])
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Failed to save attachment")
+		if w.settings.SaveAttachments {
+			err := message.SaveAttachment(w.attachDir, msg.Attachments()[0])
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("Failed to save attachment")
+			}
+		} else {
+			message.HasAttachment = true
+			message.MimeType = msg.Attachments()[0].MimeType
 		}
 	}
 
-	session, err := w.sessionModel.Add(w.db, message, true)
+	session, err := w.sessionModel.Add(w.db, message, msg.Group(), true)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -421,9 +432,37 @@ func (w *Whisperfish) notify(msg *textsecure.Message) error {
 	return nil
 }
 
+// Create new group
+func (w *Whisperfish) NewGroup(name, members, msg string) {
+	m := strings.Split(members, ",")
+	group, err := textsecure.NewGroup(name, m)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":      err,
+			"group_name": name,
+		}).Error("Failed to create new group")
+		return
+	}
+
+	message := &Message{
+		Source:    group.Hexid,
+		Message:   msg,
+		Timestamp: time.Now(),
+		Sent:      true,
+	}
+
+	_, err = w.sessionModel.Add(w.db, message, group, false)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to add message to database")
+		return
+	}
+}
+
 // Send message
 func (w *Whisperfish) SendMessage(source string, message string) {
-	err := w.sendMessageHelper(source, message, "")
+	err := w.sendMessageHelper(source, message, "", nil)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -432,7 +471,7 @@ func (w *Whisperfish) SendMessage(source string, message string) {
 	}
 }
 
-func (w *Whisperfish) sendMessageHelper(to, msg, file string) error {
+func (w *Whisperfish) sendMessageHelper(to, msg, file string, group *textsecure.Group) error {
 	message := &Message{
 		Source:    to,
 		Message:   msg,
@@ -440,7 +479,7 @@ func (w *Whisperfish) sendMessageHelper(to, msg, file string) error {
 		Sent:      true,
 	}
 
-	session, err := w.sessionModel.Add(w.db, message, false)
+	session, err := w.sessionModel.Add(w.db, message, group, false)
 	if err != nil {
 		return err
 	}
@@ -490,16 +529,16 @@ func (w *Whisperfish) sendMessage(s *Session, m *Message) {
 	w.RefreshSessions()
 }
 
-func (w *Whisperfish) sendMessageLoop(to, message string, group bool, att io.Reader, flags int) uint64 {
+func (w *Whisperfish) sendMessageLoop(to, message string, group bool, att io.Reader, flags uint32) uint64 {
 	var err error
 	var ts uint64
 	for {
 		err = nil
-		if flags == msgFlagResetSession {
+		if flags == textsecure.EndSessionFlag {
 			ts, err = textsecure.EndSession(to, "TERMINATE")
-		} else if flags == msgFlagGroupLeave {
+		} else if flags == textsecure.GroupLeaveFlag {
 			err = textsecure.LeaveGroup(to)
-		} else if flags == msgFlagGroupUpdate {
+		} else if flags == textsecure.GroupUpdateFlag {
 			// TODO: implement me
 			//_, err = textsecure.UpdateGroup(to, groups[to].Name, strings.Split(groups[to].Members, ","))
 		} else if att == nil {
@@ -531,32 +570,24 @@ func (w *Whisperfish) sendMessageLoop(to, message string, group bool, att io.Rea
 func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
 	log.Printf("Receipt handler source %s timestamp %d", source, ts)
 
-	session, err := FetchSessionBySource(w.db, source)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error":  err,
-			"source": source,
-		}).Error("Failed to fetch session")
-	}
-
 	timestamp := time.Unix(0, int64(1000000*ts)).Local()
 
-	err = MarkSessionReceived(w.db, session.ID, timestamp)
+	sessionID, err := MarkMessageReceived(w.db, source, timestamp)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-			"id":    session.ID,
+		}).Error("Failed to mark message received")
+	}
+
+	err = MarkSessionReceived(w.db, sessionID, timestamp)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"id":    sessionID,
 		}).Error("Failed to mark session received")
 	}
 
-	err = MarkMessageReceived(w.db, session.ID, timestamp)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to mark message sent")
-	}
-
-	if w.activeSessionID == session.ID {
+	if w.activeSessionID == sessionID {
 		w.RefreshConversation()
 	}
 

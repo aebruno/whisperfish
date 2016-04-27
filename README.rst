@@ -3,8 +3,11 @@ Whisperfish - Signal client for Sailfish OS
 ===============================================================================
 
 Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
-`Sailfish OS <https://sailfishos.org/>`_. The code is based off the TextSecure
-client for the Ubuntu Phone written by `janimo <https://github.com/janimo/textsecure-qml>`_. 
+`Sailfish OS <https://sailfishos.org/>`_. The backend code is based off the
+TextSecure client for the Ubuntu Phone written by `janimo
+<https://github.com/janimo/textsecure-qml>`_ and uses the `go textsecure
+(Signal) client <https://github.com/janimo/textsecure>`_ library. The user
+interface is heavily based on the jolla-messages application.
 
 -------------------------------------------------------------------------------
 Project Status

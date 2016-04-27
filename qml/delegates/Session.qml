@@ -8,7 +8,7 @@ BackgroundItem {
 
     Label {
         id: source
-        text: name
+        text: isGroup ? qsTr('Group: '+groupName) : name
         font.pixelSize: Theme.fontSizeMedium
         truncationMode: TruncationMode.Fade
         anchors {

@@ -15,40 +15,27 @@ import (
 )
 
 const (
-	msgFlagGroupNew     = 1
-	msgFlagGroupUpdate  = 2
-	msgFlagGroupLeave   = 4
-	msgFlagResetSession = 8
-
-	ContentTypeMessage int = iota
-	ContentTypeImage
-	ContentTypeVideo
-	ContentTypeAudio
-)
-
-var (
-	MSG_FLAG_RESET_SESSION = 8
-
-	MESSAGE_SCHEMA = `
+	MessageSchema = `
 		create table if not exists message 
 		(id integer primary key, session_id integer, source text, message string, timestamp timestamp,
         sent integer default 0, received integer default 0, flags integer default 0, attachment text, 
-		mime_type string)
+		mime_type string, has_attachment integer default 0)
 	`
 )
 
 type Message struct {
-	ID         int64     `db:"id"`
-	SID        int64     `db:"session_id"`
-	Source     string    `db:"source"`
-	Message    string    `db:"message"`
-	Timestamp  time.Time `db:"timestamp"`
-	Sent       bool      `db:"sent"`
-	Received   bool      `db:"received"`
-	Attachment string    `db:"attachment"`
-	MimeType   string    `db:"mime_type"`
-	Flags      int       `db:"flags"`
-	Date       string    `db:"date"`
+	ID            int64     `db:"id"`
+	SID           int64     `db:"session_id"`
+	Source        string    `db:"source"`
+	Message       string    `db:"message"`
+	Timestamp     time.Time `db:"timestamp"`
+	Sent          bool      `db:"sent"`
+	Received      bool      `db:"received"`
+	Attachment    string    `db:"attachment"`
+	MimeType      string    `db:"mime_type"`
+	HasAttachment bool      `db:"has_attachment"`
+	Flags         uint32    `db:"flags"`
+	Date          string    `db:"date"`
 }
 
 type MessageModel struct {
@@ -83,6 +70,7 @@ func (m *Message) SaveAttachment(dir string, a *textsecure.Attachment) error {
 
 	m.MimeType = a.MimeType
 	m.Attachment = fname
+	m.HasAttachment = true
 
 	return nil
 }
@@ -141,6 +129,7 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 		m.source,
 		m.message,
 		m.attachment,
+		m.has_attachment,
 		m.mime_type,
 		m.timestamp,
 		strftime('%H:%M, %m/%d/%Y', m.timestamp) as date,
@@ -150,7 +139,7 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 	from 
 		message as m
     where m.session_id = ?
-	order by m.timestamp asc`, sessionID)
+	order by m.timestamp desc`, sessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +157,28 @@ func MarkMessageSent(db *sqlx.DB, id int64, ts time.Time) error {
 	return err
 }
 
-func MarkMessageReceived(db *sqlx.DB, sid int64, ts time.Time) error {
-	_, err := db.Exec(`update message set received = 1 where strftime("%s", timestamp) = strftime("%s", datetime(?, 'unixepoch')) and session_id = ?`, ts.Unix(), sid)
-	return err
+func MarkMessageReceived(db *sqlx.DB, source string, ts time.Time) (int64, error) {
+	type record struct {
+		SessionID int64 `db:"session_id"`
+		MessageID int64 `db:"id"`
+	}
+
+	rec := record{}
+
+	err := db.Get(&rec, `
+		select id,session_id
+		from message 
+		where strftime("%s", timestamp) = strftime("%s", datetime(?, 'unixepoch'))
+		      and sent = 1 and received = 0
+	`, ts.Unix())
+	if err != nil {
+		return rec.SessionID, err
+	}
+
+	_, err = db.Exec(`update message set received = 1 where id = ?`, rec.MessageID)
+	if err != nil {
+		return rec.SessionID, err
+	}
+
+	return rec.SessionID, nil
 }

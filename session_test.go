@@ -20,12 +20,12 @@ func newTestDb() (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec(SESSION_SCHEMA)
+	_, err = db.Exec(SessionSchema)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(MESSAGE_SCHEMA)
+	_, err = db.Exec(MessageSchema)
 	if err != nil {
 		return nil, err
 	}

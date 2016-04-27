@@ -7,13 +7,15 @@ import (
 )
 
 type Settings struct {
-	Incognito    bool `yaml:"incognito"`
-	EnableNotify bool `yaml:"enable_notify"`
+	Incognito       bool `yaml:"incognito"`
+	EnableNotify    bool `yaml:"enable_notify"`
+	SaveAttachments bool `yaml:"save_attachments"`
 }
 
 func (s *Settings) SetDefault() {
 	s.Incognito = false
 	s.EnableNotify = true
+	s.SaveAttachments = true
 }
 
 func (s *Settings) Load(file string) error {

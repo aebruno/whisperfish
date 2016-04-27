@@ -7,14 +7,16 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dustin/go-humanize"
+	"github.com/janimo/textsecure"
 	"github.com/jmoiron/sqlx"
 )
 
-var (
-	SESSION_SCHEMA = `
+const (
+	SessionSchema = `
 		create table if not exists session 
 		(id integer primary key, source text, message string, timestamp timestamp,
-		 sent integer default 0, received integer default 0, unread integer default 0, is_group integer default 0)
+		 sent integer default 0, received integer default 0, unread integer default 0,
+         is_group integer default 0, group_members text, group_id text, group_name text)
 	`
 )
 
@@ -23,6 +25,9 @@ type Session struct {
 	Source    string     `db:"source"`
 	Name      string     `db:"-"`
 	IsGroup   bool       `db:"is_group"`
+	GroupID   string     `db:"group_id"`
+	GroupName string     `db:"group_name"`
+	Members   string     `db:"group_members"`
 	Message   string     `db:"message"`
 	Section   string     `db:"-"`
 	Timestamp time.Time  `db:"timestamp"`
@@ -46,8 +51,16 @@ func (s *SessionModel) Get(i int) *Session {
 	return s.sessions[i]
 }
 
-func (s *SessionModel) Add(db *sqlx.DB, message *Message, unread bool) (*Session, error) {
-	sess, err := FetchSessionBySource(db, message.Source)
+func (s *SessionModel) Add(db *sqlx.DB, message *Message, group *textsecure.Group, unread bool) (*Session, error) {
+	var sess *Session
+	var err error
+
+	if group != nil {
+		sess, err = FetchSessionByGroupID(db, group.Hexid)
+	} else {
+		sess, err = FetchSessionBySource(db, message.Source)
+	}
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			sess = &Session{}
@@ -56,12 +69,26 @@ func (s *SessionModel) Add(db *sqlx.DB, message *Message, unread bool) (*Session
 		}
 	}
 
-	sess.Source = message.Source
+	if group != nil && group.Flags == textsecure.GroupUpdateFlag {
+		message.Message = "Member joined group"
+	} else if group != nil && group.Flags == textsecure.GroupLeaveFlag {
+		message.Message = "Member left group"
+	}
+
 	sess.Message = message.Message
 	sess.Timestamp = message.Timestamp
 	sess.Unread = unread
 	sess.Sent = message.Sent
 	sess.Received = message.Received
+	if group != nil {
+		sess.Source = group.Hexid
+		sess.GroupID = group.Hexid
+		sess.GroupName = group.Name
+		sess.Members = strings.Join(group.Members, ",")
+		sess.IsGroup = true
+	} else {
+		sess.Source = message.Source
+	}
 
 	err = SaveSession(db, sess)
 	if err != nil {
@@ -139,10 +166,38 @@ func FetchSessionBySource(db *sqlx.DB, source string) (*Session, error) {
 		s.unread,
 		s.sent,
 		s.is_group,
+		s.group_id,
+		s.group_name,
+		s.group_members,
 		s.received
 	from 
 		session as s
 	where s.source = ?`, source)
+	if err != nil {
+		return nil, err
+	}
+
+	return &session, nil
+}
+
+func FetchSessionByGroupID(db *sqlx.DB, groupID string) (*Session, error) {
+	session := Session{}
+	err := db.Get(&session, `
+	select
+		s.id,
+		s.source,
+		s.message,
+		s.timestamp,
+		s.unread,
+		s.sent,
+		s.is_group,
+		s.group_id,
+		s.group_name,
+		s.group_members,
+		s.received
+	from 
+		session as s
+	where s.group_id = ?`, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -159,6 +214,9 @@ func FetchSession(db *sqlx.DB, id int64) (*Session, error) {
 		s.message,
 		s.timestamp,
 		s.is_group,
+		s.group_id,
+		s.group_name,
+		s.group_members,
 		s.unread,
 		s.sent,
 		s.received
@@ -181,6 +239,9 @@ func FetchAllSessions(db *sqlx.DB) ([]*Session, error) {
 		s.message,
 		s.timestamp,
 		s.is_group,
+		s.group_id,
+		s.group_name,
+		s.group_members,
 		s.unread,
 		s.sent,
 		s.received
@@ -195,7 +256,7 @@ func FetchAllSessions(db *sqlx.DB) ([]*Session, error) {
 }
 
 func SaveSession(db *sqlx.DB, session *Session) error {
-	cols := []string{"source", "message", "timestamp", "is_group", "unread", "sent", "received"}
+	cols := []string{"source", "message", "timestamp", "is_group", "group_id", "group_members", "group_name", "unread", "sent", "received"}
 	if session.ID > int64(0) {
 		cols = append(cols, "id")
 	}
