@@ -69,7 +69,7 @@ Page {
                     RecipientField {
                         id: recipientField
                         property bool hasValidContact
-                        property var recipients: []
+                        property var recipients: new Object()
                         width: parent.width
                         requiredProperty: PeopleModel.PhoneNumberRequired
                         showLabel: newMessagePage.isPortrait
@@ -84,7 +84,7 @@ Page {
                                 if (contact.property !== undefined && contact.propertyType === "phoneNumber") {
                                     var c = contactsModel.find(contact.property.number)
                                     if(c.name.length != 0){
-                                        recipients.push(c)
+                                        recipients[c.tel] = true
                                     } else {
                                         invalidContactFound = true
                                         var p = personComponent.createObject(null)
@@ -96,7 +96,7 @@ Page {
                                 }
                             }
 
-                            if(invalidContactFound == false && recipients.length > 0){
+                            if(invalidContactFound == false && Object.keys(recipients).length > 0){
                                 hasValidContact = true
                                 errorLabel.text = ""
                             }
@@ -125,7 +125,7 @@ Page {
                         label: "Group Name"
                         placeholderText: "Group Name"
                         placeholderColor: Theme.highlightColor
-                        visible: recipientField.hasValidContact && recipientField.recipients.length > 1
+                        visible: recipientField.hasValidContact && Object.keys(recipientField.recipients).length > 1
                         horizontalAlignment: TextInput.AlignLeft
                     }
                 }
@@ -147,7 +147,8 @@ Page {
 
                 onSendMessage: {
                     if (recipientField.hasValidContact) {
-                        whisperfish.sendMessage(recipientField.recipients[0].tel, text)
+                        var source = Object.keys(recipientField.recipients).join(",")
+                        whisperfish.sendMessage(source, text, groupName.text)
                         pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
                     } else {
                         //: Invalid recipient error

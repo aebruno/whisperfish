@@ -34,7 +34,7 @@ Page {
                 editorFocus: conversation.editorFocus
 
                 onSendMessage: {
-                    whisperfish.sendMessage(messageModel.tel, text)
+                    whisperfish.sendMessage(messageModel.tel, text, "")
                 }
             }
         }

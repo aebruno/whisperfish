@@ -432,37 +432,26 @@ func (w *Whisperfish) notify(msg *textsecure.Message) error {
 	return nil
 }
 
-// Create new group
-func (w *Whisperfish) NewGroup(name, members, msg string) {
-	m := strings.Split(members, ",")
-	group, err := textsecure.NewGroup(name, m)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error":      err,
-			"group_name": name,
-		}).Error("Failed to create new group")
-		return
-	}
-
-	message := &Message{
-		Source:    group.Hexid,
-		Message:   msg,
-		Timestamp: time.Now(),
-		Sent:      true,
-	}
-
-	_, err = w.sessionModel.Add(w.db, message, group, false)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to add message to database")
-		return
-	}
-}
-
 // Send message
-func (w *Whisperfish) SendMessage(source string, message string) {
-	err := w.sendMessageHelper(source, message, "", nil)
+func (w *Whisperfish) SendMessage(source string, message string, groupName string) {
+	var err error
+
+	m := strings.Split(source, ",")
+	if len(m) > 1 {
+		group, err := textsecure.NewGroup(groupName, m)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error":      err,
+				"group_name": groupName,
+			}).Error("Failed to create new group")
+			return
+		}
+
+		err = w.sendMessageHelper(group.Hexid, message, "", group)
+	} else {
+		err = w.sendMessageHelper(source, message, "", nil)
+	}
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -485,7 +474,11 @@ func (w *Whisperfish) sendMessageHelper(to, msg, file string, group *textsecure.
 	}
 
 	w.activeSessionID = session.ID
-	w.messageModel.Name = w.contactsModel.Name(session.Source)
+	if session.IsGroup {
+		w.messageModel.Name = session.GroupName
+	} else {
+		w.messageModel.Name = w.contactsModel.Name(session.Source)
+	}
 	w.messageModel.Tel = session.Source
 	qml.Changed(&w.messageModel, &w.messageModel.Name)
 	qml.Changed(&w.messageModel, &w.messageModel.Tel)
