@@ -133,3 +133,48 @@ func TestMessageAttachment(t *testing.T) {
 		t.Error("Failed to write attachment data to file")
 	}
 }
+
+func TestSentq(t *testing.T) {
+	db, err := newTestDb()
+	if err != nil {
+		t.Error(err)
+	}
+
+	tel := "+1771111006"
+	text := "Hello World"
+	sid := int64(1)
+	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: time.Now()}
+
+	err = SaveMessage(db, msg)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = QueueSent(db, msg)
+	if err != nil {
+		t.Error(err)
+	}
+
+	messages, err := FetchSentq(db)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(messages) != 1 {
+		t.Errorf("Incorrect number of messages in sentq: got %d should be 1", len(messages))
+	}
+
+	err = DequeueSent(db, msg.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	messages, err = FetchSentq(db)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(messages) != 0 {
+		t.Errorf("Incorrect number of messages in sentq: got %d should be 0", len(messages))
+	}
+}

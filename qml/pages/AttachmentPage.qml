@@ -52,7 +52,7 @@ SplitViewPage {
         }
 
         header: PageHeader {
-            title: root.message.sent ? qsTr("You") : root.message.name
+            title: root.message.outgoing ? qsTr("Me") : root.message.name
             description: root.message.date
         }
 

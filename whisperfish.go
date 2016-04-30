@@ -76,6 +76,11 @@ func NewDb(path string) (*sqlx.DB, error) {
 		return nil, err
 	}
 
+	_, err = db.Exec(SentqSchema)
+	if err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }
 
@@ -127,6 +132,8 @@ func (w *Whisperfish) runBackend() {
 
 	w.RefreshContacts()
 	w.RefreshSessions()
+
+	go w.sendMessageWorker()
 
 	for {
 		if err := textsecure.StartListening(); err != nil {
@@ -466,7 +473,7 @@ func (w *Whisperfish) sendMessageHelper(to, msg, attachment string, group *texts
 		Source:    to,
 		Message:   msg,
 		Timestamp: time.Now(),
-		Sent:      true,
+		Outgoing:  true,
 	}
 
 	if len(attachment) > 0 {
@@ -498,22 +505,48 @@ func (w *Whisperfish) sendMessageHelper(to, msg, attachment string, group *texts
 	w.RefreshConversation()
 	w.RefreshSessions()
 
-	go w.sendMessage(session, message)
+	err = QueueSent(w.db, message)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (w *Whisperfish) sendMessage(s *Session, m *Message) {
+func (w *Whisperfish) sendMessage(m *Message) error {
 	var att io.Reader
 	var err error
+	var ts uint64
+
+	s, err := FetchSession(w.db, m.SID)
+	if err != nil {
+		return err
+	}
 
 	if m.Attachment != "" {
 		att, err = os.Open(m.Attachment)
 		if err != nil {
-			return
+			return err
 		}
 	}
 
-	ts := w.sendMessageLoop(s.Source, m.Message, s.IsGroup, att, m.Flags)
+	if att == nil {
+		if s.IsGroup {
+			ts, err = textsecure.SendGroupMessage(s.Source, m.Message)
+		} else {
+			ts, err = textsecure.SendMessage(s.Source, m.Message)
+		}
+	} else {
+		if s.IsGroup {
+			ts, err = textsecure.SendGroupAttachment(s.Source, m.Message, att)
+		} else {
+			ts, err = textsecure.SendAttachment(s.Source, m.Message, att)
+		}
+	}
+
+	if err != nil {
+		return err
+	}
 
 	timestamp := time.Unix(0, int64(1000000*ts)).Local()
 
@@ -523,6 +556,7 @@ func (w *Whisperfish) sendMessage(s *Session, m *Message) {
 			"error": err,
 			"id":    s.ID,
 		}).Error("Failed to mark session sent")
+		return err
 	}
 
 	err = MarkMessageSent(w.db, m.ID, timestamp)
@@ -531,47 +565,48 @@ func (w *Whisperfish) sendMessage(s *Session, m *Message) {
 			"error": err,
 			"id":    m.ID,
 		}).Error("Failed to mark message sent")
+		return err
 	}
 
 	w.RefreshConversation()
 	w.RefreshSessions()
+	return nil
 }
 
-func (w *Whisperfish) sendMessageLoop(to, message string, group bool, att io.Reader, flags uint32) uint64 {
-	var err error
-	var ts uint64
+func (w *Whisperfish) sendMessageWorker() {
 	for {
-		err = nil
-		if flags == textsecure.EndSessionFlag {
-			ts, err = textsecure.EndSession(to, "TERMINATE")
-		} else if flags == textsecure.GroupLeaveFlag {
-			err = textsecure.LeaveGroup(to)
-		} else if flags == textsecure.GroupUpdateFlag {
-			// TODO: implement me
-			//_, err = textsecure.UpdateGroup(to, groups[to].Name, strings.Split(groups[to].Members, ","))
-		} else if att == nil {
-			if group {
-				ts, err = textsecure.SendGroupMessage(to, message)
-			} else {
-				ts, err = textsecure.SendMessage(to, message)
-			}
-		} else {
-			if group {
-				ts, err = textsecure.SendGroupAttachment(to, message, att)
-			} else {
-				ts, err = textsecure.SendAttachment(to, message, att)
-			}
+		messages, err := FetchSentq(w.db)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Failed to fetch mailq")
 		}
-		if err == nil {
-			break
+
+		for _, m := range messages {
+			err = w.sendMessage(m)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+					"id":    m.ID,
+				}).Error("Failed to send message")
+				continue
+			}
+
+			// Remove from sentq
+			err := DequeueSent(w.db, m.ID)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+					"id":    m.ID,
+				}).Error("Failed to remove message from mailq")
+			}
+
+			// Throttle
+			time.Sleep(1 * time.Second)
 		}
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to send message")
-		//If sending failed, try again after a while
+
 		time.Sleep(3 * time.Second)
 	}
-	return ts
 }
 
 // Receipt handler

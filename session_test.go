@@ -30,6 +30,11 @@ func newTestDb() (*sqlx.DB, error) {
 		return nil, err
 	}
 
+	_, err = db.Exec(SentqSchema)
+	if err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }
 

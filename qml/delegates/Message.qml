@@ -27,7 +27,7 @@ ListItem {
     menu: messageContextMenu
 
     property QtObject msg: messageModel.get(index)
-    property bool inbound: msg.sent ? false : true
+    property bool inbound: msg.outgoing ? false : true
     property bool hasAttachments: msg.hasAttachment
     property bool hasText
     property bool canRetry
@@ -167,7 +167,6 @@ ListItem {
             } else {
                 var re = msg.date
                 if (msg.received) {
-                    //% "Sent"
                     re += " | " + qsTrId("Received")
                 } else if (msg.sent) {
                     re += " | " + qsTr("Sent")

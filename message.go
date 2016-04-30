@@ -19,7 +19,11 @@ const (
 		create table if not exists message 
 		(id integer primary key, session_id integer, source text, message string, timestamp timestamp,
         sent integer default 0, received integer default 0, flags integer default 0, attachment text, 
-		mime_type string, has_attachment integer default 0)
+		mime_type string, has_attachment integer default 0, outgoing integer default 0)
+	`
+	SentqSchema = `
+		create table if not exists sentq
+		(message_id integer primary key, timestamp timestamp)
 	`
 )
 
@@ -29,6 +33,7 @@ type Message struct {
 	Source        string    `db:"source"`
 	Message       string    `db:"message"`
 	Timestamp     time.Time `db:"timestamp"`
+	Outgoing      bool      `db:"outgoing"`
 	Sent          bool      `db:"sent"`
 	Received      bool      `db:"received"`
 	Attachment    string    `db:"attachment"`
@@ -95,7 +100,7 @@ func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64) error {
 }
 
 func SaveMessage(db *sqlx.DB, msg *Message) error {
-	cols := []string{"session_id", "source", "message", "timestamp", "sent", "received", "flags", "attachment", "mime_type", "has_attachment"}
+	cols := []string{"session_id", "source", "message", "timestamp", "outgoing", "sent", "received", "flags", "attachment", "mime_type", "has_attachment"}
 	if msg.ID > int64(0) {
 		cols = append(cols, "id")
 	}
@@ -134,6 +139,7 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 		m.timestamp,
 		strftime('%H:%M, %m/%d/%Y', m.timestamp) as date,
 		m.flags,
+		m.outgoing,
 		m.sent,
 		m.received
 	from 
@@ -181,4 +187,51 @@ func MarkMessageReceived(db *sqlx.DB, source string, ts time.Time) (int64, error
 	}
 
 	return rec.SessionID, nil
+}
+
+func FetchSentq(db *sqlx.DB) ([]*Message, error) {
+	messages := []*Message{}
+	err := db.Select(&messages, `
+	select
+		m.id,
+		m.session_id,
+		m.source,
+		m.message,
+		m.attachment,
+		m.has_attachment,
+		m.mime_type,
+		m.timestamp,
+		strftime('%H:%M, %m/%d/%Y', m.timestamp) as date,
+		m.flags,
+		m.outgoing,
+		m.sent,
+		m.received
+	from 
+		sentq as q
+	join message m
+	    on q.message_id = m.id
+	order by q.timestamp desc`)
+	if err != nil {
+		return nil, err
+	}
+
+	return messages, nil
+}
+
+func QueueSent(db *sqlx.DB, message *Message) error {
+	_, err := db.Exec(`insert into sentq (message_id, timestamp) values (?,datetime('now'))`, message.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DequeueSent(db *sqlx.DB, id int64) error {
+	_, err := db.Exec(`delete from sentq where message_id = ?`, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
