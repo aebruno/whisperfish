@@ -179,7 +179,7 @@ ListItem {
 
     onClicked: {
         if (msg.hasAttachment && attachments.height > 0) {
-            pageStack.push(Qt.resolvedUrl("../pages/AttachmentPage.qml"), { 'source': msg.attachment, 'messagePart': msg })
+            pageStack.push(Qt.resolvedUrl("../pages/AttachmentPage.qml"), { 'source': msg.attachment, 'message': msg })
         }
     }
 }

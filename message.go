@@ -95,7 +95,7 @@ func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64) error {
 }
 
 func SaveMessage(db *sqlx.DB, msg *Message) error {
-	cols := []string{"session_id", "source", "message", "timestamp", "sent", "received", "flags", "attachment", "mime_type"}
+	cols := []string{"session_id", "source", "message", "timestamp", "sent", "received", "flags", "attachment", "mime_type", "has_attachment"}
 	if msg.ID > int64(0) {
 		cols = append(cols, "id")
 	}

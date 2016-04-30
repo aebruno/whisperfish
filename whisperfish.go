@@ -14,6 +14,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/godbus/dbus"
 	"github.com/janimo/textsecure"
+	"github.com/janimo/textsecure/3rd_party/magic"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ttacon/libphonenumber"
@@ -433,7 +434,7 @@ func (w *Whisperfish) notify(msg *textsecure.Message) error {
 }
 
 // Send message
-func (w *Whisperfish) SendMessage(source string, message string, groupName string) {
+func (w *Whisperfish) SendMessage(source, message, groupName, attachment string) {
 	var err error
 
 	m := strings.Split(source, ",")
@@ -447,9 +448,9 @@ func (w *Whisperfish) SendMessage(source string, message string, groupName strin
 			return
 		}
 
-		err = w.sendMessageHelper(group.Hexid, message, "", group)
+		err = w.sendMessageHelper(group.Hexid, message, attachment, group)
 	} else {
-		err = w.sendMessageHelper(source, message, "", nil)
+		err = w.sendMessageHelper(source, message, attachment, nil)
 	}
 
 	if err != nil {
@@ -460,12 +461,24 @@ func (w *Whisperfish) SendMessage(source string, message string, groupName strin
 	}
 }
 
-func (w *Whisperfish) sendMessageHelper(to, msg, file string, group *textsecure.Group) error {
+func (w *Whisperfish) sendMessageHelper(to, msg, attachment string, group *textsecure.Group) error {
 	message := &Message{
 		Source:    to,
 		Message:   msg,
 		Timestamp: time.Now(),
 		Sent:      true,
+	}
+
+	if len(attachment) > 0 {
+		att, err := os.Open(attachment)
+		if err != nil {
+			return err
+		}
+		defer att.Close()
+		//XXX Sucks we have to do this twice
+		message.MimeType, _ = magic.MIMETypeFromReader(att)
+		message.Attachment = attachment
+		message.HasAttachment = true
 	}
 
 	session, err := w.sessionModel.Add(w.db, message, group, false)
@@ -482,6 +495,8 @@ func (w *Whisperfish) sendMessageHelper(to, msg, file string, group *textsecure.
 	w.messageModel.Tel = session.Source
 	qml.Changed(&w.messageModel, &w.messageModel.Name)
 	qml.Changed(&w.messageModel, &w.messageModel.Tel)
+	w.RefreshConversation()
+	w.RefreshSessions()
 
 	go w.sendMessage(session, message)
 	return nil

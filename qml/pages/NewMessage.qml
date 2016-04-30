@@ -148,7 +148,7 @@ Page {
                 onSendMessage: {
                     if (recipientField.hasValidContact) {
                         var source = Object.keys(recipientField.recipients).join(",")
-                        whisperfish.sendMessage(source, text, groupName.text)
+                        whisperfish.sendMessage(source, text, groupName.text, attachmentPath)
                         pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
                     } else {
                         //: Invalid recipient error

@@ -3,12 +3,19 @@ Whisperfish - Signal client for Sailfish OS
 ===============================================================================
 
 Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
-`Sailfish OS <https://sailfishos.org/>`_. The backend code is based off the
-TextSecure client for the Ubuntu Phone written by `janimo
-<https://github.com/janimo/textsecure-qml>`_ and uses the `go textsecure
-(Signal) client <https://github.com/janimo/textsecure>`_ library. The user
-interface is heavily based on the jolla-messages application.
+`Sailfish OS <https://sailfishos.org/>`_. Whisperfish builds on and includes
+code from the following projects:
 
+- `Signal client library in go <https://github.com/janimo/textsecure>`_
+- `go-qml <https://github.com/go-qml/qml>`_ QML support for Go 
+- `Jolla MerSDK Go patches <https://github.com/nekrondev/jolla_go>`_ by nekrondev
+- Backend code is based off the TextSecure client for the Ubuntu Phone written
+  by `janimo <https://github.com/janimo/textsecure-qml>`_ 
+- The user interface is heavily based on the jolla-messages application written
+  by Jolla Ltd.
+- Image picker is from `hangish <https://github.com/rogora/hangish>`_ written
+  by Daniele Rogora
+  
 -------------------------------------------------------------------------------
 Project Status
 -------------------------------------------------------------------------------
@@ -27,11 +34,12 @@ Features
 - [x] Registration
 - [x] Contact Discovery
 - [x] Direct messages
-- [ ] Group messages
+- [x] Group messages
 - [x] Storing conversations
 - [ ] Archiving conversations
-- [ ] Photo/video attachments
+- [x] Photo/video attachments
 - [ ] Encrypted message store
+- [ ] Advanced user settings
 
 -------------------------------------------------------------------------------
 Developing

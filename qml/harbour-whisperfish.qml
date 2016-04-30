@@ -9,4 +9,8 @@ ApplicationWindow
     initialPage: Component { Main { } }
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
+
+    ImagePicker {
+        id: imagepicker
+    }
 }

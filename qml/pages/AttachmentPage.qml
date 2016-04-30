@@ -24,7 +24,7 @@ import Sailfish.TransferEngine 1.0
 SplitViewPage {
     id: root
     property alias source: viewer.source
-    property var messagePart
+    property var message
 
     signal copy()
 
@@ -39,8 +39,8 @@ SplitViewPage {
 
         source: root.source
         anchors.fill: parent
-        filter: root.messagePart.mimeType
-        content: QtObject { property string type: root.messagePart.mimeType }
+        filter: root.message.mimeType
+        content: QtObject { property string type: root.message.mimeType }
 
         PullDownMenu {
             id: pullDownMenu
@@ -52,10 +52,17 @@ SplitViewPage {
         }
 
         header: PageHeader {
-            //% "Photo"
-            title: qsTr("Photo")
-            //% "Share"
-            description: qsTr("Share")
+            title: root.message.sent ? qsTr("You") : root.message.name
+            description: root.message.date
+        }
+
+        footer: BackgroundItem {
+            Label {
+                text: root.message.message
+                x: Theme.horizontalPageMargin
+                anchors.verticalCenter: parent.verticalCenter
+                color: highlighted ? Theme.highlightColor : Theme.primaryColor
+            }
         }
     }
 
