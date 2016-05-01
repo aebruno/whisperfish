@@ -107,6 +107,7 @@ some instructions for building on Debian::
     $ cd $GOPATH/src/gopkg.in
     $ git clone https://github.com/aebruno/qml.git qml.v1
     $ cd qml.v1
+    $ git checkout whisperfish
     $ go install
 
 -------------------------------------------------------------------------------
