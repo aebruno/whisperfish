@@ -422,6 +422,11 @@ func (w *Whisperfish) getCurrentPageID() string {
 	return w.window.Root().ObjectByName("main").Object("currentPage").String("objectName")
 }
 
+// Returns true if applications is active
+func (w *Whisperfish) isActive() bool {
+	return w.window.Root().Bool("applicationActive")
+}
+
 // Get text from dialog window
 func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 	status := w.getCurrentPageStatus()
@@ -489,7 +494,7 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 
 	w.RefreshSessions()
 
-	if w.settings.EnableNotify {
+	if w.settings.EnableNotify && !w.isActive() {
 		w.notify(msg)
 	}
 }

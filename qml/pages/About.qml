@@ -47,7 +47,7 @@ Page {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("<a href=\"https://github.com/aebruno/whisperfish\">Source Code</a>")
+                text: qsTr("Source Code")
                 onClicked: {
                     Qt.openUrlExternally("https://github.com/aebruno/whisperfish")
                 }
@@ -58,7 +58,7 @@ Page {
             }
 
             Label {
-                text: qsTr("<a href=\"https://github.com/janimo/textsecure\">TextSecure client package for Go</a> (C) janimo.")
+                text: qsTr("TextSecure client package for Go (C) janimo.")
                 anchors.horizontalCenter: parent.horizontalCenter
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
@@ -68,7 +68,7 @@ Page {
             }
 
 			Label {
-				text: qsTr("<a href='https://github.com/go-qml/qml'>GO-QML package</a> (C) Gustavo Niemeyer.")
+				text: qsTr("GO-QML package (C) Gustavo Niemeyer.")
 				anchors.horizontalCenter: parent.horizontalCenter
 				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
@@ -77,7 +77,7 @@ Page {
 				x: Theme.paddingLarge
 			}
 			Label {
-				text: qsTr("<a href='https://golang.org/'>GO</a> Copyright (C) 2012 The Go Authors. All rights reserved.")
+				text: qsTr("Go Copyright (C) 2012 The Go Authors. All rights reserved.")
 				anchors.horizontalCenter: parent.horizontalCenter
 				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
