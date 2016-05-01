@@ -42,6 +42,7 @@ type Session struct {
 type SessionModel struct {
 	sessions []*Session
 	Length   int
+	Unread   int
 }
 
 func (s *SessionModel) Get(i int) *Session {
@@ -107,6 +108,7 @@ func (s *SessionModel) Add(db *sqlx.DB, message *Message, group *textsecure.Grou
 
 func (s *SessionModel) Refresh(db *sqlx.DB, c *Contacts) error {
 	var err error
+	s.Unread = 0
 	s.sessions, err = FetchAllSessions(db)
 	if err != nil {
 		return err
@@ -116,6 +118,9 @@ func (s *SessionModel) Refresh(db *sqlx.DB, c *Contacts) error {
 		sess := s.sessions[i]
 		sess.Name = c.Name(sess.Source)
 		sess.UpdateDate()
+		if sess.Unread {
+			s.Unread++
+		}
 		s.sessions[i] = sess
 	}
 

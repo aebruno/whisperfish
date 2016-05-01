@@ -15,9 +15,35 @@ CoverBackground {
 		Label {
 			id: coverdata
 			anchors.horizontalCenter: parent.horizontalCenter
-			color: Theme.highlightColor
-			font.pixelSize: Theme.fontSizeLarge
+			color: Theme.primaryColor
+			font.pixelSize: Theme.fontSizeMedium
 			text:  qsTr("Whisperfish")
 		}
+
+		Label {
+			id: unread
+			anchors.horizontalCenter: parent.horizontalCenter
+			color: Theme.highlightColor
+			font.pixelSize: Theme.fontSizeLarge
+			text: sessionModel.unread > 0 ? sessionModel.unread : ""
+		}
 	}
+
+    CoverActionList {
+        CoverAction {
+            iconSource: "image://theme/icon-cover-subview"
+            onTriggered: {
+                mainWindow.activate()
+                showMainPage(PageStackAction.Immediate)
+            }
+        }
+
+        CoverAction {
+            iconSource: "image://theme/icon-cover-message"
+            onTriggered: {
+                mainWindow.activate()
+                mainWindow.newMessage(PageStackAction.Immediate)
+            }
+        }
+    }
 }

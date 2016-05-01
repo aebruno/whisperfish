@@ -69,8 +69,6 @@ BackgroundItem {
 
     onClicked: {
         whisperfish.setSession(id)
-        sessionView.model.get(index).unread = false
-        whisperfish.refreshConversation()
         pageStack.push(Qt.resolvedUrl("../pages/Conversation.qml"));
     }
 }

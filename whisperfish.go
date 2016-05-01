@@ -153,7 +153,9 @@ func (w *Whisperfish) RefreshContacts() {
 // Refresh session model
 func (w *Whisperfish) RefreshSessions() {
 	w.sessionModel.Length = 0
+	w.sessionModel.Unread = 0
 	qml.Changed(&w.sessionModel, &w.sessionModel.Length)
+	qml.Changed(&w.sessionModel, &w.sessionModel.Unread)
 
 	err := w.sessionModel.Refresh(w.db, &w.contactsModel)
 	if err != nil && err != sql.ErrNoRows {
@@ -163,6 +165,7 @@ func (w *Whisperfish) RefreshSessions() {
 	}
 
 	qml.Changed(&w.sessionModel, &w.sessionModel.Length)
+	qml.Changed(&w.sessionModel, &w.sessionModel.Unread)
 }
 
 // Set active session
@@ -192,6 +195,9 @@ func (w *Whisperfish) SetSession(sessionID int64) {
 			"sid":   w.activeSessionID,
 		}).Error("Failed to mark session read")
 	}
+
+	w.RefreshConversation()
+	w.RefreshSessions()
 }
 
 // Refresh conversation model
