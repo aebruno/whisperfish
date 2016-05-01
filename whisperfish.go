@@ -41,6 +41,7 @@ type Whisperfish struct {
 	dataDir         string
 	storageDir      string
 	attachDir       string
+	settingsFile    string
 	settings        *Settings
 	config          *textsecure.Config
 	db              *sqlx.DB
@@ -232,17 +233,12 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	os.MkdirAll(w.attachDir, 0700)
 	os.MkdirAll(dbDir, 0700)
 
-	settingsFile := filepath.Join(w.configDir, "settings.yml")
+	w.settingsFile = filepath.Join(w.configDir, "settings.yml")
 	w.settings = &Settings{}
 
-	if err := w.settings.Load(settingsFile); err != nil {
+	if err := w.settings.Load(w.settingsFile); err != nil {
 		w.settings.SetDefault()
-		// write out default settings file
-		if err = w.settings.Save(settingsFile); err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Failed to write out default settings file")
-		}
+		w.SaveSettings()
 	}
 
 	var err error
@@ -268,6 +264,40 @@ func (w *Whisperfish) RuntimeVersion() string {
 // Returns the Whisperfish application version
 func (w *Whisperfish) Version() string {
 	return Version
+}
+
+// Returns the registered phone number
+func (w *Whisperfish) PhoneNumber() string {
+	if w.config == nil {
+		return ""
+	}
+
+	return w.config.Tel
+}
+
+// Returns identity
+func (w *Whisperfish) Identity() string {
+	id := textsecure.MyIdentityKey()
+	return fmt.Sprintf("% 0X", id)
+}
+
+// Return settings
+func (w *Whisperfish) Settings() *Settings {
+	return w.settings
+}
+
+// Save settings
+func (w *Whisperfish) SaveSettings() {
+	if w.settings == nil {
+		return
+	}
+
+	err := w.settings.Save(w.settingsFile)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to write settings file")
+	}
 }
 
 // Get the config file for Signal

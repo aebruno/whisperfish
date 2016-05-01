@@ -53,6 +53,10 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("About.qml"))
             }
             MenuItem {
+                text: qsTr("Settings")
+                onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
+            }
+            MenuItem {
                 text: qsTr("New Message")
                 onClicked: pageStack.push(Qt.resolvedUrl("NewMessage.qml"))
             }
