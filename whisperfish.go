@@ -203,8 +203,10 @@ func (w *Whisperfish) SetSession(sessionID int64) {
 		w.messageModel.Name = w.contactsModel.Name(session.Source)
 	}
 	w.messageModel.Tel = session.Source
+	w.messageModel.Identity = w.ContactIdentity(session.Source)
 	qml.Changed(&w.messageModel, &w.messageModel.Name)
 	qml.Changed(&w.messageModel, &w.messageModel.Tel)
+	qml.Changed(&w.messageModel, &w.messageModel.Identity)
 
 	err = MarkSessionRead(w.db, sessionID)
 	if err != nil {
@@ -295,6 +297,19 @@ func (w *Whisperfish) PhoneNumber() string {
 // Returns identity
 func (w *Whisperfish) Identity() string {
 	id := textsecure.MyIdentityKey()
+	return fmt.Sprintf("% 0X", id)
+}
+
+// Returns identity of contact
+func (w *Whisperfish) ContactIdentity(source string) string {
+	id, err := textsecure.ContactIdentityKey(source)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to fetch contact identity")
+		return ""
+	}
+
 	return fmt.Sprintf("% 0X", id)
 }
 

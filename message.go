@@ -64,6 +64,7 @@ type MessageModel struct {
 	messages []*Message
 	Name     string
 	Tel      string
+	Identity string
 	Length   int
 }
 
