@@ -90,12 +90,13 @@ SilicaListView {
     function remove(contentItem) {
         contentItem.remorseAction(qsTr("Deleting"),
             function() {
-                console.log("Delete message")
+                console.log("Delete message: "+contentItem.msg.id)
+                whisperfish.deleteMessage(contentItem.msg.id)
             })
     }
 
     function copy(contentItem) {
-        console.log("Copy to clipboard")
+        Clipboard.text = contentItem.msg.message
     }
 
     Component {
