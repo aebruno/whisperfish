@@ -51,7 +51,7 @@ and install the go runtime. More details `here <https://github.com/nekrondev/jol
 
 Whisperfish uses a patched version of `go-qml <https://github.com/go-qml/qml>`_ 
 for use with Safilish Silica UI. A complete patched version can be found 
-`here <https://github.com/aebruno/qml/tree/sailfish>`_. If you followed the
+`here <https://github.com/aebruno/qml/tree/whisperfish>`_. If you followed the
 jolla_go instructions above from nekrondev, you'll need to replace the 
 ~/src/gopkg.in/qml.v1 package with this version::
 
@@ -59,7 +59,7 @@ jolla_go instructions above from nekrondev, you'll need to replace the
     $ rm -Rf qml.v1
     $ git clone https://github.com/aebruno/qml.git qml.v1
     $ cd qml.v1
-    $ git checkout sailfish
+    $ git checkout whisperfish
     $ go install
     $ sb2 -O use-global-tmp -t SailfishOS-armv7hl ~/go/bin/linux_arm/go install
 
