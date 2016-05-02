@@ -47,7 +47,9 @@ Developing
 
 Whisperfish is written in go. First need to setup `MerSDK
 <https://sailfishos.org/develop/sdk-overview/develop-installation-article/>`_
-and install the go runtime. More details `here <https://github.com/nekrondev/jolla_go>`_.
+and install the Go runtime. More details `here
+<https://github.com/nekrondev/jolla_go>`_. Note Whisperfish now requires Go
+v1.6. 
 
 Whisperfish uses a patched version of `go-qml <https://github.com/go-qml/qml>`_ 
 for use with Safilish Silica UI. A complete patched version can be found 
@@ -83,6 +85,10 @@ If you have the SailfishOS Emulator you can install the rpm into the emulator
 with directly with::
 
     $ ./deploy
+
+To build the arm binaries::
+
+    $ mb2 -t SailfishOS-armv7hl build
 
 -------------------------------------------------------------------------------
 Developing (without MerSDK)
