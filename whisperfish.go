@@ -358,6 +358,7 @@ func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
 	w.config.StorageDir = w.storageDir
 	w.config.UserAgent = fmt.Sprintf("Whisperfish v%s", Version)
 	w.config.UnencryptedStorage = true
+	w.config.VerificationType = "voice"
 	w.config.LogLevel = "debug"
 	w.config.AlwaysTrustPeerID = true
 	rootCA := filepath.Join(w.configDir, "rootCA.crt")
