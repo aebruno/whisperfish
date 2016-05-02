@@ -353,14 +353,16 @@ func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
 		w.config, errConfig = textsecure.ReadConfig(w.configFile)
 	} else {
 		w.config = &textsecure.Config{}
+
+		// Set defaults
+		w.config.StorageDir = w.storageDir
+		w.config.UserAgent = fmt.Sprintf("Whisperfish v%s", Version)
+		w.config.UnencryptedStorage = false
+		w.config.VerificationType = "voice"
+		w.config.LogLevel = "debug"
+		w.config.AlwaysTrustPeerID = true
 	}
 
-	w.config.StorageDir = w.storageDir
-	w.config.UserAgent = fmt.Sprintf("Whisperfish v%s", Version)
-	w.config.UnencryptedStorage = true
-	w.config.VerificationType = "voice"
-	w.config.LogLevel = "debug"
-	w.config.AlwaysTrustPeerID = true
 	rootCA := filepath.Join(w.configDir, "rootCA.crt")
 	if _, err := os.Stat(rootCA); err == nil {
 		w.config.RootCA = rootCA
@@ -371,7 +373,6 @@ func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
 // Prompt the user for storage password
 func (w *Whisperfish) getStoragePassword() string {
 	pass := w.getTextFromDialog("getStoragePassword", "passwordDialog", "passwordEntered")
-	log.Printf("Password: %s", pass)
 
 	return pass
 }

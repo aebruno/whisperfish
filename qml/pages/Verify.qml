@@ -49,7 +49,7 @@ Dialog {
             width: parent.width
             horizontalAlignment: TextEdit.Center
             readOnly: true
-            text: qsTr("Signal will now send you a confirmation code via SMS message. Please enter it here.")
+            text: qsTr("Signal will call you with a 6-digit verification code. Please enter it here.")
         }
 
     }

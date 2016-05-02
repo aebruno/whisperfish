@@ -26,7 +26,15 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: qsTr("Enter storage password")
+            visible: whisperfish.phoneNumber().length > 0
+            text: qsTr("Enter your password")
+        }
+
+        Label {
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.bold: true
+            visible: whisperfish.phoneNumber().length == 0
+            text: qsTr("Setup a password")
         }
 
         TextField {
