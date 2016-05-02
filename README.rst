@@ -36,10 +36,11 @@ Features
 - [x] Direct messages
 - [x] Group messages
 - [x] Storing conversations
-- [ ] Archiving conversations
 - [x] Photo/video attachments
+- [x] Encrypted key store
 - [ ] Encrypted message store
 - [ ] Advanced user settings
+- [ ] Archiving conversations
 
 -------------------------------------------------------------------------------
 Developing
