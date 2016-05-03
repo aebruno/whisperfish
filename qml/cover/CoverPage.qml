@@ -2,32 +2,16 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 CoverBackground {
-	Column {
-		anchors.centerIn: parent
-		width: parent.width
-		spacing: Theme.paddingMedium
-
-		Image {
-			anchors.horizontalCenter: parent.horizontalCenter
-			source: "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png"
-		}
-
-		Label {
-			id: coverdata
-			anchors.horizontalCenter: parent.horizontalCenter
-			color: Theme.primaryColor
-			font.pixelSize: Theme.fontSizeMedium
-			text:  qsTr("Whisperfish")
-		}
-
-		Label {
-			id: unread
-			anchors.horizontalCenter: parent.horizontalCenter
-			color: Theme.highlightColor
-			font.pixelSize: Theme.fontSizeLarge
-			text: sessionModel.unread > 0 ? sessionModel.unread : ""
-		}
-	}
+    Image {
+        x: Theme.paddingLarge
+        horizontalAlignment: Text.AlignHCenter
+        source: "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png"
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: Theme.itemSizeLarge
+            horizontalCenter: parent.horizontalCenter
+        }
+    }
 
     CoverActionList {
         CoverAction {
@@ -44,6 +28,15 @@ CoverBackground {
                 mainWindow.activate()
                 mainWindow.newMessage(PageStackAction.Immediate)
             }
+        }
+    }
+
+    Column {
+        x: Theme.paddingLarge
+        spacing: Theme.paddingSmall
+        width: parent.width - 2*Theme.paddingLarge
+        UnreadLabel {
+            id: unreadLabel
         }
     }
 }
