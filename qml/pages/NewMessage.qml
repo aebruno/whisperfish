@@ -82,7 +82,7 @@ Page {
                             for (var i = 0; i < selectedContacts.count; i++) {
                                 var contact = selectedContacts.get(i)
                                 if (contact.property !== undefined && contact.propertyType === "phoneNumber") {
-                                    var c = contactsModel.find(contact.property.number)
+                                    var c = contactsModel.find(contact.property.number, whisperfish.settings().countryCode)
                                     if(c.name.length != 0){
                                         recipients[c.tel] = true
                                     } else {

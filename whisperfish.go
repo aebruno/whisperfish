@@ -45,6 +45,7 @@ const (
 	PageStatusActivating   = 1
 	PageStatusActive       = 2
 	PageStatusDeactivating = 3
+	QtcontactsPath         = "/home/nemo/.local/share/system/Contacts/qtcontacts-sqlite/contacts.db"
 )
 
 type Whisperfish struct {
@@ -133,7 +134,7 @@ func (w *Whisperfish) runBackend() {
 		MessageHandler:      func(msg *textsecure.Message) { w.messageHandler(msg) },
 		ReceiptHandler:      func(source string, devID uint32, timestamp uint64) { w.receiptHandler(source, devID, timestamp) },
 		RegistrationDone:    func() { w.registrationDone() },
-		GetLocalContacts:    getSailfishContacts,
+		GetLocalContacts:    func() ([]textsecure.Contact, error) { return w.getSailfishContacts() },
 	}
 
 	err := textsecure.Setup(client)
@@ -291,6 +292,11 @@ func (w *Whisperfish) PhoneNumber() string {
 		return ""
 	}
 
+	num, err := libphonenumber.Parse(w.config.Tel, "")
+	if err == nil {
+		return libphonenumber.Format(num, libphonenumber.NATIONAL)
+	}
+
 	return w.config.Tel
 }
 
@@ -403,6 +409,12 @@ func (w *Whisperfish) getPhoneNumber() string {
 // Registration done
 func (w *Whisperfish) registrationDone() {
 	textsecure.WriteConfig(w.configFile, w.config)
+
+	num, err := libphonenumber.Parse(w.config.Tel, "")
+	if err == nil {
+		w.settings.CountryCode = libphonenumber.GetRegionCodeForNumber(num)
+		w.SaveSettings()
+	}
 
 	log.Println("Registered")
 	status := w.getCurrentPageStatus()
@@ -723,4 +735,41 @@ func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
 	}
 
 	w.RefreshSessions()
+}
+
+// Get local sailfish contacts
+func (w *Whisperfish) getSailfishContacts() ([]textsecure.Contact, error) {
+	db, err := sqlx.Open("sqlite3", QtcontactsPath)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to open contacts database")
+		return nil, err
+	}
+
+	contacts := []textsecure.Contact{}
+	err = db.Select(&contacts, `
+	select
+	   c.displayLabel as name,
+	   p.phoneNumber as tel
+	from Contacts as c
+	join PhoneNumbers p
+	on c.contactId = p.contactId`)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to query contacts database")
+		return nil, err
+	}
+
+	// Reformat numbers in E.164 format
+	for i := range contacts {
+		n := contacts[i].Tel
+		num, err := libphonenumber.Parse(n, w.settings.CountryCode)
+		if err == nil {
+			contacts[i].Tel = libphonenumber.Format(num, libphonenumber.E164)
+		}
+	}
+
+	return contacts, nil
 }

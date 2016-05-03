@@ -4,10 +4,21 @@ import Sailfish.Silica 1.0
 
 Page {
 	id: settingsPage
+    property QtObject countryCodeCombo : countryCode
 	SilicaFlickable {
 		anchors.fill: parent
 		contentWidth: parent.width
 		contentHeight: col.height + Theme.paddingLarge
+
+        PullDownMenu {
+            MenuItem {
+                text: qsTr("Refresh Contacts")
+                onClicked: {
+                    whisperfish.refreshContacts()
+                    whisperfish.refreshSessions()
+                }
+            }
+        }
 
 		VerticalScrollDecorator {}
 
@@ -40,6 +51,20 @@ Page {
             }
             SectionHeader {
                 text: qsTr("General")
+            }
+            ValueButton {
+                id: countryCode
+                anchors.horizontalCenter: parent.horizontalCenter
+                label: qsTr("Country Code")
+                value: whisperfish.settings().countryCode
+                onClicked: {
+                    var cd = pageStack.push(Qt.resolvedUrl("CountryCodeDialog.qml"))
+                    cd.setCountryCode.connect(function(code) {
+                        value = code
+                        whisperfish.settings().countryCode = code
+                        whisperfish.saveSettings()
+                    })
+                }
             }
             TextSwitch {
                 id: enableNotify
