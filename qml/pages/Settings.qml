@@ -49,6 +49,10 @@ Page {
                 label: "Identity"
                 text: whisperfish.identity()
             }
+            DetailItem {
+                label: qsTr("Encrypted Key Store")
+                value: whisperfish.hasEncryptedKeystore() ? qsTr("Enabled") : qsTr("Disabled")
+            }
             SectionHeader {
                 text: qsTr("General")
             }
@@ -85,6 +89,53 @@ Page {
                     whisperfish.settings().saveAttachments = checked
                     whisperfish.saveSettings()
                 }
+            }
+            ComboBox {
+                anchors.horizontalCenter: parent.horizontalCenter
+                label: qsTr("Show Max Messages")
+                currentIndex: {
+                    if (whisperfish.settings().showMaxMessages == 5) return 0
+                    else if (whisperfish.settings().showMaxMessages == 10) return 1
+                    else if (whisperfish.settings().showMaxMessages == 15) return 2
+                    else if (whisperfish.settings().showMaxMessages == 20) return 3
+                    else if (whisperfish.settings().showMaxMessages == 50) return 4
+                    else if (whisperfish.settings().showMaxMessages == 100) return 5
+                    else if (whisperfish.settings().showMaxMessages == 500) return 6
+                    else if (whisperfish.settings().showMaxMessages == 1000) return 7
+                }
+                onValueChanged: {
+                    whisperfish.settings().showMaxMessages = parseInt(value)
+                    whisperfish.saveSettings()
+                }
+                menu: ContextMenu {
+                    MenuItem { text: "5"}
+                    MenuItem { text: "10"}
+                    MenuItem { text: "15"}
+                    MenuItem { text: "20"}
+                    MenuItem { text: "50"}
+                    MenuItem { text: "100"}
+                    MenuItem { text: "500"}
+                    MenuItem { text: "1000"}
+                }
+            }
+            SectionHeader {
+                text: qsTr("Statistics")
+            }
+            DetailItem {
+                label: qsTr("Unsent Messages")
+                value: whisperfish.sentQueueSize()
+            }
+            DetailItem {
+                label: qsTr("Total Sessions")
+                value: sessionModel.length
+            }
+            DetailItem {
+                label: qsTr("Total Messages")
+                value: whisperfish.totalMessages()
+            }
+            DetailItem {
+                label: qsTr("Signal Contacts")
+                value: contactsModel.len
             }
 		}
 	}

@@ -163,9 +163,9 @@ func (s *Session) UpdateDate() {
 	}
 }
 
-func (s *Session) Refresh(db *sqlx.DB, c *Contacts) {
+func (s *Session) Refresh(db *sqlx.DB, c *Contacts, limit int) {
 	var err error
-	s.messages, err = FetchAllMessages(db, s.ID)
+	s.messages, err = FetchAllMessages(db, s.ID, limit)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,

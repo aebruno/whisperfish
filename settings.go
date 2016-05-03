@@ -11,6 +11,7 @@ type Settings struct {
 	EnableNotify    bool   `yaml:"enable_notify"`
 	SaveAttachments bool   `yaml:"save_attachments"`
 	CountryCode     string `yaml:"country_code"`
+	ShowMaxMessages int    `yaml:"show_max_messages"`
 }
 
 func (s *Settings) SetDefault() {
@@ -18,6 +19,7 @@ func (s *Settings) SetDefault() {
 	s.EnableNotify = true
 	s.SaveAttachments = true
 	s.CountryCode = ""
+	s.ShowMaxMessages = 100
 }
 
 func (s *Settings) Load(file string) error {
@@ -30,6 +32,11 @@ func (s *Settings) Load(file string) error {
 	if err != nil {
 		return err
 	}
+
+	if s.ShowMaxMessages < 1 {
+		s.ShowMaxMessages = 100
+	}
+
 	return nil
 }
 

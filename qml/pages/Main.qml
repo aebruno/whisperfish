@@ -54,10 +54,12 @@ Page {
             }
             MenuItem {
                 text: qsTr("Settings")
+                enabled: !whisperfish.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
             MenuItem {
                 text: qsTr("New Message")
+                enabled: !whisperfish.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("NewMessage.qml"))
             }
         }

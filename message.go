@@ -105,9 +105,9 @@ func (m *MessageModel) Get(i int) *Message {
 	return m.messages[i]
 }
 
-func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64) error {
+func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64, limit int) error {
 	var err error
-	m.messages, err = FetchAllMessages(db, sessionID)
+	m.messages, err = FetchAllMessages(db, sessionID, limit)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func SaveMessage(db *sqlx.DB, msg *Message) error {
 	return nil
 }
 
-func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
+func FetchAllMessages(db *sqlx.DB, sessionID int64, limit int) ([]*Message, error) {
 	messages := []*Message{}
 	err := db.Select(&messages, `
 	select
@@ -163,7 +163,8 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 	from 
 		message as m
     where m.session_id = ?
-	order by m.timestamp desc`, sessionID)
+	order by m.timestamp desc
+    limit ?`, sessionID, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -252,4 +253,19 @@ func DequeueSent(db *sqlx.DB, id int64) error {
 	}
 
 	return nil
+}
+
+func TotalMessages(db *sqlx.DB) (int, error) {
+	type record struct {
+		Total int `db:"total"`
+	}
+
+	rec := record{}
+
+	err := db.Get(&rec, `select count(*) as total from message`)
+	if err != nil {
+		return 0, err
+	}
+
+	return rec.Total, nil
 }

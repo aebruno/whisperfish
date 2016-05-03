@@ -64,6 +64,10 @@ type Whisperfish struct {
 	config          *textsecure.Config
 	db              *sqlx.DB
 	activeSessionID int64
+	sentQueueSize   int
+	totalMessages   int
+	hasKeys         bool
+	Locked          bool
 }
 
 func main() {
@@ -149,6 +153,8 @@ func (w *Whisperfish) runBackend() {
 		return
 	}
 
+	w.Locked = false
+	qml.Changed(w, &w.Locked)
 	w.RefreshContacts()
 	w.RefreshSessions()
 
@@ -226,7 +232,7 @@ func (w *Whisperfish) RefreshConversation() {
 	w.messageModel.Length = 0
 	qml.Changed(&w.messageModel, &w.messageModel.Length)
 
-	err := w.messageModel.RefreshConversation(w.db, w.activeSessionID)
+	err := w.messageModel.RefreshConversation(w.db, w.activeSessionID, w.settings.ShowMaxMessages)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -274,6 +280,13 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	w.engine.Context().SetVar("contactsModel", &w.contactsModel)
 	w.engine.Context().SetVar("sessionModel", &w.sessionModel)
 	w.engine.Context().SetVar("messageModel", &w.messageModel)
+
+	// default to locked
+	w.Locked = true
+
+	if _, err := os.Stat(filepath.Join(w.storageDir, "identity", "identity_key")); err == nil {
+		w.hasKeys = true
+	}
 }
 
 // Returns the GO runtime version used for building the application
@@ -682,6 +695,8 @@ func (w *Whisperfish) sendMessageWorker() {
 			}).Error("Failed to fetch mailq")
 		}
 
+		w.sentQueueSize = len(messages)
+
 		for _, m := range messages {
 			err = w.sendMessage(m)
 			if err != nil {
@@ -703,6 +718,13 @@ func (w *Whisperfish) sendMessageWorker() {
 
 			// Throttle
 			time.Sleep(1 * time.Second)
+		}
+
+		w.totalMessages, err = TotalMessages(w.db)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Failed to update total messages")
 		}
 
 		time.Sleep(3 * time.Second)
@@ -772,4 +794,26 @@ func (w *Whisperfish) getSailfishContacts() ([]textsecure.Contact, error) {
 	}
 
 	return contacts, nil
+}
+
+// Return true if encrypted keys have been created
+func (w *Whisperfish) HasEncryptionKeys() bool {
+	return w.hasKeys
+}
+
+// Return true if encrypted key store is enabled
+func (w *Whisperfish) HasEncryptedKeystore() bool {
+	if w.config == nil {
+		return false
+	}
+
+	return !w.config.UnencryptedStorage
+}
+
+func (w *Whisperfish) TotalMessages() int {
+	return w.totalMessages
+}
+
+func (w *Whisperfish) SentQueueSize() int {
+	return w.sentQueueSize
 }

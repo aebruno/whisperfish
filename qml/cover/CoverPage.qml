@@ -25,8 +25,10 @@ CoverBackground {
         CoverAction {
             iconSource: "image://theme/icon-cover-message"
             onTriggered: {
-                mainWindow.activate()
-                mainWindow.newMessage(PageStackAction.Immediate)
+                if(!whisperfish.locked) {
+                    mainWindow.activate()
+                    mainWindow.newMessage(PageStackAction.Immediate)
+                }
             }
         }
     }

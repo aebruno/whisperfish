@@ -29,7 +29,7 @@ Page {
             ChatTextInput {
                 id: textInput
                 width: parent.width
-
+                contactName: messageModel.name
                 enabled: true
                 editorFocus: conversation.editorFocus
 
