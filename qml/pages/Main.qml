@@ -68,8 +68,16 @@ Page {
 
         ViewPlaceholder {
             enabled: sessionView.count == 0
-            text: "No messages"
-            hintText: ""
+            text: whisperfish.locked ? qsTr("Whisperfish") : qsTr("No messages")
+            hintText: {
+                if(!whisperfish.hasEncryptionKeys()) {
+                    qsTr("Registration required")
+                } else if(whisperfish.locked) {
+                    qsTr("Locked")
+                } else {
+                    ""
+                }
+            }
         }
 
         section {
