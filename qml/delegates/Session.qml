@@ -40,8 +40,6 @@ BackgroundItem {
         id: xbody
         text: message ? message : ''
         font.pixelSize: Theme.fontSizeExtraSmall
-        wrapMode: Text.WordWrap
-        maximumLineCount: 2
         color: unread ? Theme.highlightColor : Theme.primaryColor
         truncationMode: TruncationMode.Fade
         anchors {
