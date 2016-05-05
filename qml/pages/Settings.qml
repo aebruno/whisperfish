@@ -5,6 +5,9 @@ import Sailfish.Silica 1.0
 Page {
 	id: settingsPage
     property QtObject countryCodeCombo : countryCode
+
+    RemorsePopup { id: remorse }
+
 	SilicaFlickable {
 		anchors.fill: parent
 		contentWidth: parent.width
@@ -49,10 +52,6 @@ Page {
                 label: "Identity"
                 text: whisperfish.identity()
             }
-            DetailItem {
-                label: qsTr("Encrypted Key Store")
-                value: whisperfish.hasEncryptedKeystore() ? qsTr("Enabled") : qsTr("Disabled")
-            }
             SectionHeader {
                 text: qsTr("General")
             }
@@ -68,26 +67,6 @@ Page {
                         whisperfish.settings().countryCode = code
                         whisperfish.saveSettings()
                     })
-                }
-            }
-            TextSwitch {
-                id: enableNotify
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Enable Notifications")
-                checked: whisperfish.settings().enableNotify
-                onCheckedChanged: {
-                    whisperfish.settings().enableNotify = checked
-                    whisperfish.saveSettings()
-                }
-            }
-            TextSwitch {
-                id: saveAttachments
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Save Attachments")
-                checked: whisperfish.settings().saveAttachments
-                onCheckedChanged: {
-                    whisperfish.settings().saveAttachments = checked
-                    whisperfish.saveSettings()
                 }
             }
             ComboBox {
@@ -118,6 +97,45 @@ Page {
                     MenuItem { text: "1000"}
                 }
             }
+            TextSwitch {
+                id: enableNotify
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Enable Notifications")
+                checked: whisperfish.settings().enableNotify
+                onCheckedChanged: {
+                    if(checked != whisperfish.settings().enableNotify) {
+                        whisperfish.settings().enableNotify = checked
+                        whisperfish.saveSettings()
+                    }
+                }
+            }
+            TextSwitch {
+                id: saveAttachments
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Save Attachments")
+                checked: whisperfish.settings().saveAttachments
+                onCheckedChanged: {
+                    if(checked != whisperfish.settings().saveAttachments) {
+                        whisperfish.settings().saveAttachments = checked
+                        whisperfish.saveSettings()
+                    }
+                }
+            }
+            SectionHeader {
+                text: qsTr("Advanced")
+            }
+            TextSwitch {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Incognito Mode")
+                checked: whisperfish.settings().incognito
+                onCheckedChanged: {
+                    if(checked != whisperfish.settings().incognito) {
+                        whisperfish.settings().incognito = checked
+                        whisperfish.saveSettings()
+                        remorse.execute("Restarting whisperfish...", function() { whisperfish.restart() })
+                    }
+                }
+            }
             SectionHeader {
                 text: qsTr("Statistics")
             }
@@ -136,6 +154,14 @@ Page {
             DetailItem {
                 label: qsTr("Signal Contacts")
                 value: contactsModel.len
+            }
+            DetailItem {
+                label: qsTr("Encrypted Key Store")
+                value: whisperfish.hasEncryptedKeystore() ? qsTr("Enabled") : qsTr("Disabled")
+            }
+            DetailItem {
+                label: qsTr("Encrypted Database")
+                value: whisperfish.settings().encryptDatabase ? qsTr("Enabled") : qsTr("Disabled")
             }
 		}
 	}

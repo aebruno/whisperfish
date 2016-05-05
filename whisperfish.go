@@ -18,9 +18,11 @@
 package main
 
 import (
+	"crypto/rand"
 	"database/sql"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -33,8 +35,9 @@ import (
 	"github.com/janimo/textsecure"
 	"github.com/janimo/textsecure/3rd_party/magic"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mutecomm/go-sqlcipher"
 	"github.com/ttacon/libphonenumber"
+	"golang.org/x/crypto/scrypt"
 	"gopkg.in/qml.v1"
 )
 
@@ -62,6 +65,8 @@ type Whisperfish struct {
 	settingsFile    string
 	settings        *Settings
 	config          *textsecure.Config
+	dbFile          string
+	saltFile        string
 	db              *sqlx.DB
 	activeSessionID int64
 	sentQueueSize   int
@@ -150,6 +155,23 @@ func (w *Whisperfish) runBackend() {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Fatal("Failed to setup textsecure client")
+		return
+	}
+
+	if w.db == nil && !w.settings.EncryptDatabase {
+		// Attempt open of unencrypted datastore
+		var err error
+		w.db, err = NewDb(w.dbFile)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Failed to open unencrypted database")
+			return
+		}
+	}
+
+	if w.db == nil {
+		log.Error("No database found")
 		return
 	}
 
@@ -252,7 +274,8 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	w.storageDir = filepath.Join(w.dataDir, "storage")
 	w.attachDir = filepath.Join(w.storageDir, "attachments")
 	dbDir := filepath.Join(w.dataDir, "db")
-	dbFile := filepath.Join(dbDir, fmt.Sprintf("%s.db", Appname))
+	w.dbFile = filepath.Join(dbDir, fmt.Sprintf("%s.db", Appname))
+	w.saltFile = filepath.Join(dbDir, "salt")
 
 	os.MkdirAll(w.configDir, 0700)
 	os.MkdirAll(w.dataDir, 0700)
@@ -267,12 +290,8 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 		w.SaveSettings()
 	}
 
-	var err error
-	w.db, err = NewDb(dbFile)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to open database")
+	if w.settings.Incognito {
+		w.dbFile = ":memory:"
 	}
 
 	// initialize model delegates
@@ -287,6 +306,11 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	if _, err := os.Stat(filepath.Join(w.storageDir, "identity", "identity_key")); err == nil {
 		w.hasKeys = true
 	}
+}
+
+// Force exit of application
+func (w *Whisperfish) Restart() {
+	os.Exit(0)
 }
 
 // Returns the GO runtime version used for building the application
@@ -389,9 +413,50 @@ func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
 	return w.config, errConfig
 }
 
+func (w *Whisperfish) getSalt() ([]byte, error) {
+	salt := make([]byte, 8)
+
+	if _, err := os.Stat(w.saltFile); err == nil {
+		salt, err = ioutil.ReadFile(w.saltFile)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		if _, err := io.ReadFull(rand.Reader, salt); err != nil {
+			return nil, err
+		}
+
+		err = ioutil.WriteFile(w.saltFile, salt, 0600)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return salt, nil
+}
+
 // Prompt the user for storage password
 func (w *Whisperfish) getStoragePassword() string {
 	pass := w.getTextFromDialog("getStoragePassword", "passwordDialog", "passwordEntered")
+
+	if w.settings.EncryptDatabase {
+		salt, err := w.getSalt()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Failed to get salt")
+			return pass
+		}
+
+		key, _ := scrypt.Key([]byte(pass), salt, 16384, 8, 1, 32)
+		dsn := fmt.Sprintf("%s?_pragma_key=x'%X'&_pragma_cipher_page_size=4096", w.dbFile, key)
+		w.db, err = NewDb(dsn)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Failed to open encrypted database")
+		}
+	}
 
 	return pass
 }
@@ -485,7 +550,7 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 	}
 
 	if len(msg.Attachments()) > 0 {
-		if w.settings.SaveAttachments {
+		if w.settings.SaveAttachments && !w.settings.Incognito {
 			err := message.SaveAttachment(w.attachDir, msg.Attachments()[0])
 			if err != nil {
 				log.WithFields(log.Fields{

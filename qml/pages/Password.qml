@@ -65,7 +65,7 @@ Dialog {
             visible: !whisperfish.hasEncryptionKeys()
             validator: RegExpValidator{ regExp: /.{6,}/;}
             label: "Verify Password"
-            placeholderText: "Type password again"
+            placeholderText: "Verify Password"
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight ? "red" : Theme.primaryColor
@@ -80,7 +80,7 @@ Dialog {
             font.pixelSize: Theme.fontSizeTiny
             horizontalAlignment: TextEdit.Center
             readOnly: true
-            text: qsTr("Whisperfish uses encrypted storage for identity keys and session state. This password is not stored anywhere and you will not be able to restore your data if you lose your password. IMPORTANT NOTE your messages are stored unencrypted on disk. Currently only identity keys and session state are stored encrypted.")
+            text: qsTr("Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.")
         }
     }
 }

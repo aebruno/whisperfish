@@ -6,36 +6,11 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func newTestDb() (*sqlx.DB, error) {
-	db, err := sqlx.Open("sqlite3", ":memory:")
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = db.Exec(SessionSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = db.Exec(MessageSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = db.Exec(SentqSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
+	key := "9AE7F9E29BF18153C24BE38605A65C759034B611CDA549204D066FC6382BDC2D"
+	return NewDb(fmt.Sprintf(":memory:?_pragma_key=x'%X'&_pragma_cipher_page_size=4096", key))
 }
 
 func TestSession(t *testing.T) {

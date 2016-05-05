@@ -37,9 +37,10 @@ Features
 - [x] Group messages
 - [x] Storing conversations
 - [x] Photo/video attachments
-- [x] Encrypted key store
-- [ ] Encrypted message store
-- [ ] Advanced user settings
+- [x] Encrypted identity and session store
+- [x] Encrypted message store
+- [x] Advanced user settings
+- [ ] Encrypted attachments
 - [ ] Archiving conversations
 
 -------------------------------------------------------------------------------
