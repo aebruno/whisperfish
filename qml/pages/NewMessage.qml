@@ -68,7 +68,7 @@ Page {
                     }
                     RecipientField {
                         id: recipientField
-                        property bool hasValidContact
+                        property int validContacts
                         property var recipients: new Object()
                         width: parent.width
                         requiredProperty: PeopleModel.PhoneNumberRequired
@@ -97,7 +97,7 @@ Page {
                             }
 
                             if(invalidContactFound == false && Object.keys(recipients).length > 0){
-                                hasValidContact = true
+                                validContacts = Object.keys(recipients).length
                                 errorLabel.text = ""
                             }
                         }
@@ -125,7 +125,7 @@ Page {
                         label: "Group Name"
                         placeholderText: "Group Name"
                         placeholderColor: Theme.highlightColor
-                        visible: recipientField.hasValidContact && Object.keys(recipientField.recipients).length > 1
+                        visible: recipientField.validContacts > 1
                         horizontalAlignment: TextInput.AlignLeft
                     }
                 }
@@ -146,7 +146,7 @@ Page {
                 clearAfterSend: recipientField.hasValidContact
 
                 onSendMessage: {
-                    if (recipientField.hasValidContact) {
+                    if (recipientField.validContacts > 0) {
                         var source = Object.keys(recipientField.recipients).join(",")
                         whisperfish.sendMessage(source, text, groupName.text, attachmentPath)
                         pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
