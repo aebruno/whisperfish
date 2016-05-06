@@ -216,6 +216,23 @@ func (w *Whisperfish) RefreshSessions() {
 }
 
 // Set active session
+func (w *Whisperfish) setSession(session *Session) {
+	w.activeSessionID = session.ID
+	if session.IsGroup {
+		w.messageModel.Name = session.GroupName
+	} else {
+		w.messageModel.Name = w.contactsModel.Name(session.Source)
+	}
+	w.messageModel.IsGroup = session.IsGroup
+	w.messageModel.Tel = session.Source
+	w.messageModel.Identity = w.ContactIdentity(session.Source)
+	qml.Changed(&w.messageModel, &w.messageModel.Name)
+	qml.Changed(&w.messageModel, &w.messageModel.IsGroup)
+	qml.Changed(&w.messageModel, &w.messageModel.Tel)
+	qml.Changed(&w.messageModel, &w.messageModel.Identity)
+}
+
+// Set active session by id
 func (w *Whisperfish) SetSession(sessionID int64) {
 	session, err := FetchSession(w.db, sessionID)
 	if err != nil {
@@ -225,23 +242,13 @@ func (w *Whisperfish) SetSession(sessionID int64) {
 		}).Error("Failed to fetch session")
 	}
 
-	w.activeSessionID = sessionID
-	if session.IsGroup {
-		w.messageModel.Name = session.GroupName
-	} else {
-		w.messageModel.Name = w.contactsModel.Name(session.Source)
-	}
-	w.messageModel.Tel = session.Source
-	w.messageModel.Identity = w.ContactIdentity(session.Source)
-	qml.Changed(&w.messageModel, &w.messageModel.Name)
-	qml.Changed(&w.messageModel, &w.messageModel.Tel)
-	qml.Changed(&w.messageModel, &w.messageModel.Identity)
+	w.setSession(session)
 
-	err = MarkSessionRead(w.db, sessionID)
+	err = MarkSessionRead(w.db, session.ID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-			"sid":   w.activeSessionID,
+			"sid":   session.ID,
 		}).Error("Failed to mark session read")
 	}
 
@@ -671,15 +678,7 @@ func (w *Whisperfish) sendMessageHelper(to, msg, attachment string, group *texts
 		return err
 	}
 
-	w.activeSessionID = session.ID
-	if session.IsGroup {
-		w.messageModel.Name = session.GroupName
-	} else {
-		w.messageModel.Name = w.contactsModel.Name(session.Source)
-	}
-	w.messageModel.Tel = session.Source
-	qml.Changed(&w.messageModel, &w.messageModel.Name)
-	qml.Changed(&w.messageModel, &w.messageModel.Tel)
+	w.setSession(session)
 	w.RefreshConversation()
 	w.RefreshSessions()
 

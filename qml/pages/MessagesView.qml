@@ -91,7 +91,7 @@ SilicaListView {
                 id: text
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeExtraSmall
-                text: messageModel.name
+                text: messageModel.isGroup ? qsTr("Group: "+messageModel.name) : messageModel.name
             }
         }
     }

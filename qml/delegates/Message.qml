@@ -160,6 +160,7 @@ ListItem {
         opacity: 0.6
         font.pixelSize: Theme.fontSizeExtraSmall
         horizontalAlignment: messageText.horizontalAlignment
+        wrapMode: Text.Wrap
 
         text: {
             if (!msg) {
@@ -170,6 +171,9 @@ ListItem {
                     re += " | " + qsTrId("Received")
                 } else if (msg.sent) {
                     re += " | " + qsTr("Sent")
+                }
+                if(inbound && messageModel.isGroup) {
+                    re += " | " + contactsModel.name(msg.source, whisperfish.settings().countryCode)
                 }
                 return re
             }

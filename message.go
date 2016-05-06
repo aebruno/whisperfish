@@ -65,6 +65,7 @@ type MessageModel struct {
 	Name     string
 	Tel      string
 	Identity string
+	IsGroup  bool
 	Length   int
 }
 
