@@ -33,6 +33,7 @@ SilicaListView {
     PushUpMenu {
         MenuItem {
             text: qsTr("Verify Identity")
+            enabled: messageModel.identity.length > 0
             onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
         }
     }
