@@ -31,7 +31,6 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/godbus/dbus"
 	"github.com/janimo/textsecure"
 	"github.com/janimo/textsecure/3rd_party/magic"
 	"github.com/jmoiron/sqlx"
@@ -594,35 +593,9 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 	w.RefreshSessions()
 
 	if w.settings.EnableNotify && !w.isActive() {
-		w.notify(msg)
+		name := w.contactsModel.Name(msg.Source())
+		w.window.Root().ObjectByName("main").Call("newMessageNotification", session.ID, name, msg.Message())
 	}
-}
-
-// Send new message notification
-// From https://lists.sailfishos.org/pipermail/devel/2016-April/007036.html
-func (w *Whisperfish) notify(msg *textsecure.Message) error {
-	conn, err := dbus.SessionBus()
-	if err != nil {
-		return err
-	}
-
-	title := w.contactsModel.Name(msg.Source())
-	body := "New message"
-
-	var m map[string]dbus.Variant
-	m = make(map[string]dbus.Variant)
-	m["category"] = dbus.MakeVariant("x-nemo.messaging.im")
-
-	obj := conn.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
-	call := obj.Call("org.freedesktop.Notifications.Notify", 0, "",
-		uint32(0),
-		"", title, body, []string{},
-		m,
-		int32(0))
-	if call.Err != nil {
-		return err
-	}
-	return nil
 }
 
 // Send message

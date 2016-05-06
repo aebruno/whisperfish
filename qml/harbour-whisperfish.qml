@@ -24,4 +24,10 @@ ApplicationWindow
         showMainPage(PageStackAction.Immediate)
         pageStack.push(Qt.resolvedUrl("pages/NewMessage.qml"), { }, operationType)
     }
+
+    function showSession(id, operationType) {
+        showMainPage(PageStackAction.Immediate)
+        whisperfish.setSession(id)
+        pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), { }, operationType)
+    }
 }
