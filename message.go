@@ -183,7 +183,7 @@ func MarkMessageSent(db *sqlx.DB, id int64, ts time.Time) error {
 	return err
 }
 
-func MarkMessageReceived(db *sqlx.DB, source string, ts time.Time) (int64, error) {
+func MarkMessageReceived(db *sqlx.DB, source string, ts time.Time) (int64, int64, error) {
 	type record struct {
 		SessionID int64 `db:"session_id"`
 		MessageID int64 `db:"id"`
@@ -198,15 +198,15 @@ func MarkMessageReceived(db *sqlx.DB, source string, ts time.Time) (int64, error
 		      and sent = 1 and received = 0
 	`, ts.Unix())
 	if err != nil {
-		return rec.SessionID, err
+		return rec.SessionID, rec.MessageID, err
 	}
 
 	_, err = db.Exec(`update message set received = 1 where id = ?`, rec.MessageID)
 	if err != nil {
-		return rec.SessionID, err
+		return rec.SessionID, rec.MessageID, err
 	}
 
-	return rec.SessionID, nil
+	return rec.SessionID, rec.MessageID, nil
 }
 
 func FetchSentq(db *sqlx.DB) ([]*Message, error) {

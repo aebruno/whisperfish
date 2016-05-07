@@ -252,15 +252,14 @@ func (w *Whisperfish) SetSession(sessionID int64) {
 		}).Error("Failed to mark session read")
 	}
 
+	w.messageModel.Length = 0
+	qml.Changed(&w.messageModel, &w.messageModel.Length)
 	w.RefreshConversation()
 	w.RefreshSessions()
 }
 
 // Refresh conversation model
 func (w *Whisperfish) RefreshConversation() {
-	w.messageModel.Length = 0
-	qml.Changed(&w.messageModel, &w.messageModel.Length)
-
 	err := w.messageModel.RefreshConversation(w.db, w.activeSessionID, w.settings.ShowMaxMessages)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -580,6 +579,7 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 
 	if w.activeSessionID == session.ID {
 		w.RefreshConversation()
+
 		if w.getCurrentPageID() == "conversation" {
 			err := MarkSessionRead(w.db, session.ID)
 			if err != nil {
@@ -730,7 +730,15 @@ func (w *Whisperfish) sendMessage(m *Message) error {
 		return err
 	}
 
-	w.RefreshConversation()
+	if w.activeSessionID == s.ID {
+		for i, x := range w.messageModel.messages {
+			if x.ID == m.ID {
+				w.messageModel.messages[i].Sent = true
+				qml.Changed(w.messageModel.messages[i], &w.messageModel.messages[i].Sent)
+			}
+		}
+	}
+
 	w.RefreshSessions()
 	return nil
 }
@@ -786,7 +794,7 @@ func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
 
 	timestamp := time.Unix(0, int64(1000000*ts)).Local()
 
-	sessionID, err := MarkMessageReceived(w.db, source, timestamp)
+	sessionID, messageID, err := MarkMessageReceived(w.db, source, timestamp)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -802,7 +810,12 @@ func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
 	}
 
 	if w.activeSessionID == sessionID {
-		w.RefreshConversation()
+		for i, x := range w.messageModel.messages {
+			if x.ID == messageID {
+				w.messageModel.messages[i].Received = true
+				qml.Changed(w.messageModel.messages[i], &w.messageModel.messages[i].Received)
+			}
+		}
 	}
 
 	w.RefreshSessions()
