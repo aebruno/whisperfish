@@ -147,13 +147,13 @@ func (s *SessionModel) Refresh(db *sqlx.DB, c *Contacts) error {
 }
 
 func (s *Session) UpdateDate() {
-	ts := s.Timestamp
-	now := time.Now()
+	ts := s.Timestamp.Local()
+	now := time.Now().Local()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 	diff := today.Sub(ts)
 	if diff.Seconds() <= 0.0 {
 		s.Section = "Today"
-		s.Date = humanize.RelTime(ts, time.Now(), "", "")
+		s.Date = humanize.RelTime(ts, time.Now().Local(), "", "")
 	} else if diff.Seconds() >= 0 && diff.Hours() <= (24*7) {
 		s.Section = ts.Weekday().String()
 		s.Date = ts.Format("15:04")
