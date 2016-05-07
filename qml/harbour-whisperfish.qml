@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.nemomobile.contacts 1.0
 import org.nemomobile.notifications 1.0
 import "pages"
 
@@ -16,6 +17,11 @@ ApplicationWindow
 
     ImagePicker {
         id: imagepicker
+    }
+
+    PeopleModel {
+        id: peopleModel
+        filterType: PeopleModel.FilterNone
     }
 
     Component {

@@ -73,6 +73,7 @@ Page {
                         width: parent.width
                         requiredProperty: PeopleModel.PhoneNumberRequired
                         showLabel: newMessagePage.isPortrait
+                        contactSearchModel: peopleModel
                         multipleAllowed: true
 
                         onEmptyChanged: if (empty) errorLabel.text = ""
