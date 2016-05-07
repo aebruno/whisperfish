@@ -30,15 +30,6 @@ SilicaListView {
     currentIndex: -1
     quickScroll: false
 
-    PushUpMenu {
-        MenuItem {
-            text: qsTr("Verify Identity")
-            enabled: messageModel.identity.length > 0
-            onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
-        }
-    }
-
-
     delegate: Item {
         id: wrapper
 
@@ -129,5 +120,13 @@ SilicaListView {
     }
 
     VerticalScrollDecorator {}
+
+    PushUpMenu {
+        MenuItem {
+            text: qsTr("Verify Identity")
+            enabled: messageModel.identity.length > 0
+            onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
+        }
+    }
 }
 

@@ -53,6 +53,32 @@ Page {
                 text: whisperfish.identity()
             }
             SectionHeader {
+                text: qsTr("Notifications")
+            }
+            TextSwitch {
+                id: enableNotify
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Enable")
+                checked: whisperfish.settings().enableNotify
+                onCheckedChanged: {
+                    if(checked != whisperfish.settings().enableNotify) {
+                        whisperfish.settings().enableNotify = checked
+                        whisperfish.saveSettings()
+                    }
+                }
+            }
+            TextSwitch {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Show Message Body")
+                checked: whisperfish.settings().showNotifyMessage
+                onCheckedChanged: {
+                    if(checked != whisperfish.settings().showNotifyMessage) {
+                        whisperfish.settings().showNotifyMessage = checked
+                        whisperfish.saveSettings()
+                    }
+                }
+            }
+            SectionHeader {
                 text: qsTr("General")
             }
             ValueButton {
@@ -95,18 +121,6 @@ Page {
                     MenuItem { text: "100"}
                     MenuItem { text: "500"}
                     MenuItem { text: "1000"}
-                }
-            }
-            TextSwitch {
-                id: enableNotify
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Enable Notifications")
-                checked: whisperfish.settings().enableNotify
-                onCheckedChanged: {
-                    if(checked != whisperfish.settings().enableNotify) {
-                        whisperfish.settings().enableNotify = checked
-                        whisperfish.saveSettings()
-                    }
                 }
             }
             TextSwitch {

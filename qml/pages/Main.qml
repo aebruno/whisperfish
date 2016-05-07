@@ -1,6 +1,5 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import org.nemomobile.notifications 1.0
 import "../delegates"
 
 Page {
@@ -22,36 +21,6 @@ Page {
         for (var i = 0; i < sessionModel.length; i++) {
             sessionView.model.append(sessionModel.get(i))
         }
-    }
-
-    Component {
-        id: messageNotification
-        Notification {}
-    }
-
-    function newMessageNotification(id, summary, body) {
-        var m = messageNotification.createObject(null)
-        m.category = "harbour-whisperfish-message"
-        m.previewSummary = summary
-        m.previewBody = body
-        m.summary = summary
-        m.body = body
-        m.clicked.connect(function() {
-            mainWindow.activate()
-            mainWindow.showSession(id, PageStackAction.Immediate)
-        })
-        // This is needed to call default action
-        m.remoteActions = [ {
-            "name": "default",
-            "displayName": "Show Conversation",
-            "icon": "harbour-whisperfish",
-            "service": "org.whisperfish.session",
-            "path": "/message",
-            "iface": "org.whisperfish.session",
-            "method": "showConversation",
-            "arguments": [ "id", id ]
-        } ]
-        m.publish()
     }
 
     function getPhoneNumber() {

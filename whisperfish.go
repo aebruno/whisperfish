@@ -219,12 +219,13 @@ func (w *Whisperfish) setSession(session *Session) {
 	w.activeSessionID = session.ID
 	if session.IsGroup {
 		w.messageModel.Name = session.GroupName
+		w.messageModel.Identity = ""
 	} else {
 		w.messageModel.Name = w.contactsModel.Name(session.Source)
+		w.messageModel.Identity = w.ContactIdentity(session.Source)
 	}
 	w.messageModel.IsGroup = session.IsGroup
 	w.messageModel.Tel = session.Source
-	w.messageModel.Identity = w.ContactIdentity(session.Source)
 	qml.Changed(&w.messageModel, &w.messageModel.Name)
 	qml.Changed(&w.messageModel, &w.messageModel.IsGroup)
 	qml.Changed(&w.messageModel, &w.messageModel.Tel)
@@ -592,10 +593,21 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 
 	w.RefreshSessions()
 
-	if w.settings.EnableNotify && !w.isActive() {
-		name := w.contactsModel.Name(msg.Source())
-		w.window.Root().ObjectByName("main").Call("newMessageNotification", session.ID, name, msg.Message())
+	active := w.isActive()
+	pageID := w.getCurrentPageID()
+
+	// Don't send notification if disabled or viewing the main conversation page
+	if !w.settings.EnableNotify || (active && pageID == "main") {
+		return
 	}
+
+	// Don't send notification if view the current conversation
+	if active && w.activeSessionID == session.ID && pageID == "conversation" {
+		return
+	}
+
+	name := w.contactsModel.Name(msg.Source())
+	w.window.Root().Call("newMessageNotification", session.ID, name, msg.Message())
 }
 
 // Send message

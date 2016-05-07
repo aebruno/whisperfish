@@ -66,6 +66,7 @@ BackgroundItem {
 
 
     onClicked: {
+        mainWindow.removeNotification(id)
         whisperfish.setSession(id)
         pageStack.push(Qt.resolvedUrl("../pages/Conversation.qml"));
     }

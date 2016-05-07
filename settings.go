@@ -7,17 +7,19 @@ import (
 )
 
 type Settings struct {
-	Incognito       bool   `yaml:"incognito"`
-	EnableNotify    bool   `yaml:"enable_notify"`
-	EncryptDatabase bool   `yaml:"encrypt_database"`
-	SaveAttachments bool   `yaml:"save_attachments"`
-	CountryCode     string `yaml:"country_code"`
-	ShowMaxMessages int    `yaml:"show_max_messages"`
+	Incognito         bool   `yaml:"incognito"`
+	EnableNotify      bool   `yaml:"enable_notify"`
+	ShowNotifyMessage bool   `yaml:"show_notify_message"`
+	EncryptDatabase   bool   `yaml:"encrypt_database"`
+	SaveAttachments   bool   `yaml:"save_attachments"`
+	CountryCode       string `yaml:"country_code"`
+	ShowMaxMessages   int    `yaml:"show_max_messages"`
 }
 
 func (s *Settings) SetDefault() {
 	s.Incognito = false
 	s.EnableNotify = true
+	s.ShowNotifyMessage = false
 	s.EncryptDatabase = true
 	s.SaveAttachments = true
 	s.CountryCode = ""
