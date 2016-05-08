@@ -34,7 +34,7 @@ func TestMessage(t *testing.T) {
 		t.Error("Failed to set message ID after insert")
 	}
 
-	messages, err := FetchAllMessages(db, sess.ID, 100)
+	messages, err := FetchAllMessages(db, sess.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -85,7 +85,7 @@ func TestMessageDelete(t *testing.T) {
 		t.Error("Failed to set message ID after insert")
 	}
 
-	messages, err := FetchAllMessages(db, sid, 100)
+	messages, err := FetchAllMessages(db, sid)
 	if err != nil {
 		t.Error(err)
 	}
@@ -99,7 +99,7 @@ func TestMessageDelete(t *testing.T) {
 		t.Error(err)
 	}
 
-	messages, err = FetchAllMessages(db, sid, 100)
+	messages, err = FetchAllMessages(db, sid)
 	if err != nil {
 		t.Error(err)
 	}

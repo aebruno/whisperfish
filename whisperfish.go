@@ -260,7 +260,7 @@ func (w *Whisperfish) SetSession(sessionID int64) {
 
 // Refresh conversation model
 func (w *Whisperfish) RefreshConversation() {
-	err := w.messageModel.RefreshConversation(w.db, w.activeSessionID, w.settings.ShowMaxMessages)
+	err := w.messageModel.RefreshConversation(w.db, w.activeSessionID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,

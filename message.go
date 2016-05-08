@@ -106,9 +106,9 @@ func (m *MessageModel) Get(i int) *Message {
 	return m.messages[i]
 }
 
-func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64, limit int) error {
+func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64) error {
 	var err error
-	m.messages, err = FetchAllMessages(db, sessionID, limit)
+	m.messages, err = FetchAllMessages(db, sessionID)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func SaveMessage(db *sqlx.DB, msg *Message) error {
 	return nil
 }
 
-func FetchAllMessages(db *sqlx.DB, sessionID int64, limit int) ([]*Message, error) {
+func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 	messages := []*Message{}
 	err := db.Select(&messages, `
 	select
@@ -165,7 +165,7 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64, limit int) ([]*Message, erro
 		message as m
     where m.session_id = ?
 	order by m.timestamp desc
-    limit ?`, sessionID, limit)
+    `, sessionID)
 	if err != nil {
 		return nil, err
 	}
