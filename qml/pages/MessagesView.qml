@@ -130,6 +130,11 @@ SilicaListView {
             onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
         }
         MenuItem {
+            text: qsTr("Reset Secure Session")
+            enabled: messageModel.identity.length > 0
+            onClicked: whisperfish.endSession(messageModel.tel)
+        }
+        MenuItem {
             text: qsTr("Delete All")
             onClicked: {
                 remorse.execute(qsTr("Deleting All Messages"),

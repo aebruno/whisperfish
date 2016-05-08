@@ -395,7 +395,7 @@ func (w *Whisperfish) DeleteMessage(id int64) {
 	w.RefreshConversation()
 }
 
-// Delete message
+// Delete all messages
 func (w *Whisperfish) DeleteAllMessages(sid int64) {
 	err := DeleteAllMessages(w.db, sid)
 	if err != nil {
@@ -406,6 +406,35 @@ func (w *Whisperfish) DeleteAllMessages(sid int64) {
 	}
 	w.RefreshConversation()
 	w.RefreshSessions()
+}
+
+// Reset secure session
+func (w *Whisperfish) EndSession(source string) {
+	message := &Message{
+		Source:    source,
+		Message:   "[Whisperfish] Reset secure session",
+		Timestamp: time.Now(),
+		Outgoing:  true,
+		Flags:     textsecure.EndSessionFlag,
+	}
+
+	_, err := w.sessionModel.Add(w.db, message, nil, false)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed add EndSession message to sessionModel")
+		return
+	}
+
+	w.RefreshConversation()
+	w.RefreshSessions()
+
+	err = QueueSent(w.db, message)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to add EndSession message to queue")
+	}
 }
 
 // Get the config file for Signal
@@ -706,7 +735,9 @@ func (w *Whisperfish) sendMessage(m *Message) error {
 		}
 	}
 
-	if att == nil {
+	if m.Flags == textsecure.EndSessionFlag {
+		ts, err = textsecure.EndSession(s.Source, "Reset Secure Session")
+	} else if att == nil {
 		if s.IsGroup {
 			ts, err = textsecure.SendGroupMessage(s.Source, m.Message)
 		} else {
