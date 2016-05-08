@@ -33,6 +33,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/janimo/textsecure"
 	"github.com/janimo/textsecure/3rd_party/magic"
+	"github.com/janimo/textsecure/axolotl"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mutecomm/go-sqlcipher"
 	"github.com/ttacon/libphonenumber"
@@ -452,7 +453,7 @@ func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
 		w.config.UnencryptedStorage = false
 		w.config.VerificationType = "voice"
 		w.config.LogLevel = "debug"
-		w.config.AlwaysTrustPeerID = true
+		w.config.AlwaysTrustPeerID = false
 	}
 
 	rootCA := filepath.Join(w.configDir, "rootCA.crt")
@@ -749,6 +750,41 @@ func (w *Whisperfish) sendMessage(m *Message) error {
 		} else {
 			ts, err = textsecure.SendAttachment(s.Source, m.Message, att)
 		}
+	}
+
+	if nerr, ok := err.(axolotl.NotTrustedError); ok {
+		remoteIdentityPath := filepath.Join(w.storageDir, "identity", fmt.Sprintf("remote_%s", nerr.ID))
+		log.WithFields(log.Fields{
+			"error":          err,
+			"source":         nerr.ID,
+			"remoteIdentity": remoteIdentityPath,
+		}).Error("Peer identity not trusted")
+
+		w.window.Root().ObjectByName("main").Call("confirmResetPeerIdentity", nerr.ID)
+		p := w.window.Root().ObjectByName("resetPeerDialog")
+		ch := make(chan string)
+		p.On("resetConfirm", func(text string) {
+			ch <- text
+		})
+		confirm := <-ch
+
+		if confirm == "yes" {
+			err = os.Remove(remoteIdentityPath)
+			if err != nil {
+				return err
+			}
+
+			return fmt.Errorf("Reset peer identity")
+		}
+
+		err := DequeueSent(w.db, m.ID)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+				"id":    m.ID,
+			}).Error("Failed to remove message from mailq")
+		}
+		return fmt.Errorf("Peer identity not trusted. Abort sending message.")
 	}
 
 	if err != nil {

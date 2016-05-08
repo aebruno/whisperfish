@@ -39,6 +39,10 @@ Page {
         registeredRemorse.execute("Registration complete!", function() { console.log("Registration complete") })
     }
 
+    function confirmResetPeerIdentity(source) {
+        pageStack.push(Qt.resolvedUrl("ResetPeerIdentity.qml"), { source: source })
+    }
+
     RemorsePopup { id: registeredRemorse }
 
     SilicaListView {
