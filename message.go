@@ -66,6 +66,7 @@ type MessageModel struct {
 	Tel      string
 	Identity string
 	IsGroup  bool
+	SID      int64
 	Length   int
 }
 
@@ -175,6 +176,15 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 
 func DeleteMessage(db *sqlx.DB, id int64) error {
 	_, err := db.Exec(`delete from message where id = ?`, id)
+	return err
+}
+
+func DeleteAllMessages(db *sqlx.DB, sid int64) error {
+	_, err := db.Exec(`delete from message where session_id = ?`, sid)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(`delete from session where id = ?`, sid)
 	return err
 }
 

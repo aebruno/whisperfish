@@ -225,6 +225,7 @@ func (w *Whisperfish) setSession(session *Session) {
 		w.messageModel.Identity = w.ContactIdentity(session.Source)
 	}
 	w.messageModel.IsGroup = session.IsGroup
+	w.messageModel.SID = session.ID
 	w.messageModel.Tel = session.Source
 	qml.Changed(&w.messageModel, &w.messageModel.Name)
 	qml.Changed(&w.messageModel, &w.messageModel.IsGroup)
@@ -392,6 +393,19 @@ func (w *Whisperfish) DeleteMessage(id int64) {
 	}
 	DequeueSent(w.db, id)
 	w.RefreshConversation()
+}
+
+// Delete message
+func (w *Whisperfish) DeleteAllMessages(sid int64) {
+	err := DeleteAllMessages(w.db, sid)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"sid":   sid,
+		}).Error("Failed to delete all messages from session")
+	}
+	w.RefreshConversation()
+	w.RefreshSessions()
 }
 
 // Get the config file for Signal

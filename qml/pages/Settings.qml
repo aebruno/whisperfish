@@ -95,34 +95,6 @@ Page {
                     })
                 }
             }
-            ComboBox {
-                anchors.horizontalCenter: parent.horizontalCenter
-                label: qsTr("Show Max Messages")
-                currentIndex: {
-                    if (whisperfish.settings().showMaxMessages == 5) return 0
-                    else if (whisperfish.settings().showMaxMessages == 10) return 1
-                    else if (whisperfish.settings().showMaxMessages == 15) return 2
-                    else if (whisperfish.settings().showMaxMessages == 20) return 3
-                    else if (whisperfish.settings().showMaxMessages == 50) return 4
-                    else if (whisperfish.settings().showMaxMessages == 100) return 5
-                    else if (whisperfish.settings().showMaxMessages == 500) return 6
-                    else if (whisperfish.settings().showMaxMessages == 1000) return 7
-                }
-                onValueChanged: {
-                    whisperfish.settings().showMaxMessages = parseInt(value)
-                    whisperfish.saveSettings()
-                }
-                menu: ContextMenu {
-                    MenuItem { text: "5"}
-                    MenuItem { text: "10"}
-                    MenuItem { text: "15"}
-                    MenuItem { text: "20"}
-                    MenuItem { text: "50"}
-                    MenuItem { text: "100"}
-                    MenuItem { text: "500"}
-                    MenuItem { text: "1000"}
-                }
-            }
             TextSwitch {
                 id: saveAttachments
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -146,7 +118,7 @@ Page {
                     if(checked != whisperfish.settings().incognito) {
                         whisperfish.settings().incognito = checked
                         whisperfish.saveSettings()
-                        remorse.execute("Restarting whisperfish...", function() { whisperfish.restart() })
+                        remorse.execute(qsTr("Restarting whisperfish..."), function() { whisperfish.restart() })
                     }
                 }
             }

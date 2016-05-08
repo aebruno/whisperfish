@@ -121,11 +121,25 @@ SilicaListView {
 
     VerticalScrollDecorator {}
 
+    RemorsePopup { id: remorse }
+
     PushUpMenu {
         MenuItem {
             text: qsTr("Verify Identity")
             enabled: messageModel.identity.length > 0
             onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
+        }
+        MenuItem {
+            text: qsTr("Delete All")
+            onClicked: {
+                remorse.execute(qsTr("Deleting All Messages"),
+                    function() {
+                        console.log("Deleting all messages for session: "+messageModel.sid)
+                        whisperfish.deleteAllMessages(messageModel.sid)
+                        mainWindow.showMainPage(PageStackAction.Immediate)
+
+                    })
+            }
         }
     }
 }
