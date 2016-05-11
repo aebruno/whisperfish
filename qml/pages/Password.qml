@@ -12,11 +12,11 @@ Dialog {
         if(passwordField.errorHighlight){
             return false
         }
-        if(!whisperfish.hasEncryptionKeys() && passwordField2.errorHighlight){
+        if(!whisperfish.hasKeys && passwordField2.errorHighlight){
             return false
         }
 
-        if(!whisperfish.hasEncryptionKeys() && passwordField.text != passwordField2.text){
+        if(!whisperfish.hasKeys && passwordField.text != passwordField2.text){
             return false
         }
 
@@ -41,7 +41,7 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: whisperfish.hasEncryptionKeys() ? qsTr("Enter your password") : qsTr("Set your password")
+            text: whisperfish.hasKeys ? qsTr("Enter your password") : qsTr("Set your password")
         }
 
         TextField {
@@ -62,7 +62,7 @@ Dialog {
             id: passwordField2
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
-            visible: !whisperfish.hasEncryptionKeys()
+            visible: !whisperfish.hasKeys
             validator: RegExpValidator{ regExp: /.{6,}/;}
             label: "Verify Password"
             placeholderText: "Verify Password"
@@ -75,7 +75,7 @@ Dialog {
 
         TextArea {
             anchors.horizontalCenter: parent.horizontalCenter
-            visible: !whisperfish.hasEncryptionKeys()
+            visible: !whisperfish.hasKeys
             width: parent.width
             font.pixelSize: Theme.fontSizeTiny
             horizontalAlignment: TextEdit.Center

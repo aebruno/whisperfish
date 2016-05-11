@@ -15,6 +15,10 @@ Page {
 
         PullDownMenu {
             MenuItem {
+                text: qsTr("Linked Devices")
+                onClicked: pageStack.push(Qt.resolvedUrl("LinkedDevices.qml"))
+            }
+            MenuItem {
                 text: qsTr("Refresh Contacts")
                 onClicked: {
                     whisperfish.refreshContacts()

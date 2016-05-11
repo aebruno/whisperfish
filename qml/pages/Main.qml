@@ -74,7 +74,7 @@ Page {
             enabled: sessionView.count == 0
             text: whisperfish.locked ? qsTr("Whisperfish") : qsTr("No messages")
             hintText: {
-                if(!whisperfish.hasEncryptionKeys()) {
+                if(!whisperfish.hasKeys) {
                     qsTr("Registration required")
                 } else if(whisperfish.locked) {
                     qsTr("Locked")

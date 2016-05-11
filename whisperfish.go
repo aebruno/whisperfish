@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -57,6 +58,7 @@ type Whisperfish struct {
 	contactsModel   Contacts
 	sessionModel    SessionModel
 	messageModel    MessageModel
+	deviceModel     DeviceModel
 	configDir       string
 	configFile      string
 	dataDir         string
@@ -71,7 +73,7 @@ type Whisperfish struct {
 	activeSessionID int64
 	sentQueueSize   int
 	totalMessages   int
-	hasKeys         bool
+	HasKeys         bool
 	Locked          bool
 }
 
@@ -178,6 +180,7 @@ func (w *Whisperfish) runBackend() {
 	w.Locked = false
 	qml.Changed(w, &w.Locked)
 	w.RefreshContacts()
+	w.RefreshDevices()
 	w.RefreshSessions()
 
 	go w.sendMessageWorker()
@@ -190,6 +193,63 @@ func (w *Whisperfish) runBackend() {
 			time.Sleep(3 * time.Second)
 		}
 	}
+}
+
+// Refresh devices
+func (w *Whisperfish) RefreshDevices() {
+	w.deviceModel.Refresh()
+}
+
+// Link new device
+func (w *Whisperfish) LinkDevice(tsdev string) bool {
+	log.WithFields(log.Fields{
+		"url": tsdev,
+	}).Debug("Linking new device")
+
+	deviceURL, err := url.Parse(tsdev)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to parse URL for new device")
+		return false
+	}
+
+	uuid := deviceURL.Query().Get("uuid")
+	pk := deviceURL.Query().Get("pub_key")
+	code, err := textsecure.NewDeviceVerificationCode()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to get new device verification code")
+		return false
+	}
+
+	err = textsecure.AddDevice(uuid, pk, code)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to add device")
+		return false
+	}
+
+	return true
+}
+
+// Unlink device with id
+func (w *Whisperfish) UnlinkDevice(id int) {
+	if id == 1 {
+		log.Error("Cannot remove the first device")
+		return
+	}
+
+	err := textsecure.UnlinkDevice(id)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to unlink device")
+	}
+
+	w.RefreshDevices()
 }
 
 // Refresh contacts
@@ -305,14 +365,14 @@ func (w *Whisperfish) Init(engine *qml.Engine) {
 	// initialize model delegates
 	w.engine.Context().SetVar("whisperfish", w)
 	w.engine.Context().SetVar("contactsModel", &w.contactsModel)
+	w.engine.Context().SetVar("deviceModel", &w.deviceModel)
 	w.engine.Context().SetVar("sessionModel", &w.sessionModel)
 	w.engine.Context().SetVar("messageModel", &w.messageModel)
 
 	// default to locked
 	w.Locked = true
-
 	if _, err := os.Stat(filepath.Join(w.storageDir, "identity", "identity_key")); err == nil {
-		w.hasKeys = true
+		w.HasKeys = true
 	}
 }
 
@@ -451,6 +511,7 @@ func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
 		w.config.StorageDir = w.storageDir
 		w.config.UserAgent = fmt.Sprintf("Whisperfish v%s", Version)
 		w.config.UnencryptedStorage = false
+		w.config.EnableMultiDeviceSync = true
 		w.config.VerificationType = "voice"
 		w.config.LogLevel = "debug"
 		w.config.AlwaysTrustPeerID = false
@@ -552,6 +613,10 @@ func (w *Whisperfish) registrationDone() {
 		status = w.getCurrentPageStatus()
 	}
 	w.window.Root().ObjectByName("main").Call("registered")
+	if _, err := os.Stat(filepath.Join(w.storageDir, "identity", "identity_key")); err == nil {
+		w.HasKeys = true
+		qml.Changed(w, &w.HasKeys)
+	}
 }
 
 // Get the current page status
@@ -937,11 +1002,6 @@ func (w *Whisperfish) getSailfishContacts() ([]textsecure.Contact, error) {
 	}
 
 	return contacts, nil
-}
-
-// Return true if encrypted keys have been created
-func (w *Whisperfish) HasEncryptionKeys() bool {
-	return w.hasKeys
 }
 
 // Return true if encrypted key store is enabled
