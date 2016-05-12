@@ -22,8 +22,7 @@ Page {
         for (var i = 0; i < sessionModel.length; i++) {
             var s = sessionModel.get(i)
             var dt = new Date(s.timestamp)
-            var elapsed = now - dt.getTime()
-            var sectionLabel = Format.formatDate(elapsed, Formatter.TimepointSectionRelative)
+            var sectionLabel = Format.formatDate(dt, Formatter.TimepointSectionRelative)
             sessionView.model.append({
                 'id': s.id,
                 'name': s.name,
