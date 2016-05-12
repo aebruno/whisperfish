@@ -40,6 +40,7 @@ Features
 - [x] Encrypted identity and session store
 - [x] Encrypted message store
 - [x] Advanced user settings
+- [x] Multi-Device support (links with Signal Desktop)
 - [ ] Encrypted attachments
 - [ ] Archiving conversations
 
