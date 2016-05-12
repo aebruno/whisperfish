@@ -23,7 +23,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/janimo/textsecure"
@@ -34,7 +33,7 @@ import (
 const (
 	MessageSchema = `
 		create table if not exists message 
-		(id integer primary key, session_id integer, source text, message string, timestamp timestamp,
+		(id integer primary key, session_id integer, source text, message string, timestamp integer,
         sent integer default 0, received integer default 0, flags integer default 0, attachment text, 
 		mime_type string, has_attachment integer default 0, outgoing integer default 0)
 	`
@@ -45,19 +44,18 @@ const (
 )
 
 type Message struct {
-	ID            int64     `db:"id"`
-	SID           int64     `db:"session_id"`
-	Source        string    `db:"source"`
-	Message       string    `db:"message"`
-	Timestamp     time.Time `db:"timestamp"`
-	Outgoing      bool      `db:"outgoing"`
-	Sent          bool      `db:"sent"`
-	Received      bool      `db:"received"`
-	Attachment    string    `db:"attachment"`
-	MimeType      string    `db:"mime_type"`
-	HasAttachment bool      `db:"has_attachment"`
-	Flags         uint32    `db:"flags"`
-	Date          string    `db:"date"`
+	ID            int64  `db:"id"`
+	SID           int64  `db:"session_id"`
+	Source        string `db:"source"`
+	Message       string `db:"message"`
+	Timestamp     uint64 `db:"timestamp"`
+	Outgoing      bool   `db:"outgoing"`
+	Sent          bool   `db:"sent"`
+	Received      bool   `db:"received"`
+	Attachment    string `db:"attachment"`
+	MimeType      string `db:"mime_type"`
+	HasAttachment bool   `db:"has_attachment"`
+	Flags         uint32 `db:"flags"`
 }
 
 type MessageModel struct {
@@ -157,7 +155,6 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 		m.has_attachment,
 		m.mime_type,
 		m.timestamp,
-		strftime('%H:%M, %m/%d/%Y', datetime(m.timestamp, 'localtime')) as date,
 		m.flags,
 		m.outgoing,
 		m.sent,
@@ -188,12 +185,12 @@ func DeleteAllMessages(db *sqlx.DB, sid int64) error {
 	return err
 }
 
-func MarkMessageSent(db *sqlx.DB, id int64, ts time.Time) error {
+func MarkMessageSent(db *sqlx.DB, id int64, ts uint64) error {
 	_, err := db.Exec(`update message set timestamp = ?, sent = 1 where id = ?`, ts, id)
 	return err
 }
 
-func MarkMessageReceived(db *sqlx.DB, source string, ts time.Time) (int64, int64, error) {
+func MarkMessageReceived(db *sqlx.DB, source string, ts uint64) (int64, int64, error) {
 	type record struct {
 		SessionID int64 `db:"session_id"`
 		MessageID int64 `db:"id"`
@@ -204,9 +201,8 @@ func MarkMessageReceived(db *sqlx.DB, source string, ts time.Time) (int64, int64
 	err := db.Get(&rec, `
 		select id,session_id
 		from message 
-		where strftime("%s", timestamp) = strftime("%s", datetime(?, 'unixepoch'))
-		      and sent = 1 and received = 0
-	`, ts.Unix())
+		where timestamp = ?
+	`, ts)
 	if err != nil {
 		return rec.SessionID, rec.MessageID, err
 	}
@@ -231,7 +227,6 @@ func FetchSentq(db *sqlx.DB) ([]*Message, error) {
 		m.has_attachment,
 		m.mime_type,
 		m.timestamp,
-		strftime('%H:%M, %m/%d/%Y', datetime(m.timestamp, 'localtime')) as date,
 		m.flags,
 		m.outgoing,
 		m.sent,

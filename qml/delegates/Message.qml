@@ -130,9 +130,6 @@ ListItem {
             } else if (msg.message != "") {
                 hasText = true
                 return msg.message
-            } else if (msg.hasAttachment) {
-                hasText = false
-                return qsTr("Multimedia Message")
             } else {
                 hasText = false
                 return ""
@@ -156,6 +153,12 @@ ListItem {
             topMargin: Theme.paddingSmall
         }
 
+        function msgDate() {
+            var dt = new Date(msg.timestamp)
+            var md = Format.formatDate(dt, Formatter.Timepoint)
+            return md
+        }
+
         color: messageText.color
         opacity: 0.6
         font.pixelSize: Theme.fontSizeExtraSmall
@@ -166,11 +169,11 @@ ListItem {
             if (!msg) {
                 return ""
             } else {
-                var re = msg.date
+                var re = msgDate()
                 if (msg.received) {
-                    re += " | " + qsTrId("Received")
+                    re += qsTr("  ✓✓")
                 } else if (msg.sent) {
-                    re += " | " + qsTr("Sent")
+                    re += qsTr("  ✓")
                 }
                 if(inbound && messageModel.isGroup) {
                     re += " | " + contactsModel.name(msg.source, whisperfish.settings().countryCode)

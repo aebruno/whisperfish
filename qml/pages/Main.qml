@@ -17,9 +17,26 @@ Page {
     // This is a hack to use a psuedo model so we can use the 
     // group the messages into sections based on their timestamps
     function refreshSessions() {
+        var now = new Date().getTime()
         sessionView.model.clear()
         for (var i = 0; i < sessionModel.length; i++) {
-            sessionView.model.append(sessionModel.get(i))
+            var s = sessionModel.get(i)
+            var dt = new Date(s.timestamp)
+            var elapsed = now - dt.getTime()
+            var sectionLabel = Format.formatDate(elapsed, Formatter.TimepointSectionRelative)
+            sessionView.model.append({
+                'id': s.id,
+                'name': s.name,
+                'isGroup': s.isGroup,
+                'groupName': s.groupName,
+                'received': s.received,
+                'unread': s.unread,
+                'sent': s.sent,
+                'message': s.message,
+                'hasAttachment': s.hasAttachment,
+                'date': Format.formatDate(dt, Formatter.DurationElapsed),
+                'section': sectionLabel ? sectionLabel : 'Today'
+            })
         }
     }
 

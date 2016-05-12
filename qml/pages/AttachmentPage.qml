@@ -20,6 +20,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Gallery 1.0
 import Sailfish.TransferEngine 1.0
+import Sailfish.TextLinking 1.0
 
 SplitViewPage {
     id: root
@@ -51,18 +52,29 @@ SplitViewPage {
             }
         }
 
+
         header: PageHeader {
+            function msgDate() {
+                var dt = new Date(root.message.timestamp)
+                return Format.formatDate(dt, Formatter.Timepoint)
+            }
             title: root.message.outgoing ? qsTr("Me") : messageModel.name
-            description: root.message.date
+            description: msgDate()
         }
 
-        footer: BackgroundItem {
-            Label {
-                text: root.message.message
-                x: Theme.horizontalPageMargin
-                anchors.verticalCenter: parent.verticalCenter
-                color: highlighted ? Theme.highlightColor : Theme.primaryColor
+        LinkedText {
+            anchors {
+                left: parent.left
+                right: parent.right
+                leftMargin: Theme.horizontalPageMargin
+                rightMargin: Theme.horizontalPageMargin
+                verticalCenter: parent.verticalCenter
             }
+            plainText: root.message.message ? root.message.message : qsTr("Attachment: "+root.message.mimeType)
+            wrapMode: Text.Wrap
+            font.pixelSize: Theme.fontSizeSmall
+            x: Theme.horizontalPageMargin
+            color: Theme.primaryColor
         }
     }
 

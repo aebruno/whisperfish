@@ -38,7 +38,15 @@ BackgroundItem {
 
     Label {
         id: xbody
-        text: message ? message : ''
+        text: {
+            if (message != "") {
+                return message
+            } else if (hasAttachment) {
+                return qsTr("Attachment")
+            } else {
+                return ""
+            }
+        }
         font.pixelSize: Theme.fontSizeExtraSmall
         color: unread ? Theme.highlightColor : Theme.primaryColor
         truncationMode: TruncationMode.Fade

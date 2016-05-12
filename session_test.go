@@ -20,7 +20,8 @@ func TestSession(t *testing.T) {
 	}
 
 	tel := "+1771111006"
-	sess := &Session{Source: tel, Message: "Hello", Timestamp: time.Now()}
+	now := uint64(time.Now().UnixNano() / 1000000)
+	sess := &Session{Source: tel, Message: "Hello", Timestamp: now}
 	err = SaveSession(db, sess)
 	if err != nil {
 		t.Error(err)
@@ -67,7 +68,8 @@ func TestSessionSave(t *testing.T) {
 	}
 
 	tel := "+1771111006"
-	sess := &Session{Source: tel, Message: "Hello", Timestamp: time.Now()}
+	now := uint64(time.Now().UnixNano() / 1000000)
+	sess := &Session{Source: tel, Message: "Hello", Timestamp: now}
 
 	for i := 0; i < 10; i++ {
 		sess.Message = fmt.Sprintf("Hello: %d", i)
@@ -94,7 +96,8 @@ func TestSessionDelete(t *testing.T) {
 	}
 
 	tel := "+1771111006"
-	sess := &Session{Source: tel, Message: "Hello", Timestamp: time.Now()}
+	now := uint64(time.Now().UnixNano() / 1000000)
+	sess := &Session{Source: tel, Message: "Hello", Timestamp: now}
 
 	err = SaveSession(db, sess)
 	if err != nil {

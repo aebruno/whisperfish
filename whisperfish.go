@@ -111,6 +111,9 @@ func NewDb(path string) (*sqlx.DB, error) {
 		return nil, err
 	}
 
+	db.SetMaxIdleConns(1)
+	db.SetMaxOpenConns(1)
+
 	return db, nil
 }
 
@@ -146,6 +149,8 @@ func (w *Whisperfish) runBackend() {
 		ReceiptHandler:      func(source string, devID uint32, timestamp uint64) { w.receiptHandler(source, devID, timestamp) },
 		RegistrationDone:    func() { w.registrationDone() },
 		GetLocalContacts:    func() ([]textsecure.Contact, error) { return w.getSailfishContacts() },
+		SyncReadHandler:     func(source string, ts uint64) { w.syncReadHandler(source, ts) },
+		SyncSentHandler:     func(msg *textsecure.Message, ts uint64) { w.syncSentHandler(msg, ts) },
 	}
 
 	err := textsecure.Setup(client)
@@ -474,7 +479,7 @@ func (w *Whisperfish) EndSession(source string) {
 	message := &Message{
 		Source:    source,
 		Message:   "[Whisperfish] Reset secure session",
-		Timestamp: time.Now(),
+		Timestamp: uint64(time.Now().UnixNano() / 1000000),
 		Outgoing:  true,
 		Flags:     textsecure.EndSessionFlag,
 	}
@@ -655,13 +660,26 @@ func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 
 // Message handler
 func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
+	w.processMessage(msg, false, 0)
+}
+
+func (w *Whisperfish) processMessage(msg *textsecure.Message, isSyncSent bool, ts uint64) {
 	log.Printf("Received message from: %s", msg.Source())
 
 	message := &Message{
-		Source:    msg.Source(),
-		Message:   msg.Message(),
-		Timestamp: time.Now(),
-		Flags:     msg.Flags(),
+		Source:  msg.Source(),
+		Message: msg.Message(),
+		Flags:   msg.Flags(),
+	}
+
+	if isSyncSent {
+		message.Outgoing = true
+		message.Sent = true
+		if ts > 0 {
+			message.Timestamp = ts
+		}
+	} else {
+		message.Timestamp = uint64(time.Now().UnixNano() / 1000000)
 	}
 
 	if len(msg.Attachments()) > 0 {
@@ -678,7 +696,7 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 		}
 	}
 
-	session, err := w.sessionModel.Add(w.db, message, msg.Group(), true)
+	session, err := w.sessionModel.Add(w.db, message, msg.Group(), !message.Sent)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -706,7 +724,7 @@ func (w *Whisperfish) messageHandler(msg *textsecure.Message) {
 	pageID := w.getCurrentPageID()
 
 	// Don't send notification if disabled or viewing the main conversation page
-	if !w.settings.EnableNotify || (active && pageID == "main") {
+	if !w.settings.EnableNotify || (active && pageID == "main") || isSyncSent {
 		return
 	}
 
@@ -751,7 +769,7 @@ func (w *Whisperfish) sendMessageHelper(to, msg, attachment string, group *texts
 	message := &Message{
 		Source:    to,
 		Message:   msg,
-		Timestamp: time.Now(),
+		Timestamp: uint64(time.Now().UnixNano() / 1000000),
 		Outgoing:  true,
 	}
 
@@ -856,9 +874,7 @@ func (w *Whisperfish) sendMessage(m *Message) error {
 		return err
 	}
 
-	timestamp := time.Unix(0, int64(1000000*ts)).Local()
-
-	err = MarkSessionSent(w.db, s.ID, m.Message, timestamp)
+	err = MarkSessionSent(w.db, s.ID, m.Message, ts)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -867,7 +883,7 @@ func (w *Whisperfish) sendMessage(m *Message) error {
 		return err
 	}
 
-	err = MarkMessageSent(w.db, m.ID, timestamp)
+	err = MarkMessageSent(w.db, m.ID, ts)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -936,18 +952,37 @@ func (w *Whisperfish) sendMessageWorker() {
 
 // Receipt handler
 func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
-	log.Printf("Receipt handler source %s timestamp %d", source, ts)
+	log.WithFields(log.Fields{
+		"source":    source,
+		"timestamp": ts,
+		"devID":     devID,
+	}).Debug("Receipt handler")
 
-	timestamp := time.Unix(0, int64(1000000*ts)).Local()
+	var err error
+	sessionID := int64(0)
+	messageID := int64(0)
+	tries := 0
 
-	sessionID, messageID, err := MarkMessageReceived(w.db, source, timestamp)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to mark message received")
+	for {
+		sessionID, messageID, err = MarkMessageReceived(w.db, source, ts)
+		if err != nil {
+			tries++
+			if tries > 3 {
+				log.WithFields(log.Fields{
+					"error":     err,
+					"source":    source,
+					"timestamp": ts,
+				}).Error("Failed to mark message received")
+				return
+			}
+			log.Debug("receiptHandler can't find message. Trying again later")
+			time.Sleep(500 * time.Millisecond)
+			continue
+		}
+		break
 	}
 
-	err = MarkSessionReceived(w.db, sessionID, timestamp)
+	err = MarkSessionReceived(w.db, sessionID, ts)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -1019,4 +1054,14 @@ func (w *Whisperfish) TotalMessages() int {
 
 func (w *Whisperfish) SentQueueSize() int {
 	return w.sentQueueSize
+}
+
+func (w *Whisperfish) syncSentHandler(msg *textsecure.Message, ts uint64) {
+	log.Debug("Processing sync sent message")
+	w.processMessage(msg, true, ts)
+}
+
+func (w *Whisperfish) syncReadHandler(source string, ts uint64) {
+	log.Debug("Processing sync read message")
+	w.receiptHandler(source, 0, ts)
 }

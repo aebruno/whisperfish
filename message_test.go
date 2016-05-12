@@ -16,15 +16,17 @@ func TestMessage(t *testing.T) {
 		t.Error(err)
 	}
 
+	now := uint64(time.Now().UnixNano() / 1000000)
+
 	tel := "+1771111006"
 	text := "Hello World"
-	sess := &Session{Source: tel, Message: text, Timestamp: time.Now()}
+	sess := &Session{Source: tel, Message: text, Timestamp: now}
 	err = SaveSession(db, sess)
 	if err != nil {
 		t.Error(err)
 	}
 
-	msg := &Message{SID: sess.ID, Source: tel, Message: text, Timestamp: time.Now()}
+	msg := &Message{SID: sess.ID, Source: tel, Message: text, Timestamp: now}
 	err = SaveMessage(db, msg)
 	if err != nil {
 		t.Error(err)
@@ -75,7 +77,8 @@ func TestMessageDelete(t *testing.T) {
 	text := "Hello World"
 	sid := int64(1)
 
-	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: time.Now()}
+	now := uint64(time.Now().UnixNano() / 1000000)
+	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: now}
 	err = SaveMessage(db, msg)
 	if err != nil {
 		t.Error(err)
@@ -113,7 +116,8 @@ func TestMessageAttachment(t *testing.T) {
 	tel := "+1771111006"
 	text := "Hello World"
 	sid := int64(1)
-	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: time.Now()}
+	now := uint64(time.Now().UnixNano() / 1000000)
+	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: now}
 
 	data := "dummy attachment"
 
@@ -152,7 +156,8 @@ func TestSentq(t *testing.T) {
 	tel := "+1771111006"
 	text := "Hello World"
 	sid := int64(1)
-	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: time.Now()}
+	now := uint64(time.Now().UnixNano() / 1000000)
+	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: now}
 
 	err = SaveMessage(db, msg)
 	if err != nil {
