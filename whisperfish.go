@@ -111,9 +111,6 @@ func NewDb(path string) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	db.SetMaxIdleConns(1)
-	db.SetMaxOpenConns(1)
-
 	return db, nil
 }
 
