@@ -34,7 +34,7 @@ Page {
                 width: parent.width
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
-                text: qsTr("Signal client for SailfishOS")
+                text: qsTr("Signal client for Sailfish OS")
             }
 
             TextArea {
@@ -53,12 +53,20 @@ Page {
                 }
             }
 
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Report a Bug")
+                onClicked: {
+                    Qt.openUrlExternally("https://github.com/aebruno/whisperfish/issues")
+                }
+            }
+
             SectionHeader {
                 text: qsTr("Additional Copyright")
             }
 
             Label {
-                text: qsTr("TextSecure client package for Go (C) janimo.")
+                text: qsTr("Signal client library for Go (C) Jani Monoses.")
                 anchors.horizontalCenter: parent.horizontalCenter
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
@@ -68,26 +76,7 @@ Page {
             }
 
 			Label {
-				text: qsTr("GO-QML package (C) Gustavo Niemeyer.")
-				anchors.horizontalCenter: parent.horizontalCenter
-				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
-				verticalAlignment: Text.AlignVCenter
-				horizontalAlignment: Text.AlignLeft
-				x: Theme.paddingLarge
-			}
-			Label {
-				text: qsTr("Go Copyright (C) 2012 The Go Authors. All rights reserved.")
-				anchors.horizontalCenter: parent.horizontalCenter
-				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
-				verticalAlignment: Text.AlignVCenter
-				horizontalAlignment: Text.AlignLeft
-				x: Theme.paddingLarge
-			}
-
-			Label {
-				text: qsTr("Compiled using GO Runtime ") + whisperfish.runtimeVersion()
+				text: qsTr("Go QML bindings (C) Gustavo Niemeyer.")
 				anchors.horizontalCenter: parent.horizontalCenter
 				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
