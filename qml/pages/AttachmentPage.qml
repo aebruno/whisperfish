@@ -61,21 +61,6 @@ SplitViewPage {
             title: root.message.outgoing ? qsTr("Me") : messageModel.name
             description: msgDate()
         }
-
-        LinkedText {
-            anchors {
-                left: parent.left
-                right: parent.right
-                leftMargin: Theme.horizontalPageMargin
-                rightMargin: Theme.horizontalPageMargin
-                verticalCenter: parent.verticalCenter
-            }
-            plainText: root.message.message ? root.message.message : qsTr("Attachment: "+root.message.mimeType)
-            wrapMode: Text.Wrap
-            font.pixelSize: Theme.fontSizeSmall
-            x: Theme.horizontalPageMargin
-            color: Theme.primaryColor
-        }
     }
 
     ImageViewer {
