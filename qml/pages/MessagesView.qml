@@ -132,7 +132,13 @@ SilicaListView {
         MenuItem {
             text: qsTr("Reset Secure Session")
             enabled: messageModel.identity.length > 0
-            onClicked: whisperfish.endSession(messageModel.tel)
+            onClicked: {
+                remorse.execute(qsTr("Resetting secure session"),
+                    function() {
+                        console.log("Resetting secure session: "+messageModel.tel)
+                        whisperfish.endSession(messageModel.tel)
+                    })
+            }
         }
         MenuItem {
             text: qsTr("Delete All")
@@ -142,7 +148,6 @@ SilicaListView {
                         console.log("Deleting all messages for session: "+messageModel.sid)
                         whisperfish.deleteAllMessages(messageModel.sid)
                         mainWindow.showMainPage(PageStackAction.Immediate)
-
                     })
             }
         }
