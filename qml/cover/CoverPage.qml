@@ -5,7 +5,7 @@ CoverBackground {
     Image {
         x: Theme.paddingLarge
         horizontalAlignment: Text.AlignHCenter
-        source: "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png"
+        source: sessionModel.unread > 0 ? "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-gold.png" : "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png"
         anchors {
             bottom: parent.bottom
             bottomMargin: Theme.itemSizeLarge
