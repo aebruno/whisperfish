@@ -18,13 +18,13 @@
 package main
 
 import (
+	"github.com/aebruno/qml"
 	"github.com/janimo/textsecure"
-	"gopkg.in/qml.v1"
 )
 
 type DeviceModel struct {
 	devices []textsecure.DeviceInfo
-	Len      int
+	Len     int
 }
 
 // Get device by index i

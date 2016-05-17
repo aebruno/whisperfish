@@ -18,9 +18,9 @@
 package main
 
 import (
+	"github.com/aebruno/qml"
 	"github.com/janimo/textsecure"
 	"github.com/ttacon/libphonenumber"
-	"gopkg.in/qml.v1"
 )
 
 type Contacts struct {

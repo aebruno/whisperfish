@@ -32,6 +32,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/aebruno/qml"
 	"github.com/janimo/textsecure"
 	"github.com/janimo/textsecure/3rd_party/magic"
 	"github.com/janimo/textsecure/axolotl"
@@ -39,7 +40,6 @@ import (
 	_ "github.com/mutecomm/go-sqlcipher"
 	"github.com/ttacon/libphonenumber"
 	"golang.org/x/crypto/scrypt"
-	"gopkg.in/qml.v1"
 )
 
 const (

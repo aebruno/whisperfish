@@ -1,0 +1,29 @@
+hash: 8ead58410838729a99d6798b003a2e9effc14c9cdadce15e23d30ed4a723266b
+updated: 2016-05-17T02:47:09.523892104Z
+imports:
+- name: github.com/aebruno/qml
+  version: ba0787d5b0a50517a507e9020a437789fd4d8c72
+- name: github.com/janimo/textsecure
+  version: f60b7ea4d4e01c66b1f8c015dfa77aaa1075820d
+  subpackages:
+  - 3rd_party/magic
+  - axolotl
+- name: github.com/jmoiron/sqlx
+  version: 398dd5876282499cdfd4cb8ea0f31a672abe9495
+- name: github.com/mutecomm/go-sqlcipher
+  version: 23f3da79a822938b308480e190972e41323adda9
+- name: github.com/rogpeppe/fastuuid
+  version: 6724a57986aff9bff1a1770e9347036def7c89f6
+- name: github.com/Sirupsen/logrus
+  version: cd7d1bbe41066b6c1f19780f895901052150a575
+- name: github.com/ttacon/builder
+  version: 7f152c3cf4714fd6318739f8f3dbcd14c2a18b39
+- name: github.com/ttacon/libphonenumber
+  version: 1197dfb91fa03c779576ad248ad5ca0a43fb3a31
+- name: golang.org/x/crypto
+  version: b6789ab629056511030d652d851e7dc10c9e9c9e
+  subpackages:
+  - scrypt
+- name: gopkg.in/yaml.v2
+  version: a83829b6f1293c91addabc89d0571c246397bbf4
+devImports: []

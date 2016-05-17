@@ -3,3 +3,4 @@ harbour-whisperfish
 whisperfish
 RPMS/
 rpmbuilddir/
+vendor/

@@ -48,7 +48,7 @@ Features
 Developing
 -------------------------------------------------------------------------------
 
-Whisperfish is written in go. First need to setup `MerSDK
+Whisperfish is written in Go. First need to setup `MerSDK
 <https://sailfishos.org/develop/sdk-overview/develop-installation-article/>`_
 and install the Go runtime. More details `here
 <https://github.com/nekrondev/jolla_go>`_. Note Whisperfish now requires Go
@@ -56,36 +56,36 @@ v1.6.
 
 Whisperfish uses a patched version of `go-qml <https://github.com/go-qml/qml>`_ 
 for use with Safilish Silica UI. A complete patched version can be found 
-`here <https://github.com/aebruno/qml/tree/whisperfish>`_. If you followed the
-jolla_go instructions above from nekrondev, you'll need to replace the 
-~/src/gopkg.in/qml.v1 package with this version::
+`here <https://github.com/aebruno/qml/tree/whisperfish>`_.
 
-    $ cd ~/src/gopkg.in/
-    $ rm -Rf qml.v1
-    $ git clone https://github.com/aebruno/qml.git qml.v1
-    $ cd qml.v1
-    $ git checkout whisperfish
-    $ go install
-    $ sb2 -O use-global-tmp -t SailfishOS-armv7hl ~/go/bin/linux_arm/go install
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building from source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Additionally, the following go packages are required. To install them run::
+Whisperfish now uses `Glide <https://glide.sh/>`_ for package management which
+utilizes the new vendor/ directory. First install Glide::
 
-    $ go get github.com/Sirupsen/logrus
-    $ go get github.com/janimo/textsecure
-    $ go get github.com/jmoiron/sqlx
-    $ go get github.com/mattn/go-sqlite3
-    $ go get gopkg.in/yaml.v2
-    $ go get github.com/ttacon/libphonenumber
+    $ go get -u github.com/Masterminds/glide
 
-Clone the Whisperfish repo::
+To build Whisperfish from source::
 
     $ git clone https://github.com/aebruno/whisperfish.git
     $ cd whisperfish
-    $ go build
+    $ glide install
+    $ go test
     $ mb2 build
 
+*Note*: There is a pull request currently under review `here
+<https://github.com/janimo/textsecure/pull/28>`_ which enables device linking.
+Until this is accepted manual merging is required::
+
+    $ cd vendor/github.com/janimo/textsecure
+    $ git remote add aebruno https://github.com/aebruno/textsecure.git
+    $ git fetch aebruno
+    $ git merge aebruno/device-provisioning
+
 If you have the SailfishOS Emulator you can install the rpm into the emulator
-with directly with::
+directly with::
 
     $ ./deploy
 
@@ -93,12 +93,12 @@ To build the arm binaries::
 
     $ mb2 -t SailfishOS-armv7hl build
 
--------------------------------------------------------------------------------
-Developing (without MerSDK)
--------------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Developing without MerSDK
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It's possible to build and run the tests without installing MerSDK. Here's
-some instructions for building on Debian::
+some instructions for building the required devel packages on Debian::
 
     $ sudo apt-get install libqt5quick5 qtdeclarative5-dev qt5-qmake \
                            libglib2.0-dev qt5-default libffi-dev libsqlite3-dev \
@@ -113,11 +113,6 @@ some instructions for building on Debian::
     $ cd libsailfishapp
     $ qmake
     $ sudo make install
-    $ cd $GOPATH/src/gopkg.in
-    $ git clone https://github.com/aebruno/qml.git qml.v1
-    $ cd qml.v1
-    $ git checkout whisperfish
-    $ go install
 
 -------------------------------------------------------------------------------
 i18n Translations (help wanted)
