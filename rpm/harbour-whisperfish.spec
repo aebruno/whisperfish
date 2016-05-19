@@ -31,9 +31,9 @@ export GOPATH GOROOT
 cd %(pwd)
 if [ $DEB_HOST_ARCH == "armel" ]
 then
-~/go/bin/linux_arm/go build -ldflags "-s" -o %{name} 
+~/go/bin/linux_arm/go build -ldflags "-s -X main.Version=%{version}" -o %{name} 
 else
-~/go/bin/go build -ldflags "-s" -o %{name}
+~/go/bin/go build -ldflags "-s -X main.Version=%{version}" -o %{name}
 fi
 # << build pre
 

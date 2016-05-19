@@ -20,6 +20,7 @@ package main
 import (
 	"crypto/rand"
 	"database/sql"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -42,8 +43,12 @@ import (
 	"golang.org/x/crypto/scrypt"
 )
 
+var (
+	Version     = "dev-build"
+	versionFlag bool
+)
+
 const (
-	Version                = "0.1.1"
 	Appname                = "harbour-whisperfish"
 	PageStatusInactive     = 0
 	PageStatusActivating   = 1
@@ -77,7 +82,18 @@ type Whisperfish struct {
 	Locked          bool
 }
 
+func init() {
+	flag.BoolVar(&versionFlag, "version", false, "show version")
+	flag.BoolVar(&versionFlag, "v", false, "show version (shorthand)")
+}
+
 func main() {
+	flag.Parse()
+	if versionFlag {
+		fmt.Printf("Whisperfish v%s\n", Version)
+		os.Exit(0)
+	}
+
 	if err := qml.SailfishRun(Appname, "", Version, runGui); err != nil {
 		log.WithFields(log.Fields{
 			"error": err,

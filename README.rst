@@ -73,7 +73,23 @@ To build Whisperfish from source::
     $ cd whisperfish
     $ glide install
     $ go test
-    $ mb2 build
+    $ mb2 -x build
+
+*Note*: The latest tag from the current git branch is used in the package
+version (``mb2 -x``). To add git hashes to the package version modify the
+``/usr/bin/mb2`` script with the following patch::
+
+    --- mb2.orig    2016-05-19 02:44:04.015412275 +0000
+    +++ /usr/bin/mb2        2016-05-19 02:44:13.722084593 +0000
+    @@ -154,7 +154,7 @@
+     fix_package_version() {
+         [[ ! $OPT_FIX_VERSION ]] && return
+     
+    -    local tag=$(git describe --tags --abbrev=0 2>/dev/null)
+    +    local tag=$(git describe --long --tags --dirty --always 2>/dev/null)
+         if [[ -n $tag ]]; then
+             # tagver piece copied from tar_git service
+             if [[ $(echo $tag | grep "/") ]] ; then
 
 *Note*: There is a pull request currently under review `here
 <https://github.com/janimo/textsecure/pull/28>`_ which enables device linking.
@@ -91,7 +107,7 @@ directly with::
 
 To build the arm binaries::
 
-    $ mb2 -t SailfishOS-armv7hl build
+    $ mb2 -x -t SailfishOS-armv7hl build
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Developing without MerSDK
