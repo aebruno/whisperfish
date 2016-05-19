@@ -889,13 +889,14 @@ func (w *Whisperfish) sendMessage(m *Message) error {
 		return err
 	}
 
-	if w.activeSessionID == s.ID {
+	if w.activeSessionID == s.ID && w.getCurrentPageID() == "conversation" {
 		for i, x := range w.messageModel.messages {
 			if x.ID == m.ID {
 				w.messageModel.messages[i].Sent = true
 				qml.Changed(w.messageModel.messages[i], &w.messageModel.messages[i].Sent)
 			}
 		}
+		w.window.Root().ObjectByName("conversation").Call("updateSent", m.ID)
 	}
 
 	w.RefreshSessions()
@@ -987,13 +988,14 @@ func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
 		}).Error("Failed to mark session received")
 	}
 
-	if w.activeSessionID == sessionID {
+	if w.activeSessionID == sessionID && w.getCurrentPageID() == "conversation" {
 		for i, x := range w.messageModel.messages {
 			if x.ID == messageID {
 				w.messageModel.messages[i].Received = true
 				qml.Changed(w.messageModel.messages[i], &w.messageModel.messages[i].Received)
 			}
 		}
+		w.window.Root().ObjectByName("conversation").Call("updateReceived", messageID)
 	}
 
 	w.RefreshSessions()

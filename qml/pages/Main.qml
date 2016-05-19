@@ -110,9 +110,5 @@ Page {
         }
 
         delegate: Session{}
-
-        Component.onCompleted: {
-            refreshSessions()
-        }
     }
 }

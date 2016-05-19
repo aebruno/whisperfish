@@ -22,13 +22,12 @@ import Sailfish.TextLinking 1.0
 import org.nemomobile.thumbnailer 1.0
 
 ListItem {
-    id: message
-    contentHeight: Math.max(timestamp.y + timestamp.height, retryIcon.height) + Theme.paddingMedium
+    id: messageItem
+    contentHeight: Math.max(timestampLabel.y + timestampLabel.height, retryIcon.height) + Theme.paddingMedium
     menu: messageContextMenu
 
-    property QtObject msg: messageModel.get(index)
-    property bool inbound: msg.outgoing ? false : true
-    property bool hasAttachments: msg.hasAttachment
+    property QtObject modelData
+    property bool inbound: modelData.outgoing ? false : true
     property bool hasText
     property bool canRetry
 
@@ -43,7 +42,7 @@ ListItem {
     }
 
     Column {
-        id: attachments
+        id: attachmentBox
         height: implicitHeight
         width: implicitWidth
         anchors {
@@ -56,55 +55,14 @@ ListItem {
 
         Repeater {
             id: attachmentLoader
-            model: msg.hasAttachment ? 1 : 0
+            model: modelData.hasAttachment ? 1 : 0
+            property QtObject attachmentItem: modelData
 
-            Thumbnail {
-                id: attachment
-                opacity: 1.0
-                width: opacity == 1.0 ? size : 0
-                height: width
-                sourceSize {
-                    width: size * 2
-                    height: size * 2
-                }
-
-                property int size: Theme.itemSizeLarge
-                property bool highlighted
-                property bool isThumbnail: msg.mimeType.substr(0, 6) === "image/"
-                property bool isVCard: {
-                    var type = msg.mimeType.toLowerCase()
-                    return type.substr(0, 10) === "text/vcard" || type.substr(0, 12) === "text/x-vcard"
-                }
-
-                source: isThumbnail ? msg.attachment : ""
-
-                Image {
-                    id: icon
-                    anchors.fill: parent
-                    fillMode: Image.Pad
-                    source: iconSource()
-
-                    function iconSource() {
-                        if (msg === undefined ||
-                            msg.mimeType.substr(0, 16) === "application/smil" ||
-                            msg.mimeType.substr(1, 10) === "text/plain")
-                            return ""
-                        else if (isThumbnail && attachment.status !== Thumbnail.Error)
-                            return ""
-                        else if (isVCard)
-                            return "image://theme/icon-m-person" + (highlighted ? "?" + Theme.highlightColor : "")
-                        else
-                            return "image://theme/icon-m-attach" + (highlighted ? "?" + Theme.highlightColor : "")
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        z: -1
-                        color: Theme.highlightColor
-                        opacity: 0.1
-                        visible: true
-                    }
-                }
+            Attachment {
+                anchors.right: inbound ? parent.right : undefined
+                messagePart: attachmentLoader.attachmentItem
+                showRetryIcon: false
+                highlighted: messageItem.highlighted
             }
         }
     }
@@ -112,38 +70,35 @@ ListItem {
     LinkedText {
         id: messageText
         anchors {
-            left: inbound ? parent.left : attachments.right
-            right: inbound ? attachments.left : parent.right
-            leftMargin: inbound ? sidePadding : (attachments.height ? Theme.paddingMedium : (retryIcon.width ? Theme.paddingMedium : Theme.horizontalPageMargin))
-            rightMargin: !inbound ? sidePadding : (attachments.height ? Theme.paddingMedium : (retryIcon.width ? Theme.paddingMedium : Theme.horizontalPageMargin))
+            left: inbound ? parent.left : attachmentBox.right
+            right: inbound ? attachmentBox.left : parent.right
+            leftMargin: inbound ? sidePadding : (attachmentBox.height ? Theme.paddingMedium : (retryIcon.width ? Theme.paddingMedium : Theme.horizontalPageMargin))
+            rightMargin: !inbound ? sidePadding : (attachmentBox.height ? Theme.paddingMedium : (retryIcon.width ? Theme.paddingMedium : Theme.horizontalPageMargin))
         }
 
         property int sidePadding: Theme.itemSizeSmall + Theme.horizontalPageMargin
         y: Theme.paddingMedium / 2
-        height: Math.max(implicitHeight, attachments.height)
+        height: Math.max(implicitHeight, attachmentBox.height)
         wrapMode: Text.Wrap
 
         plainText: {
-            if (!msg) {
-                hasText = false
-                return ""
-            } else if (msg.message != "") {
+            if (modelData.message != "") {
                 hasText = true
-                return msg.message
+                return modelData.message
             } else {
                 hasText = false
                 return ""
             }
         }
 
-        color: (message.highlighted || !inbound) ? Theme.highlightColor : Theme.primaryColor
+        color: (messageItem.highlighted || !inbound) ? Theme.highlightColor : Theme.primaryColor
         font.pixelSize: inbound ? Theme.fontSizeMedium : Theme.fontSizeSmall
         horizontalAlignment: inbound ? Qt.AlignRight : Qt.AlignLeft
         verticalAlignment: Qt.AlignBottom
     }
 
     Label {
-        id: timestamp
+        id: timestampLabel
         anchors {
             left: parent.left
             leftMargin: Theme.horizontalPageMargin
@@ -154,7 +109,7 @@ ListItem {
         }
 
         function msgDate() {
-            var dt = new Date(msg.timestamp)
+            var dt = new Date(modelData.timestamp)
             var md = Format.formatDate(dt, Formatter.Timepoint)
             return md
         }
@@ -166,26 +121,22 @@ ListItem {
         wrapMode: Text.Wrap
 
         text: {
-            if (!msg) {
-                return ""
-            } else {
-                var re = msgDate()
-                if (msg.received) {
-                    re += qsTr("  ✓✓")
-                } else if (msg.sent) {
-                    re += qsTr("  ✓")
-                }
-                if(inbound && messageModel.isGroup) {
-                    re += " | " + contactsModel.name(msg.source, whisperfish.settings().countryCode)
-                }
-                return re
-            }
+           var re = msgDate()
+           if (modelData.received) {
+               re += qsTr("  ✓✓")
+           } else if (modelData.sent) {
+               re += qsTr("  ✓")
+           }
+           if(inbound && messageModel.isGroup) {
+               re += " | " + contactsModel.name(modelData.source, whisperfish.settings().countryCode)
+           }
+           return re
         }
     }
 
     onClicked: {
-        if (msg.hasAttachment && attachments.height > 0) {
-            pageStack.push(Qt.resolvedUrl("../pages/AttachmentPage.qml"), { 'source': msg.attachment, 'message': msg })
+        if (modelData.hasAttachment && attachmentBox.height > 0) {
+            pageStack.push(Qt.resolvedUrl("../pages/AttachmentPage.qml"), { 'source': modelData.attachment, 'message': modelData })
         }
     }
 }

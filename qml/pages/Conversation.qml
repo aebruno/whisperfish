@@ -7,12 +7,58 @@ Page {
     objectName: "conversation"
     property bool editorFocus
 
+    property int msglen: messageModel.length
+
+    onMsglenChanged: {
+        refreshMessages()
+    }
+
+    function updateSent(id) {
+        for (var j = 0; j < messages.model.count; j++) {
+            var m = messages.model.get(j)
+            if(m.id == id) {
+                messages.model.setProperty(j, "sent", true)
+            }
+        }
+    }
+
+    function updateReceived(id) {
+        for (var j = 0; j < messages.model.count; j++) {
+            var m = messages.model.get(j)
+            if(m.id == id) {
+                messages.model.setProperty(j, "received", true)
+            }
+        }
+    }
+
+    function refreshMessages() {
+        var now = new Date().getTime()
+        messages.model.clear()
+        for (var i = 0; i < messageModel.length; i++) {
+            var m = messageModel.get(i)
+            var dt = new Date(m.timestamp)
+            messages.model.append({
+                'id': m.id,
+                'sid': m.sid,
+                'source': m.source,
+                'message': m.message,
+                'timestamp': m.timestamp,
+                'outgoing': m.outgoing,
+                'sent': m.sent,
+                'received': m.received,
+                'attachment': m.attachment,
+                'mimeType': m.mimeType,
+                'hasAttachment': m.hasAttachment
+            })
+        }
+    }
+    
     MessagesView {
         id: messages
         focus: true
         anchors.fill: parent
 
-        model: messageModel.length
+        model: ListModel {}
 
         // Use a placeholder for the ChatTextInput to avoid re-creating the input
         header: Item {

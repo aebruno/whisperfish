@@ -35,7 +35,7 @@ SilicaListView {
 
         // This would normally be previousSection, but our model's order is inverted.
         property bool sectionBoundary: (ListView.nextSection != "" && ListView.nextSection !== ListView.section)
-                                        || model.index === messageModel.length - 1
+                                        || model.index === messagesView.count - 1
         property Item section
 
         height: loader.y + loader.height
@@ -62,7 +62,9 @@ SilicaListView {
         Component {
             id: messageDelegate
 
-            Message { }
+            Message { 
+                modelData: model
+            }
         }
     }
 
@@ -119,7 +121,6 @@ SilicaListView {
         }
     }
 
-    VerticalScrollDecorator {}
 
     RemorsePopup { id: remorse }
 
@@ -152,5 +153,7 @@ SilicaListView {
             }
         }
     }
+
+    VerticalScrollDecorator {}
 }
 
