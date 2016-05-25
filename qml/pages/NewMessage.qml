@@ -144,7 +144,7 @@ Page {
                 id: textInput
                 width: parent.width
                 enabled: recipientField && !recipientField.empty
-                clearAfterSend: recipientField.hasValidContact
+                clearAfterSend: recipientField.validContacts > 0
 
                 onSendMessage: {
                     if (recipientField.validContacts > 0) {

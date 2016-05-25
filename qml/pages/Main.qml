@@ -14,6 +14,24 @@ Page {
 
     property QtObject currentPage: pageStack.currentPage
 
+    function updateSent(id) {
+        for (var j = 0; j < sessionView.model.count; j++) {
+            var s = sessionView.model.get(j)
+            if(s.id == id) {
+                sessionView.model.setProperty(j, "sent", true)
+            }
+        }
+    }
+
+    function updateReceived(id) {
+        for (var j = 0; j < sessionView.model.count; j++) {
+            var s = sessionView.model.get(j)
+            if(s.id == id) {
+                sessionView.model.setProperty(j, "received", true)
+            }
+        }
+    }
+
     // This is a hack to use a psuedo model so we can use the 
     // group the messages into sections based on their timestamps
     function refreshSessions() {
@@ -33,7 +51,7 @@ Page {
                 'sent': s.sent,
                 'message': s.message,
                 'hasAttachment': s.hasAttachment,
-                'date': Format.formatDate(dt, Formatter.DurationElapsed),
+                'date': Format.formatDate(dt, Formatter.TimepointRelative),
                 'section': sectionLabel ? sectionLabel : 'Today'
             })
         }

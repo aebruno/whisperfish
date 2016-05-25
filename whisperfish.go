@@ -915,7 +915,14 @@ func (w *Whisperfish) sendMessage(m *Message) error {
 		w.window.Root().ObjectByName("conversation").Call("updateSent", m.ID)
 	}
 
-	w.RefreshSessions()
+	for i, x := range w.sessionModel.sessions {
+		if x.ID == s.ID {
+			w.sessionModel.sessions[i].Sent = true
+			qml.Changed(w.sessionModel.sessions[i], &w.sessionModel.sessions[i].Sent)
+		}
+	}
+	w.window.Root().ObjectByName("main").Call("updateSent", s.ID)
+
 	return nil
 }
 
@@ -1014,7 +1021,13 @@ func (w *Whisperfish) receiptHandler(source string, devID uint32, ts uint64) {
 		w.window.Root().ObjectByName("conversation").Call("updateReceived", messageID)
 	}
 
-	w.RefreshSessions()
+	for i, x := range w.sessionModel.sessions {
+		if x.ID == sessionID {
+			w.sessionModel.sessions[i].Received = true
+			qml.Changed(w.sessionModel.sessions[i], &w.sessionModel.sessions[i].Received)
+		}
+	}
+	w.window.Root().ObjectByName("main").Call("updateReceived", sessionID)
 }
 
 // Get local sailfish contacts
