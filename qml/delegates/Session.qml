@@ -1,81 +1,126 @@
+/*
+ * Copyright (C) 2012-2015 Jolla Ltd.
+ *
+ * The code in this file is distributed under multiple licenses, and as such,
+ * may be used under any one of the following licenses:
+ *
+ *   - GNU General Public License as published by the Free Software Foundation;
+ *     either version 2 of the License (see LICENSE.GPLv2 in the root directory
+ *     for full terms), or (at your option) any later version.
+ *   - GNU Lesser General Public License as published by the Free Software
+ *     Foundation; either version 2.1 of the License (see LICENSE.LGPLv21 in the
+ *     root directory for full terms), or (at your option) any later version.
+ *   - Alternatively, if you have a commercial license agreement with Jolla Ltd,
+ *     you may use the code under the terms of that license instead.
+ *
+ * You can visit <https://sailfishos.org/legal/> for more information
+ */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.nemomobile.contacts 1.0
+import org.nemomobile.commhistory 1.0
+import Sailfish.Contacts 1.0
 
-BackgroundItem {
-    id: listItem
-    width: parent.width
-    height: Theme.itemSizeLarge
+ListItem {
+    id: delegate
+    contentHeight: textColumn.height + Theme.paddingMedium + textColumn.y
+    menu: contextMenuComponent
 
-    Label {
-        id: source
-        text: isGroup ? qsTr('Group: '+groupName) : name
-        font.pixelSize: Theme.fontSizeMedium
-        truncationMode: TruncationMode.Fade
+    Column {
+        id: textColumn
         anchors {
-            left: parent.left
-            right: status.left
-            leftMargin: Theme.paddingLarge
-        }
-    }
-
-    Image {
-        source: {
-            if(received) {
-                "/usr/share/harbour-whisperfish/icons/ic_done_all_white_18dp.png"
-            } else if(sent) {
-                "/usr/share/harbour-whisperfish/icons/ic_done_white_18dp.png"
-            } else {
-                ""
-            }
-        }
-        width: Theme.iconSizeSmall
-        height: Theme.iconSizeSmall
-        anchors {
-            right: parent.right
-            top: source.top
-        }
-    }
-
-    Label {
-        id: xbody
-        text: {
-            if (message != "") {
-                return message
-            } else if (hasAttachment) {
-                return qsTr("Attachment")
-            } else {
-                return ""
-            }
-        }
-        font.pixelSize: Theme.fontSizeExtraSmall
-        color: unread ? Theme.highlightColor : Theme.primaryColor
-        truncationMode: TruncationMode.Fade
-        anchors {
-            top: source.bottom
-            left: parent.left
-            right: parent.right
-            leftMargin: Theme.paddingLarge
-        }
-    }
-
-    Label {
-        id: timestampLabel
-        text: date
-        font.pixelSize: Theme.fontSizeExtraSmall
-        font.italic: true
-        anchors {
-            top: xbody.bottom
+            top: parent.top
             topMargin: Theme.paddingSmall
             left: parent.left
-            leftMargin: Theme.paddingLarge
-            bottomMargin: Theme.paddingLarge
+            leftMargin: Theme.horizontalPageMargin
+            right: parent.right
+            rightMargin: Theme.horizontalPageMargin
+        }
+
+        Row {
+            width: parent.width
+
+            Image {
+                id: groupIcon
+                source: model.isGroup ? ("image://theme/icon-s-group-chat?" + (delegate.highlighted ? Theme.highlightColor : Theme.primaryColor)) : ""
+                anchors.verticalCenter: name.verticalCenter
+            }
+
+            Label {
+                id: name
+                width: parent.width - x
+
+                truncationMode: TruncationMode.Fade
+                color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+                text: model.isGroup ? model.groupName : model.name
+            }
+        }
+
+        Label {
+            id: lastMessage
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            text: {
+                if (model.message != '') {
+                    return model.message
+                } else if (model.hasAttachment) {
+                    return qsTr("Attachment")
+                }
+                return ''
+            }
+
+            textFormat: Text.PlainText
+            font.pixelSize: Theme.fontSizeExtraSmall
+            color: delegate.highlighted || model.unread > 0 ? Theme.highlightColor : Theme.primaryColor
+            wrapMode: Text.Wrap
+            maximumLineCount: 3
+
+            GlassItem {
+                visible: model.unread > 0
+                color: Theme.highlightColor
+                falloffRadius: 0.16
+                radius: 0.15
+                anchors {
+                    left: parent.left
+                    leftMargin: width / -2 - Theme.horizontalPageMargin
+                    top: parent.top
+                    topMargin: height / -2 + date.height / 2
+                }
+            }
+        }
+
+        Label {
+            id: date
+
+            color: delegate.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+            font.pixelSize: Theme.fontSizeExtraSmall
+            text: {
+               var re = model.date
+               if (model.received) {
+                   re += qsTr("  ✓✓")
+               } else if (model.sent) {
+                   re += qsTr("  ✓")
+               }
+               return re
+            }
         }
     }
 
+    function remove() {
+	console.log("Remove all messages")
+    }
 
-    onClicked: {
-        mainWindow.removeNotification(id)
-        whisperfish.setSession(id)
-        pageStack.push(Qt.resolvedUrl("../pages/Conversation.qml"));
+    Component {
+        id: contextMenuComponent
+
+        ContextMenu {
+            id: menu
+            MenuItem {
+                text: qsTr("Delete Conversation")
+                onClicked: remove()
+            }
+        }
     }
 }

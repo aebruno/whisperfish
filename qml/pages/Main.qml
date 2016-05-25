@@ -109,6 +109,12 @@ Page {
             }
         }
 
-        delegate: Session{}
+        delegate: Session{
+            onClicked: {
+                mainWindow.removeNotification(model.id)
+                whisperfish.setSession(model.id)
+                pageStack.push(Qt.resolvedUrl("Conversation.qml"));
+            }
+        }
     }
 }
