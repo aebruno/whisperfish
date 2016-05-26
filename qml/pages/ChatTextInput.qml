@@ -127,8 +127,8 @@ InverseMouseArea {
         anchors {
             right: parent.right
             rightMargin: Theme.horizontalPageMargin
-            verticalCenter: textField.middle
-            verticalCenterOffset: textField.textVerticalCenterOffset + (textField._editor.height - height)
+            verticalCenter: textField.top
+            verticalCenterOffset: textField.textVerticalCenterOffset + (textField._editor.height - (height/2))
         }
         onClicked: chatInputArea.send()
         visible: true
