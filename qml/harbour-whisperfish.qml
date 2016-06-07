@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import MeeGo.Connman 0.2
 import org.nemomobile.contacts 1.0
 import org.nemomobile.notifications 1.0
 import "pages"
@@ -14,6 +15,7 @@ ApplicationWindow
     _defaultLabelFormat: Text.PlainText
 
     property var notifications: new Object()
+    property bool connected: false
 
     ImagePicker {
         id: imagepicker
@@ -91,5 +93,43 @@ ApplicationWindow
         showMainPage(PageStackAction.Immediate)
         whisperfish.setSession(id)
         pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), { }, operationType)
+    }
+
+    function isConnected() {
+        if(wifi.available && wifi.connected) {
+            return true
+        }
+        if(cellular.available && cellular.connected) {
+            return true
+        }
+        if(ethernet.available && ethernet.connected) {
+            return true
+        }
+
+        return false
+    }
+
+    TechnologyModel {
+        id: wifi
+        name: "wifi"
+        onConnectedChanged: {
+            mainWindow.connected = mainWindow.isConnected()
+        }
+    }
+
+    TechnologyModel {
+        id: cellular
+        name: "cellular"
+        onConnectedChanged: {
+            mainWindow.connected = mainWindow.isConnected()
+        }
+    }
+
+    TechnologyModel {
+        id: ethernet
+        name: "ethernet"
+        onConnectedChanged: {
+            mainWindow.connected = mainWindow.isConnected()
+        }
     }
 }

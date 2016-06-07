@@ -18,3 +18,4 @@ import:
   - scrypt
 - package: gopkg.in/yaml.v2
 - package: github.com/ttacon/builder
+- package: github.com/gorilla/websocket

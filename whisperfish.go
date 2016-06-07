@@ -46,6 +46,7 @@ import (
 var (
 	Version     = "dev-build"
 	versionFlag bool
+	debugFlag   bool
 )
 
 const (
@@ -76,8 +77,6 @@ type Whisperfish struct {
 	saltFile        string
 	db              *sqlx.DB
 	activeSessionID int64
-	sentQueueSize   int
-	totalMessages   int
 	HasKeys         bool
 	Locked          bool
 }
@@ -85,6 +84,8 @@ type Whisperfish struct {
 func init() {
 	flag.BoolVar(&versionFlag, "version", false, "show version")
 	flag.BoolVar(&versionFlag, "v", false, "show version (shorthand)")
+	flag.BoolVar(&debugFlag, "debug", false, "debug to file")
+	flag.BoolVar(&debugFlag, "d", false, "debug to file (shorthand)")
 }
 
 func main() {
@@ -92,6 +93,16 @@ func main() {
 	if versionFlag {
 		fmt.Printf("Whisperfish v%s\n", Version)
 		os.Exit(0)
+	}
+
+	if debugFlag {
+		logFile, err := os.OpenFile("/tmp/whisperfish-app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600)
+		if err != nil {
+			log.Fatalf("error opening file: %v", err)
+			os.Exit(-1)
+		}
+		defer logFile.Close()
+		log.SetOutput(logFile)
 	}
 
 	if err := qml.SailfishRun(Appname, "", Version, runGui); err != nil {
@@ -204,11 +215,18 @@ func (w *Whisperfish) runBackend() {
 	go w.sendMessageWorker()
 
 	for {
+		time.Sleep(3 * time.Second)
+
+		if !w.isConnected() {
+			log.Debug("No network connection found")
+			continue
+		}
+
+		log.Debug("Starting textsecure websocket listener")
 		if err := textsecure.StartListening(); err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
 			}).Error("Error processing Websocket event from Signal")
-			time.Sleep(3 * time.Second)
 		}
 	}
 }
@@ -529,7 +547,6 @@ func (w *Whisperfish) getConfig() (*textsecure.Config, error) {
 		w.config.StorageDir = w.storageDir
 		w.config.UserAgent = fmt.Sprintf("Whisperfish v%s", Version)
 		w.config.UnencryptedStorage = false
-		w.config.EnableMultiDeviceSync = true
 		w.config.VerificationType = "voice"
 		w.config.LogLevel = "debug"
 		w.config.AlwaysTrustPeerID = false
@@ -652,6 +669,11 @@ func (w *Whisperfish) isActive() bool {
 	return w.window.Root().Bool("applicationActive")
 }
 
+// Returns true if device has an internet connection
+func (w *Whisperfish) isConnected() bool {
+	return w.window.Root().Bool("connected")
+}
+
 // Get text from dialog window
 func (w *Whisperfish) getTextFromDialog(fun, obj, signal string) string {
 	status := w.getCurrentPageStatus()
@@ -692,7 +714,7 @@ func (w *Whisperfish) processMessage(msg *textsecure.Message, isSyncSent bool, t
 			message.Timestamp = ts
 		}
 	} else {
-		message.Timestamp = uint64(time.Now().UnixNano() / 1000000)
+		message.Timestamp = msg.Timestamp()
 	}
 
 	if len(msg.Attachments()) > 0 {
@@ -928,6 +950,12 @@ func (w *Whisperfish) sendMessage(m *Message) error {
 
 func (w *Whisperfish) sendMessageWorker() {
 	for {
+		time.Sleep(3 * time.Second)
+
+		if !w.isConnected() {
+			continue
+		}
+
 		messages, err := FetchSentq(w.db)
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -935,9 +963,9 @@ func (w *Whisperfish) sendMessageWorker() {
 			}).Error("Failed to fetch mailq")
 		}
 
-		w.sentQueueSize = len(messages)
-
 		for _, m := range messages {
+			log.Debugf("Sending message: %d", m.ID)
+
 			err = w.sendMessage(m)
 			if err != nil {
 				log.WithFields(log.Fields{
@@ -959,15 +987,6 @@ func (w *Whisperfish) sendMessageWorker() {
 			// Throttle
 			time.Sleep(1 * time.Second)
 		}
-
-		w.totalMessages, err = TotalMessages(w.db)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Failed to update total messages")
-		}
-
-		time.Sleep(3 * time.Second)
 	}
 }
 
@@ -1077,11 +1096,29 @@ func (w *Whisperfish) HasEncryptedKeystore() bool {
 }
 
 func (w *Whisperfish) TotalMessages() int {
-	return w.totalMessages
+	totalMessages, err := TotalMessages(w.db)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to update total messages")
+	}
+	return totalMessages
 }
 
 func (w *Whisperfish) SentQueueSize() int {
-	return w.sentQueueSize
+	messages, err := FetchSentq(w.db)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to fetch mailq")
+	}
+
+	return len(messages)
+}
+
+func (w *Whisperfish) Reconnect() {
+	log.Debug("Forcing websocket reconnection")
+	textsecure.StopListening()
 }
 
 func (w *Whisperfish) syncSentHandler(msg *textsecure.Message, ts uint64) {

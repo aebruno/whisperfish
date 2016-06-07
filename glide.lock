@@ -1,8 +1,10 @@
-hash: 8ead58410838729a99d6798b003a2e9effc14c9cdadce15e23d30ed4a723266b
-updated: 2016-05-17T02:47:09.523892104Z
+hash: 830a6bf2432fd87efcdc64ca8f4a10e4f4234fac31487b18baa72f279f38e314
+updated: 2016-05-26T02:35:35.388118139Z
 imports:
 - name: github.com/aebruno/qml
   version: ba0787d5b0a50517a507e9020a437789fd4d8c72
+- name: github.com/gorilla/websocket
+  version: 1f512fc3f05332ba7117626cdfb4e07474e58e60
 - name: github.com/janimo/textsecure
   version: f60b7ea4d4e01c66b1f8c015dfa77aaa1075820d
   subpackages:

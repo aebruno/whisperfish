@@ -3,20 +3,31 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 Page {
-	id: settingsPage
+    id: settingsPage
     property QtObject countryCodeCombo : countryCode
 
-    RemorsePopup { id: remorse }
+    RemorsePopup {
+        id: remorse
+        onCanceled: {
+            incognitoModeSwitch.checked = !incognitoModeSwitch.checked
+        }
+    }
 
-	SilicaFlickable {
-		anchors.fill: parent
-		contentWidth: parent.width
-		contentHeight: col.height + Theme.paddingLarge
+    SilicaFlickable {
+        anchors.fill: parent
+        contentWidth: parent.width
+        contentHeight: col.height + Theme.paddingLarge
 
         PullDownMenu {
             MenuItem {
                 text: qsTr("Linked Devices")
                 onClicked: pageStack.push(Qt.resolvedUrl("LinkedDevices.qml"))
+            }
+            MenuItem {
+                text: qsTr("Reconnect")
+                onClicked: {
+                    whisperfish.reconnect()
+                }
             }
             MenuItem {
                 text: qsTr("Refresh Contacts")
@@ -27,15 +38,15 @@ Page {
             }
         }
 
-		VerticalScrollDecorator {}
+        VerticalScrollDecorator {}
 
-		Column {
-			id: col
-			spacing: Theme.paddingLarge
-			width: parent.width
-			PageHeader {
-				title: qsTr("Whisperfish Settings")
-			}
+        Column {
+            id: col
+            spacing: Theme.paddingLarge
+            width: parent.width
+            PageHeader {
+                title: qsTr("Whisperfish Settings")
+            }
             SectionHeader {
                 text: qsTr("My Identity")
             }
@@ -115,19 +126,28 @@ Page {
                 text: qsTr("Advanced")
             }
             TextSwitch {
+                id: incognitoModeSwitch
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Incognito Mode")
                 checked: whisperfish.settings().incognito
                 onCheckedChanged: {
                     if(checked != whisperfish.settings().incognito) {
-                        whisperfish.settings().incognito = checked
-                        whisperfish.saveSettings()
-                        remorse.execute(qsTr("Restarting whisperfish..."), function() { whisperfish.restart() })
+                        remorse.execute(
+                            qsTr("Restarting whisperfish..."),
+                            function() {
+                                whisperfish.settings().incognito = checked
+                                whisperfish.saveSettings()
+                                whisperfish.restart()
+                        })
                     }
                 }
             }
             SectionHeader {
                 text: qsTr("Statistics")
+            }
+            DetailItem {
+                label: qsTr("Network Status")
+                value: mainWindow.connected ? "Connected" : "Disconnected"
             }
             DetailItem {
                 label: qsTr("Unsent Messages")
@@ -153,6 +173,6 @@ Page {
                 label: qsTr("Encrypted Database")
                 value: whisperfish.settings().encryptDatabase ? qsTr("Enabled") : qsTr("Disabled")
             }
-		}
-	}
+        }
+    }
 }
