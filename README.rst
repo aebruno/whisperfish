@@ -91,15 +91,6 @@ version (``mb2 -x``). To add git hashes to the package version modify the
              # tagver piece copied from tar_git service
              if [[ $(echo $tag | grep "/") ]] ; then
 
-*Note*: There is a pull request currently under review `here
-<https://github.com/janimo/textsecure/pull/28>`_ which enables device linking.
-Until this is accepted manual merging is required::
-
-    $ cd vendor/github.com/janimo/textsecure
-    $ git remote add aebruno https://github.com/aebruno/textsecure.git
-    $ git fetch aebruno
-    $ git merge aebruno/device-provisioning
-
 If you have the SailfishOS Emulator you can install the rpm into the emulator
 directly with::
 
