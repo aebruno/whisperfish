@@ -8,20 +8,12 @@ CoverBackground {
         source: sessionModel.unread > 0 ? "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-gold.png" : "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png"
         anchors {
             bottom: parent.bottom
-            bottomMargin: Theme.itemSizeLarge
+            bottomMargin: Theme.itemSizeHuge
             horizontalCenter: parent.horizontalCenter
         }
     }
 
     CoverActionList {
-        CoverAction {
-            iconSource: "image://theme/icon-cover-subview"
-            onTriggered: {
-                mainWindow.activate()
-                showMainPage(PageStackAction.Immediate)
-            }
-        }
-
         CoverAction {
             iconSource: "image://theme/icon-cover-message"
             onTriggered: {
