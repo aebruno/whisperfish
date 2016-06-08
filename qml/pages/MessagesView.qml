@@ -141,17 +141,6 @@ SilicaListView {
                     })
             }
         }
-        MenuItem {
-            text: qsTr("Delete All")
-            onClicked: {
-                remorse.execute(qsTr("Deleting All Messages"),
-                    function() {
-                        console.log("Deleting all messages for session: "+messageModel.sid)
-                        whisperfish.deleteAllMessages(messageModel.sid)
-                        mainWindow.showMainPage(PageStackAction.Immediate)
-                    })
-            }
-        }
     }
 
     VerticalScrollDecorator {}

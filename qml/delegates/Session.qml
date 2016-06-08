@@ -108,8 +108,12 @@ ListItem {
         }
     }
 
-    function remove() {
-	console.log("Remove all messages")
+    function remove(contentItem) {
+        contentItem.remorseAction(qsTr("Deleting all messages"),
+            function() {
+                console.log("Deleting all messages for session: "+model.id)
+                whisperfish.deleteAllMessages(model.id)
+            })
     }
 
     Component {
@@ -119,7 +123,7 @@ ListItem {
             id: menu
             MenuItem {
                 text: qsTr("Delete Conversation")
-                onClicked: remove()
+                onClicked: remove(menu.parent)
             }
         }
     }
