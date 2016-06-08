@@ -1130,3 +1130,7 @@ func (w *Whisperfish) syncReadHandler(source string, ts uint64) {
 	log.Debug("Processing sync read message")
 	w.receiptHandler(source, 0, ts)
 }
+
+func (w *Whisperfish) CopyToClipboard(text string) {
+	w.engine.SailfishCopyToClipboard(text)
+}
