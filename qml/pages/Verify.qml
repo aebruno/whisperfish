@@ -11,11 +11,9 @@ Dialog {
     onDone: {
         if (result == DialogResult.Accepted && !codeField.errorHighlight) {
             code = codeField.text
-            codeEntered(code)
+            Prompt.verificationCode(code)
         }
     }
-
-    signal codeEntered(string text)
 
     Column {
         width: parent.width

@@ -64,7 +64,7 @@ Dialog {
         cellHeight: cellWidth
         cacheBuffer: cellHeight * 2
 
-        model: fileModel
+        model: FileModel
 
         delegate: Item {
             width: view.cellWidth - 1
@@ -72,7 +72,7 @@ Dialog {
 
             Image {
                 id: image
-                source: model.path
+                source: model.display.path
                 height: parent.height
                 width: parent.width
                 sourceSize.height: parent.height
@@ -101,7 +101,7 @@ Dialog {
             Rectangle {
                 anchors.fill: parent
                 color: Theme.highlightColor
-                visible: model.path == page.selectedPath
+                visible: model.display.path == page.selectedPath
                 opacity: 0.5
             }
             Rectangle {
@@ -117,7 +117,7 @@ Dialog {
                 anchors.margins: 3
                 //height: 26
                 font.pixelSize: Theme.fontSizeExtraSmall
-                text: model.name
+                text: model.display.path
                 wrapMode: Text.NoWrap
                 elide: Text.ElideRight
                 horizontalAlignment : Text.AlignHCenter
@@ -129,12 +129,12 @@ Dialog {
                 id: mArea
                 anchors.fill: parent
                 onClicked: {
-                    if (page.selectedPath === model.path) {
+                    if (page.selectedPath === model.display.path) {
                         page.selectedPath = ""
                         page.selectedRotation = 0
                     }
                     else {
-                        page.selectedPath = model.path
+                        page.selectedPath = model.display.path
                         page.selectedRotation = image.rotation
                     }
                 }

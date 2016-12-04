@@ -74,16 +74,6 @@ Page {
                 horizontalAlignment: Text.AlignLeft
                 x: Theme.paddingLarge
             }
-
-			Label {
-				text: qsTr("Go QML bindings (C) Gustavo Niemeyer.")
-				anchors.horizontalCenter: parent.horizontalCenter
-				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
-				verticalAlignment: Text.AlignVCenter
-				horizontalAlignment: Text.AlignLeft
-				x: Theme.paddingLarge
-			}
 		}
 	}
 }

@@ -26,6 +26,7 @@ ListItem {
     id: delegate
     contentHeight: textColumn.height + Theme.paddingMedium + textColumn.y
     menu: contextMenuComponent
+    property var dt: new Date(model.display.timestamp)
 
     Column {
         id: textColumn
@@ -43,7 +44,7 @@ ListItem {
 
             Image {
                 id: groupIcon
-                source: model.isGroup ? ("image://theme/icon-s-group-chat?" + (delegate.highlighted ? Theme.highlightColor : Theme.primaryColor)) : ""
+                source: model.display.isGroup ? ("image://theme/icon-s-group-chat?" + (delegate.highlighted ? Theme.highlightColor : Theme.primaryColor)) : ""
                 anchors.verticalCenter: name.verticalCenter
             }
 
@@ -53,7 +54,7 @@ ListItem {
 
                 truncationMode: TruncationMode.Fade
                 color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
-                text: model.isGroup ? model.groupName : model.name
+                text: model.display.isGroup ? model.display.groupName : Backend.contactName(model.display.source)
             }
         }
 
@@ -63,9 +64,9 @@ ListItem {
             anchors.right: parent.right
 
             text: {
-                if (model.message != '') {
-                    return model.message
-                } else if (model.hasAttachment) {
+                if (model.display.message != '') {
+                    return model.display.message
+                } else if (model.display.hasAttachment) {
                     return qsTr("Attachment")
                 }
                 return ''
@@ -73,12 +74,12 @@ ListItem {
 
             textFormat: Text.PlainText
             font.pixelSize: Theme.fontSizeExtraSmall
-            color: delegate.highlighted || model.unread > 0 ? Theme.highlightColor : Theme.primaryColor
+            color: delegate.highlighted || model.display.unread > 0 ? Theme.highlightColor : Theme.primaryColor
             wrapMode: Text.Wrap
             maximumLineCount: 3
 
             GlassItem {
-                visible: model.unread > 0
+                visible: model.display.unread > 0
                 color: Theme.highlightColor
                 falloffRadius: 0.16
                 radius: 0.15
@@ -97,10 +98,10 @@ ListItem {
             color: delegate.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
             font.pixelSize: Theme.fontSizeExtraSmall
             text: {
-               var re = model.date
-               if (model.received) {
+               var re = Format.formatDate(dt, Formatter.TimepointRelative)
+               if (model.display.received) {
                    re += qsTr("  ✓✓")
-               } else if (model.sent) {
+               } else if (model.display.sent) {
                    re += qsTr("  ✓")
                }
                return re
@@ -111,8 +112,8 @@ ListItem {
     function remove(contentItem) {
         contentItem.remorseAction(qsTr("Deleting all messages"),
             function() {
-                console.log("Deleting all messages for session: "+model.id)
-                whisperfish.deleteAllMessages(model.id)
+                console.log("Deleting all messages for session: "+model.display.id)
+                SessionModel.remove(model.index)
             })
     }
 

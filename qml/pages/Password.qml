@@ -12,11 +12,11 @@ Dialog {
         if(passwordField.errorHighlight){
             return false
         }
-        if(!whisperfish.hasKeys && passwordField2.errorHighlight){
+        if(!Backend.registered && passwordField2.errorHighlight){
             return false
         }
 
-        if(!whisperfish.hasKeys && passwordField.text != passwordField2.text){
+        if(!Backend.registered && passwordField.text != passwordField2.text){
             return false
         }
 
@@ -26,11 +26,9 @@ Dialog {
     onDone: {
         if (result == DialogResult.Accepted && isValid()) {
             password = passwordField.text
-            passwordEntered(password)
+            Prompt.password(password)
         }
     }
-
-    signal passwordEntered(string text)
 
     Column {
         width: parent.width
@@ -41,7 +39,7 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: whisperfish.hasKeys ? qsTr("Enter your password") : qsTr("Set your password")
+            text: Backend.registered ? qsTr("Enter your password") : qsTr("Set your password")
         }
 
         TextField {
@@ -62,7 +60,7 @@ Dialog {
             id: passwordField2
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
-            visible: !whisperfish.hasKeys
+            visible: !Backend.registered
             validator: RegExpValidator{ regExp: /.{6,}/;}
             label: "Verify Password"
             placeholderText: "Verify Password"
@@ -75,7 +73,7 @@ Dialog {
 
         TextArea {
             anchors.horizontalCenter: parent.horizontalCenter
-            visible: !whisperfish.hasKeys
+            visible: !Backend.registered
             width: parent.width
             font.pixelSize: Theme.fontSizeTiny
             horizontalAlignment: TextEdit.Center

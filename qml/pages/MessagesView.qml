@@ -30,6 +30,13 @@ SilicaListView {
     currentIndex: -1
     quickScroll: false
 
+    PullDownMenu {
+        MenuItem {
+            text: qsTr("Load More")
+            onClicked: console.log("Load more messages!")
+        }
+    }
+
     delegate: Item {
         id: wrapper
 
@@ -84,7 +91,7 @@ SilicaListView {
                 id: text
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeExtraSmall
-                text: messageModel.isGroup ? qsTr("Group: "+messageModel.name) : messageModel.name
+                text: MessageModel.group ? qsTr("Group: "+MessageModel.peerName) : MessageModel.peerName
             }
         }
     }
@@ -92,13 +99,13 @@ SilicaListView {
     function remove(contentItem) {
         contentItem.remorseAction(qsTr("Deleting"),
             function() {
-                console.log("Delete message: "+contentItem.modelData.id)
-                whisperfish.deleteMessage(contentItem.modelData.id)
+                console.log("Delete message: "+contentItem.modelData.display.id)
+                MessageModel.remove(contentItem.modelData.index)
             })
     }
 
     function copy(contentItem) {
-        whisperfish.copyToClipboard(contentItem.modelData.message)
+        Backend.copyToClipboard(contentItem.modelData.display.message)
     }
 
     Component {
@@ -127,17 +134,17 @@ SilicaListView {
     PushUpMenu {
         MenuItem {
             text: qsTr("Verify Identity")
-            enabled: messageModel.identity.length > 0
+            enabled: MessageModel.peerIdentity.length > 0
             onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
         }
         MenuItem {
             text: qsTr("Reset Secure Session")
-            enabled: messageModel.identity.length > 0
+            enabled: MessageModel.peerIdentity.length > 0
             onClicked: {
                 remorse.execute(qsTr("Resetting secure session"),
                     function() {
-                        console.log("Resetting secure session: "+messageModel.tel)
-                        whisperfish.endSession(messageModel.tel)
+                        console.log("Resetting secure session: "+MessageModel.peerTel)
+                        Backend.endSession(MessageModel.peerTel)
                     })
             }
         }

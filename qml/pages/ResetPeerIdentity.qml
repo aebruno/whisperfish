@@ -8,13 +8,11 @@ Dialog {
 
     onDone: {
         if (result == DialogResult.Accepted) {
-            resetConfirm("yes")
+            Prompt.resetPeerIdentity("yes")
         } else {
-            resetConfirm("no")
+            Prompt.resetPeerIdentity("no")
         }
     }
-
-    signal resetConfirm(string text)
 
     Column {
         width: parent.width

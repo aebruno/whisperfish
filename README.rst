@@ -7,14 +7,9 @@ Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
 code from the following projects:
 
 - `Signal client library in go <https://github.com/janimo/textsecure>`_
-- `go-qml <https://github.com/go-qml/qml>`_ QML support for Go 
-- `Jolla MerSDK Go patches <https://github.com/nekrondev/jolla_go>`_ by nekrondev
-- Backend code is based off the TextSecure client for the Ubuntu Phone written
-  by `janimo <https://github.com/janimo/textsecure-qml>`_ 
+- `qt <https://github.com/therecipe/qt>`_ Qt binding for Go
 - The user interface is heavily based on the jolla-messages application written
   by Jolla Ltd.
-- Image picker is from `hangish <https://github.com/rogora/hangish>`_ written
-  by Daniele Rogora
   
 -------------------------------------------------------------------------------
 Project Status
@@ -36,11 +31,11 @@ Features
 - [x] Direct messages
 - [x] Group messages
 - [x] Storing conversations
-- [x] Photo/video attachments
+- [x] Photo attachments
 - [x] Encrypted identity and session store
 - [x] Encrypted message store
 - [x] Advanced user settings
-- [x] Multi-Device support (links with Signal Desktop)
+- [ ] Multi-Device support (links with Signal Desktop)
 - [ ] Encrypted attachments
 - [ ] Archiving conversations
 
@@ -137,7 +132,7 @@ your language run (for example German)::
 License
 -------------------------------------------------------------------------------
 
-Copyright (C) 2016 Andrew E. Bruno
+Copyright (C) 2016-2017 Andrew E. Bruno
 
 Whisperfish is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software

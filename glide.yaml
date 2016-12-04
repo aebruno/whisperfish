@@ -3,14 +3,14 @@ homepage: https://github.com/aebruno/whisperfish
 license: GPLv3
 import:
 - package: github.com/Sirupsen/logrus
-- package: github.com/aebruno/qml
-  version: whisperfish
+- package: github.com/aebruno/textsecure
+  version: websocket-updates
 - package: github.com/janimo/textsecure
   subpackages:
-  - 3rd_party/magic
   - axolotl
+  - curve25519sign
+  - protobuf
 - package: github.com/jmoiron/sqlx
-- package: github.com/mutecomm/go-sqlcipher
 - package: github.com/rogpeppe/fastuuid
 - package: github.com/ttacon/libphonenumber
 - package: golang.org/x/crypto
@@ -19,3 +19,7 @@ import:
 - package: gopkg.in/yaml.v2
 - package: github.com/ttacon/builder
 - package: github.com/gorilla/websocket
+- package: github.com/emirpasic/gods
+  subpackages:
+  - lists/arraylist
+- package: github.com/xeodou/go-sqlcipher

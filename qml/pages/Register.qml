@@ -11,11 +11,9 @@ Dialog {
     onDone: {
         if (result == DialogResult.Accepted && !telField.errorHighlight) {
             tel = telField.text
-            numberEntered(tel)
+            Prompt.phoneNumber(tel)
         }
     }
-
-    signal numberEntered(string text)
 
     Column {
         width: parent.width

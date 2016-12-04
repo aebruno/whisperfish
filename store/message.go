@@ -15,32 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Whisperfish.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package store
 
 import (
 	"fmt"
 	"io"
+	"mime"
 	"os"
 	"path/filepath"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/janimo/textsecure"
-	"github.com/jmoiron/sqlx"
+	"github.com/aebruno/textsecure"
 	"github.com/rogpeppe/fastuuid"
-)
-
-const (
-	MessageSchema = `
-		create table if not exists message 
-		(id integer primary key, session_id integer, source text, message string, timestamp integer,
-        sent integer default 0, received integer default 0, flags integer default 0, attachment text, 
-		mime_type string, has_attachment integer default 0, outgoing integer default 0)
-	`
-	SentqSchema = `
-		create table if not exists sentq
-		(message_id integer primary key, timestamp timestamp)
-	`
 )
 
 type Message struct {
@@ -58,16 +45,6 @@ type Message struct {
 	Flags         uint32 `db:"flags"`
 }
 
-type MessageModel struct {
-	messages []*Message
-	Name     string
-	Tel      string
-	Identity string
-	IsGroup  bool
-	SID      int64
-	Length   int
-}
-
 func (m *Message) SaveAttachment(dir string, a *textsecure.Attachment) error {
 	g, err := fastuuid.NewGenerator()
 	if err != nil {
@@ -78,7 +55,12 @@ func (m *Message) SaveAttachment(dir string, a *textsecure.Attachment) error {
 	adir := filepath.Join(dir, string(uuid[0]))
 	os.MkdirAll(adir, 0700)
 
-	fname := filepath.Join(adir, uuid)
+	ext, _ := mime.ExtensionsByType(a.MimeType)
+	if ext == nil {
+		ext = []string{""}
+	}
+
+	fname := filepath.Join(adir, fmt.Sprintf("%s%s", uuid, ext[0]))
 
 	f, err := os.OpenFile(fname, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
@@ -98,26 +80,7 @@ func (m *Message) SaveAttachment(dir string, a *textsecure.Attachment) error {
 	return nil
 }
 
-func (m *MessageModel) Get(i int) *Message {
-	if i == -1 || i >= len(m.messages) {
-		return &Message{}
-	}
-	return m.messages[i]
-}
-
-func (m *MessageModel) RefreshConversation(db *sqlx.DB, sessionID int64) error {
-	var err error
-	m.messages, err = FetchAllMessages(db, sessionID)
-	if err != nil {
-		return err
-	}
-
-	m.Length = len(m.messages)
-
-	return nil
-}
-
-func SaveMessage(db *sqlx.DB, msg *Message) error {
+func (ds *DataStore) SaveMessage(msg *Message) error {
 	cols := []string{"session_id", "source", "message", "timestamp", "outgoing", "sent", "received", "flags", "attachment", "mime_type", "has_attachment"}
 	if msg.ID > int64(0) {
 		cols = append(cols, "id")
@@ -127,7 +90,7 @@ func SaveMessage(db *sqlx.DB, msg *Message) error {
 	query += strings.Join(cols, ",")
 	query += ") values (:" + strings.Join(cols, ",:") + ")"
 
-	res, err := db.NamedExec(query, msg)
+	res, err := ds.dbx.NamedExec(query, msg)
 	if err != nil {
 		return err
 	}
@@ -143,9 +106,9 @@ func SaveMessage(db *sqlx.DB, msg *Message) error {
 	return nil
 }
 
-func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
+func (ds *DataStore) FetchAllMessages(sessionID int64) ([]*Message, error) {
 	messages := []*Message{}
-	err := db.Select(&messages, `
+	err := ds.dbx.Select(&messages, `
 	select
 		m.id,
 		m.session_id,
@@ -162,7 +125,7 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 	from 
 		message as m
     where m.session_id = ?
-	order by m.timestamp desc
+	order by m.id desc
     `, sessionID)
 	if err != nil {
 		return nil, err
@@ -171,26 +134,26 @@ func FetchAllMessages(db *sqlx.DB, sessionID int64) ([]*Message, error) {
 	return messages, nil
 }
 
-func DeleteMessage(db *sqlx.DB, id int64) error {
-	_, err := db.Exec(`delete from message where id = ?`, id)
+func (ds *DataStore) DeleteMessage(id int64) error {
+	_, err := ds.dbx.Exec(`delete from message where id = ?`, id)
 	return err
 }
 
-func DeleteAllMessages(db *sqlx.DB, sid int64) error {
-	_, err := db.Exec(`delete from message where session_id = ?`, sid)
+func (ds *DataStore) DeleteAllMessages(sid int64) error {
+	_, err := ds.dbx.Exec(`delete from message where session_id = ?`, sid)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`delete from session where id = ?`, sid)
+	_, err = ds.dbx.Exec(`delete from session where id = ?`, sid)
 	return err
 }
 
-func MarkMessageSent(db *sqlx.DB, id int64, ts uint64) error {
-	_, err := db.Exec(`update message set timestamp = ?, sent = 1 where id = ?`, ts, id)
+func (ds *DataStore) MarkMessageSent(id int64, ts uint64) error {
+	_, err := ds.dbx.Exec(`update message set timestamp = ?, sent = 1 where id = ?`, ts, id)
 	return err
 }
 
-func MarkMessageReceived(db *sqlx.DB, source string, ts uint64) (int64, int64, error) {
+func (ds *DataStore) MarkMessageReceived(source string, ts uint64) (int64, int64, error) {
 	type record struct {
 		SessionID int64 `db:"session_id"`
 		MessageID int64 `db:"id"`
@@ -198,7 +161,7 @@ func MarkMessageReceived(db *sqlx.DB, source string, ts uint64) (int64, int64, e
 
 	rec := record{}
 
-	err := db.Get(&rec, `
+	err := ds.dbx.Get(&rec, `
 		select id,session_id
 		from message 
 		where timestamp = ?
@@ -207,7 +170,7 @@ func MarkMessageReceived(db *sqlx.DB, source string, ts uint64) (int64, int64, e
 		return rec.SessionID, rec.MessageID, err
 	}
 
-	_, err = db.Exec(`update message set received = 1 where id = ?`, rec.MessageID)
+	_, err = ds.dbx.Exec(`update message set received = 1 where id = ?`, rec.MessageID)
 	if err != nil {
 		return rec.SessionID, rec.MessageID, err
 	}
@@ -215,9 +178,9 @@ func MarkMessageReceived(db *sqlx.DB, source string, ts uint64) (int64, int64, e
 	return rec.SessionID, rec.MessageID, nil
 }
 
-func FetchSentq(db *sqlx.DB) ([]*Message, error) {
+func (ds *DataStore) FetchSentq() ([]*Message, error) {
 	messages := []*Message{}
-	err := db.Select(&messages, `
+	err := ds.dbx.Select(&messages, `
 	select
 		m.id,
 		m.session_id,
@@ -243,8 +206,8 @@ func FetchSentq(db *sqlx.DB) ([]*Message, error) {
 	return messages, nil
 }
 
-func QueueSent(db *sqlx.DB, message *Message) error {
-	_, err := db.Exec(`insert into sentq (message_id, timestamp) values (?,datetime('now'))`, message.ID)
+func (ds *DataStore) QueueSent(message *Message) error {
+	_, err := ds.dbx.Exec(`insert into sentq (message_id, timestamp) values (?,datetime('now'))`, message.ID)
 	if err != nil {
 		return err
 	}
@@ -252,8 +215,8 @@ func QueueSent(db *sqlx.DB, message *Message) error {
 	return nil
 }
 
-func DequeueSent(db *sqlx.DB, id int64) error {
-	_, err := db.Exec(`delete from sentq where message_id = ?`, id)
+func (ds *DataStore) DequeueSent(id int64) error {
+	_, err := ds.dbx.Exec(`delete from sentq where message_id = ?`, id)
 	if err != nil {
 		return err
 	}
@@ -261,17 +224,27 @@ func DequeueSent(db *sqlx.DB, id int64) error {
 	return nil
 }
 
-func TotalMessages(db *sqlx.DB) (int, error) {
+func (ds *DataStore) TotalMessages() (int, error) {
 	type record struct {
 		Total int `db:"total"`
 	}
 
 	rec := record{}
 
-	err := db.Get(&rec, `select count(*) as total from message`)
+	err := ds.dbx.Get(&rec, `select count(*) as total from message`)
 	if err != nil {
 		return 0, err
 	}
 
 	return rec.Total, nil
+}
+
+func (ds *DataStore) FetchMessage(id int64) (*Message, error) {
+	message := Message{}
+	err := ds.dbx.Get(&message, `select * from message where id = ?`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &message, nil
 }

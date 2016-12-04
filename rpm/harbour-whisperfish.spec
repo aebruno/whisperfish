@@ -11,7 +11,7 @@ BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
-BuildRequires:  openssl-devel
+#BuildRequires:  openssl-devel
 BuildRequires:  desktop-file-utils
 
 %description
@@ -25,16 +25,6 @@ rm -rf vendor
 
 %build
 # >> build pre
-GOPATH=%(pwd):~/
-GOROOT=~/go
-export GOPATH GOROOT
-cd %(pwd)
-if [ $DEB_HOST_ARCH == "armel" ]
-then
-~/go/bin/linux_arm/go build -ldflags "-s -X main.Version=%{version}" -o %{name} 
-else
-~/go/bin/go build -ldflags "-s -X main.Version=%{version}" -o %{name}
-fi
 # << build pre
 
 # >> build post

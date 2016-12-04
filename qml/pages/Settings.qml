@@ -26,14 +26,13 @@ Page {
             MenuItem {
                 text: qsTr("Reconnect")
                 onClicked: {
-                    whisperfish.reconnect()
+                    Backend.reconnect()
                 }
             }
             MenuItem {
                 text: qsTr("Refresh Contacts")
                 onClicked: {
-                    whisperfish.refreshContacts()
-                    whisperfish.refreshSessions()
+                    Backend.contactRefresh()
                 }
             }
         }
@@ -56,7 +55,7 @@ Page {
                 readOnly: true
                 width: parent.width
                 label: "Phone"
-                text: whisperfish.phoneNumber()
+                text: Backend.phoneNumber()
             }
             TextArea {
                 id: identity
@@ -65,7 +64,7 @@ Page {
                 font.pixelSize: Theme.fontSizeSmall
                 width: parent.width
                 label: "Identity"
-                text: whisperfish.identity()
+                text: Backend.identity()
             }
             SectionHeader {
                 text: qsTr("Notifications")
@@ -74,22 +73,20 @@ Page {
                 id: enableNotify
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Enable")
-                checked: whisperfish.settings().enableNotify
+                checked: SettingsBridge.boolValue("enable_notify")
                 onCheckedChanged: {
-                    if(checked != whisperfish.settings().enableNotify) {
-                        whisperfish.settings().enableNotify = checked
-                        whisperfish.saveSettings()
+                    if(checked != SettingsBridge.boolValue("enable_notify")) {
+                        SettingsBridge.boolSet("enable_notify", checked)
                     }
                 }
             }
             TextSwitch {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Show Message Body")
-                checked: whisperfish.settings().showNotifyMessage
+                checked: SettingsBridge.boolValue("show_notify_message")
                 onCheckedChanged: {
-                    if(checked != whisperfish.settings().showNotifyMessage) {
-                        whisperfish.settings().showNotifyMessage = checked
-                        whisperfish.saveSettings()
+                    if(checked != SettingsBridge.boolValue("show_notify_message")) {
+                        SettingsBridge.boolSet("show_notify_message", checked)
                     }
                 }
             }
@@ -100,13 +97,12 @@ Page {
                 id: countryCode
                 anchors.horizontalCenter: parent.horizontalCenter
                 label: qsTr("Country Code")
-                value: whisperfish.settings().countryCode
+                value: SettingsBridge.stringValue("country_code")
                 onClicked: {
                     var cd = pageStack.push(Qt.resolvedUrl("CountryCodeDialog.qml"))
                     cd.setCountryCode.connect(function(code) {
                         value = code
-                        whisperfish.settings().countryCode = code
-                        whisperfish.saveSettings()
+                        SettingsBridge.stringSet("country_code", code)
                     })
                 }
             }
@@ -114,11 +110,10 @@ Page {
                 id: saveAttachments
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Save Attachments")
-                checked: whisperfish.settings().saveAttachments
+                checked: SettingsBridge.boolValue("save_attachments")
                 onCheckedChanged: {
-                    if(checked != whisperfish.settings().saveAttachments) {
-                        whisperfish.settings().saveAttachments = checked
-                        whisperfish.saveSettings()
+                    if(checked != SettingsBridge.boolValue("save_attachments")) {
+                        SettingsBridge.boolSet("save_attachments", checked)
                     }
                 }
             }
@@ -129,15 +124,14 @@ Page {
                 id: incognitoModeSwitch
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Incognito Mode")
-                checked: whisperfish.settings().incognito
+                checked: SettingsBridge.boolValue("incognito")
                 onCheckedChanged: {
-                    if(checked != whisperfish.settings().incognito) {
+                    if(checked != SettingsBridge.boolValue("incognito")) {
                         remorse.execute(
                             qsTr("Restarting whisperfish..."),
                             function() {
-                                whisperfish.settings().incognito = checked
-                                whisperfish.saveSettings()
-                                whisperfish.restart()
+                                SettingsBridge.boolSet("incognito", checked)
+                                Backend.restart()
                         })
                     }
                 }
@@ -147,31 +141,31 @@ Page {
             }
             DetailItem {
                 label: qsTr("Network Status")
-                value: mainWindow.connected ? "Connected" : "Disconnected"
+                value: Backend.connected ? "Connected" : "Disconnected"
             }
             DetailItem {
                 label: qsTr("Unsent Messages")
-                value: whisperfish.sentQueueSize()
+                value: MessageModel.unsentCount()
             }
             DetailItem {
                 label: qsTr("Total Sessions")
-                value: sessionModel.length
+                value: SessionModel.count()
             }
             DetailItem {
                 label: qsTr("Total Messages")
-                value: whisperfish.totalMessages()
+                value: MessageModel.total()
             }
             DetailItem {
                 label: qsTr("Signal Contacts")
-                value: contactsModel.len
+                value: Backend.contactCount()
             }
             DetailItem {
                 label: qsTr("Encrypted Key Store")
-                value: whisperfish.hasEncryptedKeystore() ? qsTr("Enabled") : qsTr("Disabled")
+                value: Backend.hasEncryptedKeystore() ? qsTr("Enabled") : qsTr("Disabled")
             }
             DetailItem {
                 label: qsTr("Encrypted Database")
-                value: whisperfish.settings().encryptDatabase ? qsTr("Enabled") : qsTr("Disabled")
+                value: SettingsBridge.boolValue("encrypt_database") ? qsTr("Enabled") : qsTr("Disabled")
             }
         }
     }

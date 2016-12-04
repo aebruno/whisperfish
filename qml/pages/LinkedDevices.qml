@@ -8,7 +8,7 @@ Page {
         id: listView
         anchors.fill: parent
         spacing: Theme.paddingMedium
-        model: deviceModel.len
+        model: ListModel{}
 
         PullDownMenu {
             MenuItem {
@@ -16,15 +16,14 @@ Page {
                 onClicked: {
                     var d = pageStack.push(Qt.resolvedUrl("AddDevice.qml"))
                     d.addDevice.connect(function(tsurl) {
-                        console.log("Add device: "+tsurl)
-                        whisperfish.linkDevice(tsurl)
+                        console.log("TODO: Add device: "+tsurl)
                     })
                 }
             }
             MenuItem {
                 text: qsTr("Refresh")
                 onClicked: {
-                    whisperfish.refreshDevices()
+                    console.log("TODO: refresh devices")
                 }
             }
         }
@@ -35,13 +34,12 @@ Page {
             contentHeight: created.y + created.height + lastSeen.height + Theme.paddingMedium
             id: delegate
             menu: deviceContextMenu
-            property QtObject dev: deviceModel.device(index)
+            property QtObject dev: model.get(index)
 
             function remove(contentItem) {
                 contentItem.remorseAction(qsTr("Deleting"),
                     function() {
-                        console.log("Delete device: "+contentItem.dev.id)
-                        whisperfish.unlinkDevice(contentItem.dev.id)
+                        console.log("TODO: Delete device: "+contentItem.dev.id)
                     })
             }
 

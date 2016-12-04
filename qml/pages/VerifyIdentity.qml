@@ -19,7 +19,7 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: qsTr("Verify ") + messageModel.name
+            text: qsTr("Verify ") + MessageModel.peerName
         }
 
         SectionHeader {
@@ -32,7 +32,7 @@ Dialog {
             readOnly: true
             font.pixelSize: Theme.fontSizeSmall
             width: parent.width
-            text: messageModel.identity
+            text: MessageModel.peerIdentity
         }
 
         SectionHeader {
@@ -45,7 +45,7 @@ Dialog {
             readOnly: true
             font.pixelSize: Theme.fontSizeSmall
             width: parent.width
-            text: whisperfish.identity()
+            text: Backend.identity()
         }
 
     }

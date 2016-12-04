@@ -6,82 +6,34 @@ Page {
     id: main
     objectName: "main"
 
-    property int sesslen: sessionModel.length
-
-    onSesslenChanged: {
-        refreshSessions()
-    }
-
-    property QtObject currentPage: pageStack.currentPage
-
-    function updateSent(id) {
-        for (var j = 0; j < sessionView.model.count; j++) {
-            var s = sessionView.model.get(j)
-            if(s.id == id) {
-                sessionView.model.setProperty(j, "sent", true)
-            }
+    Connections {
+        target: Prompt
+        onPromptPhoneNumber: {
+            phoneNumberTimer.start()
+        }
+        onPromptVerificationCode: {
+            verifyTimer.start()
+        }
+        onPromptPassword: {
+            passwordTimer.start()
+        }
+        onPromptResetPeerIdentity: {
+            pageStack.push(Qt.resolvedUrl("ResetPeerIdentity.qml"), { source: source })
         }
     }
 
-    function updateReceived(id) {
-        for (var j = 0; j < sessionView.model.count; j++) {
-            var s = sessionView.model.get(j)
-            if(s.id == id) {
-                sessionView.model.setProperty(j, "received", true)
-            }
+    Connections {
+        target: Backend
+        onRegistrationSuccess: {
+            registeredRemorse.execute("Registration complete!", function() { console.log("Registration complete") })
         }
-    }
-
-    // This is a hack to use a psuedo model so we can use the 
-    // group the messages into sections based on their timestamps
-    function refreshSessions() {
-        var now = new Date().getTime()
-        sessionView.model.clear()
-        for (var i = 0; i < sessionModel.length; i++) {
-            var s = sessionModel.get(i)
-            var dt = new Date(s.timestamp)
-            var sectionLabel = Format.formatDate(dt, Formatter.TimepointSectionRelative)
-            sessionView.model.append({
-                'id': s.id,
-                'name': s.name,
-                'isGroup': s.isGroup,
-                'groupName': s.groupName,
-                'received': s.received,
-                'unread': s.unread,
-                'sent': s.sent,
-                'message': s.message,
-                'hasAttachment': s.hasAttachment,
-                'date': Format.formatDate(dt, Formatter.TimepointRelative),
-                'section': sectionLabel ? sectionLabel : 'Today'
-            })
-        }
-    }
-
-    function getPhoneNumber() {
-        pageStack.push(Qt.resolvedUrl("Register.qml"))
-    }
-
-    function getVerificationCode() {
-        pageStack.push(Qt.resolvedUrl("Verify.qml"))
-    }
-
-    function getStoragePassword() {
-        pageStack.push(Qt.resolvedUrl("Password.qml"))
-    }
-
-    function registered() {
-        registeredRemorse.execute("Registration complete!", function() { console.log("Registration complete") })
-    }
-
-    function confirmResetPeerIdentity(source) {
-        pageStack.push(Qt.resolvedUrl("ResetPeerIdentity.qml"), { source: source })
     }
 
     RemorsePopup { id: registeredRemorse }
 
     SilicaListView {
         id: sessionView
-        model: ListModel {}
+        model: SessionListModel
         anchors.fill: parent
         spacing: Theme.paddingMedium
 
@@ -92,12 +44,12 @@ Page {
             }
             MenuItem {
                 text: qsTr("Settings")
-                enabled: !whisperfish.locked
+                enabled: !Backend.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
             MenuItem {
                 text: qsTr("New Message")
-                enabled: !whisperfish.locked
+                enabled: !Backend.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("NewMessage.qml"))
             }
         }
@@ -106,11 +58,11 @@ Page {
 
         ViewPlaceholder {
             enabled: sessionView.count == 0
-            text: whisperfish.locked ? qsTr("Whisperfish") : qsTr("No messages")
+            text: Backend.locked ? qsTr("Whisperfish") : qsTr("No messages")
             hintText: {
-                if(!whisperfish.hasKeys) {
+                if(!Backend.registered) {
                     qsTr("Registration required")
-                } else if(whisperfish.locked) {
+                } else if(Backend.locked) {
                     qsTr("Locked")
                 } else {
                     ""
@@ -119,7 +71,7 @@ Page {
         }
 
         section {
-            property: 'section'
+            property: 'display.section'
 
             delegate: SectionHeader {
                 text: section
@@ -129,9 +81,58 @@ Page {
 
         delegate: Session{
             onClicked: {
-                mainWindow.removeNotification(model.id)
-                whisperfish.setSession(model.id)
+                console.log("Activating session: "+model.display.id)
                 pageStack.push(Qt.resolvedUrl("Conversation.qml"));
+                SessionModel.markRead(model.display.id)
+                MessageModel.refresh(
+                    model.display.id,
+                    model.display.name,
+                    Backend.contactIdentity(model.display.source),
+                    model.display.source,
+                    model.display.isGroup
+                )
+            }
+        }
+    }
+
+    Timer {
+        id: phoneNumberTimer
+        interval: 500
+        running: false
+        repeat: true
+        onTriggered: {
+            console.log("Page status: "+main.status)
+            if(main.status == PageStatus.Active) {
+                pageStack.push(Qt.resolvedUrl("Register.qml"))
+                phoneNumberTimer.stop()
+            }
+        }
+    }
+
+    Timer {
+        id: verifyTimer
+        interval: 500
+        running: false
+        repeat: true
+        onTriggered: {
+            console.log("Page status: "+main.status)
+            if(main.status == PageStatus.Active) {
+                pageStack.push(Qt.resolvedUrl("Verify.qml"))
+                verifyTimer.stop()
+            }
+        }
+    }
+
+    Timer {
+        id: passwordTimer
+        interval: 500
+        running: false
+        repeat: true
+        onTriggered: {
+            console.log("Page status: "+main.status)
+            if(main.status == PageStatus.Active) {
+                pageStack.push(Qt.resolvedUrl("Password.qml"))
+                passwordTimer.stop()
             }
         }
     }

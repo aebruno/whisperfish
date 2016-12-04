@@ -1,3 +1,0 @@
-#!/bin/bash
-
-mb2 -x -s rpm/harbour-whisperfish.spec -d "SailfishOS Emulator" deploy  --sdk

@@ -23,7 +23,7 @@ Item {
         text: qsTr("New")
         opacity: 0.6
         width: parent.width
-        visible: sessionModel.unread > 0
+        visible: SessionModel.unread > 0
         font.pixelSize: Theme.fontSizeExtraSmall
         truncationMode: TruncationMode.Fade
         color: Theme.highlightColor
@@ -37,8 +37,8 @@ Item {
         id: unreadLabel
         y: Theme.paddingMedium
         color: Theme.primaryColor
-        text: sessionModel.unread
-        visible: sessionModel.unread > 0
+        text: SessionModel.unread
+        visible: SessionModel.unread > 0
         font {
             pixelSize: Theme.fontSizeHuge
             family: Theme.fontFamilyHeading

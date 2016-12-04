@@ -83,9 +83,9 @@ Page {
                             for (var i = 0; i < selectedContacts.count; i++) {
                                 var contact = selectedContacts.get(i)
                                 if (contact.property !== undefined && contact.propertyType === "phoneNumber") {
-                                    var c = contactsModel.find(contact.property.number, whisperfish.settings().countryCode)
-                                    if(c.name.length != 0){
-                                        recipients[c.tel] = true
+                                    var tel = Backend.contactNumber(contact.property.number)
+                                    if(tel.length != 0){
+                                        recipients[tel] = true
                                     } else {
                                         invalidContactFound = true
                                         var p = personComponent.createObject(null)
@@ -149,8 +149,8 @@ Page {
                 onSendMessage: {
                     if (recipientField.validContacts > 0) {
                         var source = Object.keys(recipientField.recipients).join(",")
-                        whisperfish.sendMessage(source, text, groupName.text, attachmentPath)
                         pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
+                        Backend.sendMessage(source, text, groupName.text, attachmentPath)
                     } else {
                         //: Invalid recipient error
                         //% "Invalid recipient"

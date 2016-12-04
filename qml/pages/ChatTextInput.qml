@@ -133,9 +133,8 @@ InverseMouseArea {
         onClicked: chatInputArea.send()
         visible: true
         onPressAndHold: {
-            //Workaround for rpm validator
             chatInputArea.attachmentPath = ""
-            fileModel.searchPath = "foo"
+            FilePicker.search()
             pageStack.push(imagepicker)
             imagepicker.selected.connect(chatInputArea.setAttachmentPath)
         }

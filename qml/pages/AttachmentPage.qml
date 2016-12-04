@@ -58,7 +58,7 @@ SplitViewPage {
                 var dt = new Date(root.message.timestamp)
                 return Format.formatDate(dt, Formatter.Timepoint)
             }
-            title: root.message.outgoing ? qsTr("Me") : messageModel.name
+            title: root.message.outgoing ? qsTr("Me") : MessageModel.peerName
             description: msgDate()
         }
     }
