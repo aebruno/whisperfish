@@ -7,13 +7,13 @@ QT_DOC_DIR=$QT_DIR/5.2.0/gcc_64/doc/
 VERSION=$(git describe --long --tags --dirty --always 2>/dev/null | cut -f2 -d'v')
 
 case "$1" in
-        cleanqt)
+        clean-qt)
             rm -Rf  $GOPATH/src/github.com/therecipe/qt
             rm -Rf  $GOPATH/pkg/linux_amd64/github.com/therecipe/qt
             rm -f $GOPATH/bin/{qtmoc,qtsetup,qtminimal}
             mkdir -p $GOPATH/src/github.com/therecipe
             ;;
-        rebuildqt)
+        rebuild-qt)
             pushd .
             cd $GOPATH/src/github.com/therecipe/qt
             cd cmd/qtsetup
@@ -24,8 +24,11 @@ case "$1" in
             go install .
             popd
             ;;
-        setup)
+        setup-qt)
             QT_VERSION=$QT_VERSION QT_DIR=$QT_DIR QT_DOC_DIR=$QT_DOC_DIR QT_PKG_CONFIG=true $GOPATH/bin/qtsetup generate sailfish-emulator
+            ;;
+        setup-mer)
+            GOARCH=386 $GOROOT/src/run.bash
             ;;
         prep)
             qtmoc $PWD/client
