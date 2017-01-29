@@ -356,6 +356,11 @@ func (b *Backend) hasEncryptedKeystore() bool {
 	return !b.config.UnencryptedStorage
 }
 
+// Return true if encrypted database is enabled
+func (b *Backend) HasEncryptedDatabase() bool {
+	return b.settings.GetBool("encrypt_database")
+}
+
 // Returns identity of contact
 func (b *Backend) contactIdentity(source string) string {
 	id, err := textsecure.ContactIdentityKey(source)
@@ -418,10 +423,10 @@ func (b *Backend) ConvertDataStore(password string) error {
 
 	dbDir := filepath.Join(b.dataDir, "db")
 	tmp := filepath.Join(dbDir, "tmp.db")
-	encrypt := b.settings.GetBool("encrypt_database")
+	encrypt := !b.settings.GetBool("encrypt_database")
 
 	if encrypt {
-		log.Info("Encrypting database")
+		log.Info("Encrypting database..")
 
 		err := b.newStorage("")
 		if err != nil {
@@ -433,7 +438,7 @@ func (b *Backend) ConvertDataStore(password string) error {
 			return err
 		}
 	} else {
-		log.Info("Decrypting database")
+		log.Info("Decrypting database..")
 
 		err := b.newStorage(password)
 		if err != nil {
@@ -453,7 +458,7 @@ func (b *Backend) ConvertDataStore(password string) error {
 		return err
 	}
 
-	b.settings.SetBool("encrypt_database", !encrypt)
+	b.settings.SetBool("encrypt_database", encrypt)
 	b.settings.Sync()
 	return nil
 }

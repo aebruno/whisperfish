@@ -18,6 +18,7 @@
 package tools
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -31,6 +32,42 @@ import (
 )
 
 func ConvertDataStore() {
+	app := sailfish.SailfishApp_Application(len(os.Args), os.Args)
+	app.SetOrganizationName("")
+	app.SetApplicationName("harbour-whisperfish")
+
+	var configPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__ConfigLocation)
+	var dataPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__DataLocation)
+
+	var backend = client.NewBackend(nil)
+	err := backend.Setup(configPath, dataPath, nil)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Fatal("Failed to setup backend")
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("***** DANGER ZONE ********")
+	fmt.Println("WARNING: This operation could lock you out of using Whisperfish.")
+	fmt.Println()
+	if backend.HasEncryptedDatabase() {
+		fmt.Println("Your database is currently encrypted. This operation will")
+		fmt.Println("decrypt the database. This is NOT recommended and should only")
+		fmt.Println("be used for development purposes.")
+	} else {
+		fmt.Println("Your database is currently decrypted. This operation this operation")
+		fmt.Println("will encrypt your database.")
+	}
+	fmt.Println("**************************")
+	fmt.Print("Do you want to proceed? Type yes or no: ")
+	scanner.Scan()
+	ans := scanner.Text()
+	ans = strings.TrimSpace(ans)
+	if ans != "yes" {
+		os.Exit(0)
+	}
+
 	fmt.Print("Enter Password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
@@ -41,19 +78,18 @@ func ConvertDataStore() {
 	password := strings.TrimSpace(string(bytePassword))
 	fmt.Println()
 
-	log.Infof("Converting data store: %s", password)
-	app := sailfish.SailfishApp_Application(len(os.Args), os.Args)
-	app.SetOrganizationName("")
-	app.SetApplicationName("harbour-whisperfish")
+	if len(password) < 6 {
+		log.Fatalf("Password must be >6 characters long")
+	}
 
-	var configPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__ConfigLocation)
-	var dataPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__DataLocation)
+	log.Infof("Converting data store")
 
-	var backend = client.NewBackend(nil)
-	err = backend.Setup(configPath, dataPath, nil)
+	err = backend.ConvertDataStore(password)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Fatal("Failed to setup backend")
+		}).Fatal("Failed to convert datastore")
 	}
+
+	log.Info("Data store converted successfully")
 }

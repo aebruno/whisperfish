@@ -23,6 +23,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
@@ -61,15 +62,14 @@ func NewDataStore(dbPath, saltPath, password string) (*DataStore, error) {
 
 	if password != "" && saltPath != "" {
 		log.Info("Connecting to encrypted data store")
-		salt, err := getSalt(saltPath)
+		key, err := getKey(saltPath, password)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Error("Failed to get salt")
+			}).Error("Failed to get key")
 			return nil, err
 		}
 
-		key, _ := scrypt.Key([]byte(password), salt, 16384, 8, 1, 32)
 		dsn = fmt.Sprintf("%s?_pragma_key=x'%X'&_pragma_cipher_page_size=4096", dbPath, key)
 	}
 
@@ -124,8 +124,52 @@ func getSalt(path string) ([]byte, error) {
 	return salt, nil
 }
 
+// Get raw key data for use with sqlcipher
+func getKey(saltPath, password string) ([]byte, error) {
+	salt, err := getSalt(saltPath)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to get salt")
+		return nil, err
+	}
+
+	return scrypt.Key([]byte(password), salt, 16384, 8, 1, 32)
+}
+
 // Encrypt database and closes connection
 func (ds *DataStore) Encrypt(path, password string) error {
+	key, err := getKey(filepath.Join(filepath.Dir(path), "salt"), password)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to get key")
+		return err
+	}
+
+	query := fmt.Sprintf("ATTACH DATABASE '%s' AS encrypted KEY \"x'%X'\"", path, key)
+	_, err = ds.dbx.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	_, err = ds.dbx.Exec("PRAGMA encrypted.cipher_page_size = 4096;")
+	if err != nil {
+		return err
+	}
+
+	_, err = ds.dbx.Exec("SELECT sqlcipher_export('encrypted');")
+	if err != nil {
+		return err
+	}
+
+	_, err = ds.dbx.Exec("DETACH DATABASE encrypted;")
+	if err != nil {
+		return err
+	}
+
+	ds.dbx = nil
+
 	return nil
 }
 
