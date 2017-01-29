@@ -3,13 +3,10 @@ Whisperfish - Signal client for Sailfish OS
 ===============================================================================
 
 Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
-`Sailfish OS <https://sailfishos.org/>`_. Whisperfish builds on and includes
-code from the following projects:
-
-- `Signal client library in go <https://github.com/janimo/textsecure>`_
-- `qt <https://github.com/therecipe/qt>`_ Qt binding for Go
-- The user interface is heavily based on the jolla-messages application written
-  by Jolla Ltd.
+`Sailfish OS <https://sailfishos.org/>`_. Whisperfish uses the `Signal client
+library for Go <https://github.com/janimo/textsecure>`_ and `Qt binding for Go
+<https://github.com/therecipe/qt>`_.  The user interface is heavily based on
+the jolla-messages application written by Jolla Ltd.
   
 -------------------------------------------------------------------------------
 Project Status
@@ -39,36 +36,34 @@ Features
 - [ ] Encrypted attachments
 - [ ] Archiving conversations
 
--------------------------------------------------------------------------------
-Developing
--------------------------------------------------------------------------------
-
-Whisperfish is written in Go. First need to setup `MerSDK
-<https://sailfishos.org/develop/sdk-overview/develop-installation-article/>`_
-and install the Go runtime. More details `here
-<https://github.com/nekrondev/jolla_go>`_. Note Whisperfish now requires Go
-v1.6. 
-
-Whisperfish uses a patched version of `go-qml <https://github.com/go-qml/qml>`_ 
-for use with Safilish Silica UI. A complete patched version can be found 
-`here <https://github.com/aebruno/qml/tree/whisperfish>`_.
-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Building from source
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Whisperfish now uses `Glide <https://glide.sh/>`_ for package management which
-utilizes the new vendor/ directory. First install Glide::
+*TODO* These docs are incomplete.
 
-    $ go get -u github.com/Masterminds/glide
+Whisperfish uses `Glide <https://glide.sh/>`_ for package management. Ensure you
+have a working Go runtime and that your GOPATH is set. Whisperfish uses QT
+bindings for Go. More information on installing this library can be found 
+`here <https://github.com/therecipe/qt>`_. Sailfish currently uses QT 5.2.0 so
+you'll need to download this version of QT 
+`here <https://download.qt.io/archive/qt/5.2/5.2.0/>`_. The build scripts assume
+you've installed QT here: $HOME/Qt5.2.0. You'll also need the `MerSDK
+<https://sailfishos.org/wiki/Application_SDK_Installation>`_.
 
 To build Whisperfish from source::
 
     $ git clone https://github.com/aebruno/whisperfish.git
     $ cd whisperfish
     $ glide install
-    $ go test
-    $ mb2 -x build
+    $ ./build.sh rebuildqt
+    $ ./build.sh prep
+
+    $ ssh to merdsk
+    $ cd $GOPATH/src/github.com/aebruno/whisperfish
+    $ ./build.sh compile
+    $ ./build.sh deploy
+
 
 *Note*: The latest tag from the current git branch is used in the package
 version (``mb2 -x``). To add git hashes to the package version modify the
@@ -85,36 +80,6 @@ version (``mb2 -x``). To add git hashes to the package version modify the
          if [[ -n $tag ]]; then
              # tagver piece copied from tar_git service
              if [[ $(echo $tag | grep "/") ]] ; then
-
-If you have the SailfishOS Emulator you can install the rpm into the emulator
-directly with::
-
-    $ ./deploy
-
-To build the arm binaries::
-
-    $ mb2 -x -t SailfishOS-armv7hl build
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Developing without MerSDK
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It's possible to build and run the tests without installing MerSDK. Here's
-some instructions for building the required devel packages on Debian::
-
-    $ sudo apt-get install libqt5quick5 qtdeclarative5-dev qt5-qmake \
-                           libglib2.0-dev qt5-default libffi-dev libsqlite3-dev \
-                           qtbase5-private-dev qtdeclarative5-private-dev
-
-    $ git clone https://git.merproject.org/mer-core/mlite.git
-    $ cd mlite
-    $ qmake
-    $ make
-    $ sudo make install
-    $ git clone https://github.com/sailfish-sdk/libsailfishapp
-    $ cd libsailfishapp
-    $ qmake
-    $ sudo make install
 
 -------------------------------------------------------------------------------
 i18n Translations (help wanted)

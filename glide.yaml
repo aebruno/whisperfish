@@ -22,4 +22,4 @@ import:
 - package: github.com/emirpasic/gods
   subpackages:
   - lists/arraylist
-- package: github.com/xeodou/go-sqlcipher
+- package: github.com/mutecomm/go-sqlcipher

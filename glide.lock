@@ -41,8 +41,8 @@ imports:
   version: 7f152c3cf4714fd6318739f8f3dbcd14c2a18b39
 - name: github.com/ttacon/libphonenumber
   version: 1197dfb91fa03c779576ad248ad5ca0a43fb3a31
-- name: github.com/xeodou/go-sqlcipher
-  version: f2597f789472d16248af0544d1d8fedd7ea3ac86
+- name: github.com/mutecomm/go-sqlcipher
+  version: 23f3da79a822938b308480e190972e41323adda9
 - name: golang.org/x/crypto
   version: b6789ab629056511030d652d851e7dc10c9e9c9e
   subpackages:

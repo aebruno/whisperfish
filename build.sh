@@ -35,7 +35,7 @@ case "$1" in
         prep-arm)
             qtmoc $PWD/client
             qtmoc $PWD/model
-            QT_DOC_DIR=$QT_DOC_DIR QT_PKG_CONFIG=true $GOPATH/bin/qtminimal sailfish $PWD
+            QT_VERSION=$QT_VERSION QT_DIR=$QT_DIR QT_DOC_DIR=$QT_DOC_DIR QT_PKG_CONFIG=true $GOPATH/bin/qtminimal sailfish $PWD
             ;;
         compile)
             rm -f $APPNAME
