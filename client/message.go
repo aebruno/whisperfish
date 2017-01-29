@@ -241,7 +241,7 @@ func (b *Backend) endSession(source string) {
 }
 
 // Queue outgoing message for delivery to Signal
-func (b *Backend) queueMessage(to, msg, attachment string, group *textsecure.Group) error {
+func (b *Backend) queueMessage(to, msg, attachment string, group *textsecure.Group) (int64, error) {
 	message := &store.Message{
 		Source:    to,
 		Message:   msg,
@@ -252,7 +252,7 @@ func (b *Backend) queueMessage(to, msg, attachment string, group *textsecure.Gro
 	if len(attachment) > 0 {
 		att, err := os.Open(attachment)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		defer att.Close()
 		//XXX Sucks we have to do this twice
@@ -263,20 +263,21 @@ func (b *Backend) queueMessage(to, msg, attachment string, group *textsecure.Gro
 
 	err := b.updateModel(message, group, false)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	err = b.ds.QueueSent(message)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return message.SID, nil
 }
 
 // Perpare outgoing message for delivery to Signal
-func (b *Backend) sendMessage(source, message, groupName, attachment string) {
+func (b *Backend) sendMessage(source, message, groupName, attachment string) int64 {
 	var err error
+	var sid int64
 
 	m := strings.Split(source, ",")
 	if len(m) > 1 {
@@ -286,12 +287,12 @@ func (b *Backend) sendMessage(source, message, groupName, attachment string) {
 				"error":      err,
 				"group_name": groupName,
 			}).Error("Failed to create new group")
-			return
+			return 0
 		}
 
-		err = b.queueMessage(group.Hexid, message, attachment, group)
+		sid, err = b.queueMessage(group.Hexid, message, attachment, group)
 	} else {
-		err = b.queueMessage(source, message, attachment, nil)
+		sid, err = b.queueMessage(source, message, attachment, nil)
 	}
 
 	if err != nil {
@@ -300,6 +301,8 @@ func (b *Backend) sendMessage(source, message, groupName, attachment string) {
 			"sid":   b.messageModel.SessionId(),
 		}).Error("Failed to send message")
 	}
+
+	return sid
 }
 
 func (b *Backend) updateModel(message *store.Message, group *textsecure.Group, unread bool) error {

@@ -27,8 +27,6 @@ SplitViewPage {
     property alias source: viewer.source
     property var message
 
-    signal copy()
-
     allowedOrientations: Orientation.All
     backNavigation: true
     open: true
@@ -40,25 +38,15 @@ SplitViewPage {
 
         source: root.source
         anchors.fill: parent
-        filter: root.message.mimeType
-        content: QtObject { property string type: root.message.mimeType }
-
-        PullDownMenu {
-            id: pullDownMenu
-            MenuItem {
-                //% "Copy to gallery"
-                text: qsTr("Copy to gallery")
-                onClicked: root.copy()
-            }
-        }
-
+        filter: root.message.display.mimeType
+        content: QtObject { property string type: root.message.display.mimeType }
 
         header: PageHeader {
             function msgDate() {
-                var dt = new Date(root.message.timestamp)
+                var dt = new Date(root.message.display.timestamp)
                 return Format.formatDate(dt, Formatter.Timepoint)
             }
-            title: root.message.outgoing ? qsTr("Me") : MessageModel.peerName
+            title: root.message.display.outgoing ? qsTr("Me") : MessageModel.peerName
             description: msgDate()
         }
     }

@@ -55,26 +55,26 @@ type Backend struct {
 	configFile   string
 	ds           *store.DataStore
 
-	_ bool                                                `property:"locked"`
-	_ bool                                                `property:"registered"`
-	_ bool                                                `property:"connected"`
-	_ func()                                              `constructor:"init"`
-	_ func()                                              `signal:"registrationSuccess"`
-	_ func(id int64, source, message string)              `signal:"notifyMessage"`
-	_ func(text string)                                   `slot:"copyToClipboard"`
-	_ func(tel string) string                             `slot:"contactNumber"`
-	_ func(tel string) string                             `slot:"contactIdentity"`
-	_ func(tel string) string                             `slot:"contactName"`
-	_ func() int                                          `slot:"contactCount"`
-	_ func()                                              `slot:"contactRefresh"`
-	_ func() string                                       `slot:"phoneNumber"`
-	_ func() string                                       `slot:"identity"`
-	_ func() bool                                         `slot:"hasEncryptedKeystore"`
-	_ func()                                              `slot:"reconnect"`
-	_ func()                                              `slot:"restart"`
-	_ func(source string)                                 `slot:"endSession"`
-	_ func(source, message, groupName, attachment string) `slot:"sendMessage"`
-	_ func(sid int64)                                     `slot:"activateSession"`
+	_ bool                                                      `property:"locked"`
+	_ bool                                                      `property:"registered"`
+	_ bool                                                      `property:"connected"`
+	_ func()                                                    `constructor:"init"`
+	_ func()                                                    `signal:"registrationSuccess"`
+	_ func(id int64, source, message string)                    `signal:"notifyMessage"`
+	_ func(text string)                                         `slot:"copyToClipboard"`
+	_ func(tel string) string                                   `slot:"contactNumber"`
+	_ func(tel string) string                                   `slot:"contactIdentity"`
+	_ func(tel string) string                                   `slot:"contactName"`
+	_ func() int                                                `slot:"contactCount"`
+	_ func()                                                    `slot:"contactRefresh"`
+	_ func() string                                             `slot:"phoneNumber"`
+	_ func() string                                             `slot:"identity"`
+	_ func() bool                                               `slot:"hasEncryptedKeystore"`
+	_ func()                                                    `slot:"reconnect"`
+	_ func()                                                    `slot:"restart"`
+	_ func(source string)                                       `slot:"endSession"`
+	_ func(source, message, groupName, attachment string) int64 `slot:"sendMessage"`
+	_ func(sid int64)                                           `slot:"activateSession"`
 }
 
 // Setup connections
@@ -118,8 +118,8 @@ func (b *Backend) init() {
 	b.ConnectEndSession(func(source string) {
 		b.endSession(source)
 	})
-	b.ConnectSendMessage(func(source, message, groupName, attachment string) {
-		b.sendMessage(source, message, groupName, attachment)
+	b.ConnectSendMessage(func(source, message, groupName, attachment string) int64 {
+		return b.sendMessage(source, message, groupName, attachment)
 	})
 }
 
@@ -264,6 +264,10 @@ func (b *Backend) newStorage(password string) error {
 
 	if password != "" {
 		saltFile = filepath.Join(dbDir, WhisperSalt)
+	}
+
+	if b.settings.GetBool("incognito") {
+		dbFile = ":memory:"
 	}
 
 	var err error

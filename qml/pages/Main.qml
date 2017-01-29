@@ -86,7 +86,7 @@ Page {
                 SessionModel.markRead(model.display.id)
                 MessageModel.refresh(
                     model.display.id,
-                    model.display.name,
+                    Backend.contactName(model.display.source),
                     Backend.contactIdentity(model.display.source),
                     model.display.source,
                     model.display.isGroup

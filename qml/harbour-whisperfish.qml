@@ -37,7 +37,7 @@ ApplicationWindow
             SessionModel.markRead(s.id)
             MessageModel.refresh(
                 s.id,
-                s.name,
+                Backend.contactName(s.source),
                 Backend.contactIdentity(s.source),
                 s.source,
                 s.isGroup

@@ -150,7 +150,14 @@ Page {
                     if (recipientField.validContacts > 0) {
                         var source = Object.keys(recipientField.recipients).join(",")
                         pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
-                        Backend.sendMessage(source, text, groupName.text, attachmentPath)
+                        var sid = Backend.sendMessage(source, text, groupName.text, attachmentPath)
+                        MessageModel.refresh(
+                            sid,
+                            Backend.contactName(source),
+                            Backend.contactIdentity(source),
+                            source,
+                            groupName.text.length > 0
+                        )
                     } else {
                         //: Invalid recipient error
                         //% "Invalid recipient"
