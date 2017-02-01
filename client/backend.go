@@ -49,7 +49,6 @@ type Backend struct {
 	prompt       *model.Prompt
 	sessionModel *model.SessionModel
 	messageModel *model.MessageModel
-	contacts     *store.Contacts
 	config       *textsecure.Config
 	dataDir      string
 	configFile   string
@@ -62,11 +61,6 @@ type Backend struct {
 	_ func()                                                    `signal:"registrationSuccess"`
 	_ func(id int64, source, message string)                    `signal:"notifyMessage"`
 	_ func(text string)                                         `slot:"copyToClipboard"`
-	_ func(tel string) string                                   `slot:"contactNumber"`
-	_ func(tel string) string                                   `slot:"contactIdentity"`
-	_ func(tel string) string                                   `slot:"contactName"`
-	_ func() int                                                `slot:"contactCount"`
-	_ func()                                                    `slot:"contactRefresh"`
 	_ func() string                                             `slot:"phoneNumber"`
 	_ func() string                                             `slot:"identity"`
 	_ func() bool                                               `slot:"hasEncryptedKeystore"`
@@ -92,24 +86,8 @@ func (b *Backend) init() {
 	b.ConnectReconnect(func() {
 		b.reconnect()
 	})
-	b.ConnectContactIdentity(func(source string) string {
-		return b.contactIdentity(source)
-	})
-	b.ConnectContactNumber(func(tel string) string {
-		return b.contacts.Find(tel, b.settings.GetString("country_code"))
-	})
-	b.ConnectContactName(func(tel string) string {
-		return b.contacts.FindName(tel)
-	})
-	b.ConnectContactCount(func() int {
-		return b.contacts.Len()
-	})
 	b.ConnectActivateSession(func(sid int64) {
 		b.activateSession(sid)
-	})
-	b.ConnectContactRefresh(func() {
-		b.contacts.Refresh()
-		b.sessionModel.Load()
 	})
 	b.ConnectRestart(func() {
 		b.settings.Sync()
@@ -156,6 +134,7 @@ func (b *Backend) Setup(configPath, dataPath string, view *quick.QQuickView) err
 
 	if view != nil {
 		var filePicker = model.NewFilePicker(nil)
+		var contactModel = model.NewContact(nil)
 
 		// Setup context variables
 		view.RootContext().SetContextProperty("Backend", b)
@@ -167,6 +146,7 @@ func (b *Backend) Setup(configPath, dataPath string, view *quick.QQuickView) err
 		view.RootContext().SetContextProperty("SessionListModel", b.sessionModel.Model)
 		view.RootContext().SetContextProperty("MessageModel", b.messageModel)
 		view.RootContext().SetContextProperty("MessageListModel", b.messageModel.Model)
+		view.RootContext().SetContextProperty("ContactModel", contactModel)
 	}
 
 	return nil
@@ -327,7 +307,6 @@ func (b *Backend) Run() {
 	}
 
 	b.SetLocked(false)
-	b.contacts = store.NewContacts(b.settings.GetString("country"))
 	b.sessionModel.SetDataStore(b.ds)
 	b.messageModel.SetDataStore(b.ds)
 	b.sessionModel.Refresh()
@@ -363,19 +342,6 @@ func (b *Backend) hasEncryptedKeystore() bool {
 // Return true if encrypted database is enabled
 func (b *Backend) HasEncryptedDatabase() bool {
 	return b.settings.GetBool("encrypt_database")
-}
-
-// Returns identity of contact
-func (b *Backend) contactIdentity(source string) string {
-	id, err := textsecure.ContactIdentityKey(source)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to fetch contact identity")
-		return ""
-	}
-
-	return fmt.Sprintf("% 0X", id)
 }
 
 // Force reconnect of websocket connection
@@ -416,7 +382,7 @@ func (b *Backend) activateSession(sid int64) {
 	}
 
 	b.sessionModel.MarkRead(sid)
-	b.messageModel.Refresh(sid, b.contacts.Find(s.Source, b.settings.GetString("country_code")), b.contactIdentity(s.Source), s.Source, s.IsGroup)
+	b.messageModel.Refresh(sid, s.Source, s.IsGroup)
 }
 
 // Convert data store

@@ -54,7 +54,7 @@ type MessageModel struct {
 	_ string                                                              `property:"peerTel"`
 	_ int64                                                               `property:"sessionId"`
 	_ bool                                                                `property:"group"`
-	_ func(sid int64, peerName, peerIdentity, peerTel string, group bool) `signal:"refresh"`
+	_ func(sid int64, source string, group bool)                          `signal:"refresh"`
 	_ func(msg *MessageObject)                                            `signal:"update"`
 	_ func(mid int64)                                                     `signal:"markSent"`
 	_ func(mid int64)                                                     `signal:"markReceived"`

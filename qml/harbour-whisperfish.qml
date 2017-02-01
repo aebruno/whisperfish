@@ -37,8 +37,8 @@ ApplicationWindow
             SessionModel.markRead(s.id)
             MessageModel.refresh(
                 s.id,
-                Backend.contactName(s.source),
-                Backend.contactIdentity(s.source),
+                ContactModel.name(s.source),
+                ContactModel.identity(s.source),
                 s.source,
                 s.isGroup
             )
@@ -86,13 +86,14 @@ ApplicationWindow
     Connections {
         target: Backend
         onNotifyMessage: {
-            newMessageNotification(id, source, message)
+            newMessageNotification(id, ContactModel.name(source), message)
         }
     }
 
     Connections {
         target: SessionModel
         onRefresh: {
+            ContactModel.refresh()
             SessionModel.load()
         }
         onMarkSent: {
@@ -115,7 +116,7 @@ ApplicationWindow
     Connections {
         target: MessageModel
         onRefresh: {
-            MessageModel.load(sid, peerName, peerIdentity, peerTel, group)
+            MessageModel.load(sid, ContactModel.name(source), ContactModel.identity(source), source, group)
         }
         onMarkSent: {
             MessageModel.mark(mid, true, false)

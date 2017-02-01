@@ -78,7 +78,7 @@ func (b *Backend) processMessage(msg *textsecure.Message, isSyncSent bool, ts ui
 		return
 	}
 
-	b.NotifyMessage(message.SID, b.contacts.FindName(msg.Source()), msg.Message())
+	b.NotifyMessage(message.SID, msg.Source(), msg.Message())
 }
 
 // Send message to Signal server

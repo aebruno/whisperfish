@@ -54,7 +54,7 @@ ListItem {
 
                 truncationMode: TruncationMode.Fade
                 color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
-                text: model.display.isGroup ? model.display.groupName : Backend.contactName(model.display.source)
+                text: model.display.isGroup ? model.display.groupName : ContactModel.name(model.display.source)
             }
         }
 

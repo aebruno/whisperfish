@@ -30,21 +30,20 @@ const (
 	QtcontactsPath = "/home/nemo/.local/share/system/Contacts/qtcontacts-sqlite/contacts.db"
 )
 
-type Contacts struct {
+type Contact struct {
 	contacts []textsecure.Contact
 }
 
-func NewContacts(country string) *Contacts {
-	c := &Contacts{}
-	c.Refresh()
+func NewContact() *Contact {
+	c := &Contact{}
 	return c
 }
 
-func (c *Contacts) Len() int {
+func (c *Contact) Len() int {
 	return len(c.contacts)
 }
 
-func (c *Contacts) Refresh() {
+func (c *Contact) Refresh() {
 	contacts, err := textsecure.GetRegisteredContacts()
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -57,7 +56,7 @@ func (c *Contacts) Refresh() {
 }
 
 // Get name of contact with number tel
-func (c *Contacts) FindName(tel string) string {
+func (c *Contact) FindName(tel string) string {
 	for _, r := range c.contacts {
 		if r.Tel == tel {
 			return r.Name
@@ -69,7 +68,7 @@ func (c *Contacts) FindName(tel string) string {
 }
 
 // Find contact by tel
-func (c *Contacts) Find(tel, countryCode string) string {
+func (c *Contact) Find(tel, countryCode string) string {
 	num, err := libphonenumber.Parse(tel, countryCode)
 	if err != nil {
 		return ""

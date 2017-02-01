@@ -128,7 +128,7 @@ ListItem {
                re += qsTr("  ✓")
            }
            if(inbound && MessageModel.group) {
-               re += " | " + Backend.contactName(modelData.display.source)
+               re += " | " + ContactModel.name(modelData.display.source)
            }
            return re
         }

@@ -153,8 +153,8 @@ Page {
                         var sid = Backend.sendMessage(source, text, groupName.text, attachmentPath)
                         MessageModel.refresh(
                             sid,
-                            Backend.contactName(source),
-                            Backend.contactIdentity(source),
+                            ContactModel.name(source),
+                            ContactModel.identity(source),
                             source,
                             groupName.text.length > 0
                         )
