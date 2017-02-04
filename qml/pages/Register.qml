@@ -42,6 +42,18 @@ Dialog {
             EnterKey.onClicked: parent.focus = true
         }
 
+        TextSwitch {
+            id: shareContacts
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: qsTr("Share Contacts")
+            checked: SettingsBridge.boolValue("share_contacts")
+            onCheckedChanged: {
+                if(checked != SettingsBridge.boolValue("share_contacts")) {
+                    SettingsBridge.boolSet("share_contacts", checked)
+                }
+            }
+        }
+
         TextArea {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width

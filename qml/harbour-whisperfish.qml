@@ -31,24 +31,21 @@ ApplicationWindow
         Notification {}
     }
 
-    function activateSession(id) {
-        var s = SessionModel.get(id)
-        if(s) {
-            SessionModel.markRead(s.id)
-            MessageModel.refresh(
-                s.id,
-                ContactModel.name(s.source),
-                ContactModel.identity(s.source),
-                s.source,
-                s.isGroup
-            )
-        }
+    function activateSession(sid, source, isGroup) {
+        SessionModel.markRead(sid)
+        MessageModel.load(
+            sid,
+            ContactModel.name(source),
+            ContactModel.identity(source),
+            source,
+            isGroup
+        )
     }
 
-    function newMessageNotification(id, source, message) {
+    function newMessageNotification(sid, source, message, isGroup) {
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == "main" ||
-           (id == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
+           (sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
            return
         }
 
@@ -63,11 +60,11 @@ ApplicationWindow
         m.previewBody = m.body
         m.summary = source
         m.clicked.connect(function() {
-            console.log("Activating session: "+id)
+            console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
             pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), {}, PageStackAction.Immediate)
-            mainWindow.activateSession(id)
+            mainWindow.activateSession(sid, source, isGroup)
         })
         // This is needed to call default action
         m.remoteActions = [ {
@@ -78,54 +75,47 @@ ApplicationWindow
             "path": "/message",
             "iface": "org.whisperfish.session",
             "method": "showConversation",
-            "arguments": [ "id", id ]
+            "arguments": [ "sid", sid ]
         } ]
         m.publish()
     }
 
     Connections {
-        target: Backend
-        onNotifyMessage: {
-            newMessageNotification(id, ContactModel.name(source), message)
-        }
-    }
-
-    Connections {
-        target: SessionModel
-        onRefresh: {
-            ContactModel.refresh()
-            SessionModel.load()
-        }
-        onMarkSent: {
-            SessionModel.mark(sid, true, false, false)
-        }
-        onMarkReceived: {
-            SessionModel.mark(sid, false, true, false)
-        }
-        onMarkRead: {
-            SessionModel.mark(sid, false, false, true)
-        }
-        onUpdate: {
-            if(sess.id == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
-                sess.unread = false
+        target: ClientWorker
+        onMessageReceived: {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
+                SessionModel.add(sid, true)
+                MessageModel.add(mid)
+            } else {
+                SessionModel.add(sid, false)
             }
-            SessionModel.add(sess)
+        }
+        onMessageReceipt: {
+            if(mid > 0 && pageStack.currentPage.objectName == "conversation") {
+                MessageModel.markReceived(mid)
+            }
+
+            if(sid > 0) {
+                SessionModel.markReceived(sid)
+            }
+        }
+        onNotifyMessage: {
+            newMessageNotification(sid, ContactModel.name(source), message)
         }
     }
 
     Connections {
-        target: MessageModel
-        onRefresh: {
-            MessageModel.load(sid, ContactModel.name(source), ContactModel.identity(source), source, group)
+        target: SendWorker
+        onMessageSent: {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
+                SessionModel.markSent(sid, message)
+                MessageModel.markSent(mid)
+            } else {
+                SessionModel.markSent(sid, message)
+            }
         }
-        onMarkSent: {
-            MessageModel.mark(mid, true, false)
-        }
-        onMarkReceived: {
-            MessageModel.mark(mid, false, true)
-        }
-        onUpdate: {
-            MessageModel.add(msg)
+        onPromptResetPeerIdentity: {
+            pageStack.push(Qt.resolvedUrl("pages/ResetPeerIdentity.qml"), { source: source })
         }
     }
 
@@ -139,25 +129,30 @@ ApplicationWindow
         pageStack.push(Qt.resolvedUrl("pages/NewMessage.qml"), { }, operationType)
     }
 
-    function isConnected() {
+    function checkConnection() {
+        var connected = false
+
         if(wifi.available && wifi.connected) {
-            return true
-        }
-        if(cellular.available && cellular.connected) {
-            return true
-        }
-        if(ethernet.available && ethernet.connected) {
-            return true
+            connected = true
+        } else if(cellular.available && cellular.connected) {
+            connected = true
+        } else if(ethernet.available && ethernet.connected) {
+            connected = true
         }
 
-        return false
+        if(!SetupWorker.locked && connected && !ClientWorker.connected) {
+            ClientWorker.reconnect()
+        } else if(!SetupWorker.locked && !connected && ClientWorker.connected) {
+            ClientWorker.disconnect()
+        }
     }
 
     TechnologyModel {
         id: wifi
         name: "wifi"
         onConnectedChanged: {
-            Backend.connected = mainWindow.isConnected()
+            console.log("Wifi connection changed")
+            mainWindow.checkConnection()
         }
     }
 
@@ -165,7 +160,8 @@ ApplicationWindow
         id: cellular
         name: "cellular"
         onConnectedChanged: {
-            Backend.connected = mainWindow.isConnected()
+            console.log("Cellular connection changed")
+            mainWindow.checkConnection()
         }
     }
 
@@ -173,7 +169,8 @@ ApplicationWindow
         id: ethernet
         name: "ethernet"
         onConnectedChanged: {
-            Backend.connected = mainWindow.isConnected()
+            console.log("Ethernet connection changed")
+            mainWindow.checkConnection()
         }
     }
 }

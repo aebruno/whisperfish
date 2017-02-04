@@ -22,6 +22,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aebruno/textsecure"
+	"github.com/aebruno/whisperfish/settings"
 	"github.com/aebruno/whisperfish/store"
 	"github.com/therecipe/qt/core"
 )
@@ -30,12 +31,13 @@ import (
 type Contact struct {
 	core.QObject
 
-	settings     *Settings
+	settings     *settings.Settings
 	contactStore *store.Contact
 
 	_ func()                  `constructor:"init"`
 	_ func()                  `signal:"refreshComplete"`
-	_ func(tel string) string `slot:"number"`
+	_ func(tel string) string `slot:"format"`
+	_ func(tel string) bool   `slot:"exists"`
 	_ func(tel string) string `slot:"identity"`
 	_ func(tel string) string `slot:"name"`
 	_ func() int              `slot:"total"`
@@ -44,15 +46,18 @@ type Contact struct {
 
 // Setup connections
 func (c *Contact) init() {
-	c.settings = NewSettings(nil)
+	c.settings = settings.NewSettings(nil)
 	c.contactStore = store.NewContact()
 
 	// Slot connections
 	c.ConnectIdentity(func(source string) string {
 		return c.identity(source)
 	})
-	c.ConnectNumber(func(tel string) string {
-		return c.contactStore.Find(tel, c.settings.GetString("country_code"))
+	c.ConnectFormat(func(tel string) string {
+		return c.contactStore.Format(tel, c.settings.GetString("country_code"))
+	})
+	c.ConnectExists(func(tel string) bool {
+		return c.contactStore.Exists(tel, c.settings.GetString("country_code"))
 	})
 	c.ConnectName(func(tel string) string {
 		return c.contactStore.FindName(tel)

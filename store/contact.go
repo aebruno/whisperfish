@@ -67,21 +67,32 @@ func (c *Contact) FindName(tel string) string {
 	return tel
 }
 
-// Find contact by tel
-func (c *Contact) Find(tel, countryCode string) string {
+// Format contact tel
+func (c *Contact) Format(tel, countryCode string) string {
 	num, err := libphonenumber.Parse(tel, countryCode)
 	if err != nil {
 		return ""
 	}
 
 	n := libphonenumber.Format(num, libphonenumber.E164)
+	return n
+}
+
+// Check if contact exists by tel
+func (c *Contact) Exists(tel, countryCode string) bool {
+	num, err := libphonenumber.Parse(tel, countryCode)
+	if err != nil {
+		return false
+	}
+
+	n := libphonenumber.Format(num, libphonenumber.E164)
 	for _, r := range c.contacts {
 		if r.Tel == n {
-			return r.Tel
+			return true
 		}
 	}
 
-	return ""
+	return false
 }
 
 // Get local sailfish contacts

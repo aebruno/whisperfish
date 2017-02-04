@@ -17,7 +17,7 @@ CoverBackground {
         CoverAction {
             iconSource: "image://theme/icon-cover-message"
             onTriggered: {
-                if(!Backend.locked) {
+                if(!SetupWorker.locked) {
                     mainWindow.activate()
                     mainWindow.newMessage(PageStackAction.Immediate)
                 }

@@ -29,7 +29,6 @@ import (
 type Session struct {
 	ID            int64  `db:"id"`
 	Source        string `db:"source"`
-	Name          string `db:"-"`
 	IsGroup       bool   `db:"is_group"`
 	GroupID       string `db:"group_id"`
 	GroupName     string `db:"group_name"`
@@ -93,6 +92,8 @@ func (ds *DataStore) FetchSessionBySource(source string) (*Session, error) {
 		return nil, err
 	}
 
+	session.SetSection()
+
 	return &session, nil
 }
 
@@ -118,6 +119,8 @@ func (ds *DataStore) FetchSessionByGroupID(groupID string) (*Session, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	session.SetSection()
 
 	return &session, nil
 }
@@ -145,6 +148,8 @@ func (ds *DataStore) FetchSession(id int64) (*Session, error) {
 		return nil, err
 	}
 
+	session.SetSection()
+
 	return &session, nil
 }
 
@@ -171,6 +176,10 @@ func (ds *DataStore) FetchAllSessions() ([]*Session, error) {
 		return nil, err
 	}
 
+	for _, s := range sessions {
+		s.SetSection()
+	}
+
 	return sessions, nil
 }
 
@@ -180,11 +189,17 @@ func (ds *DataStore) SaveSession(session *Session) error {
 		cols = append(cols, "id")
 	}
 
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
+
 	query := "insert or replace into session ("
 	query += strings.Join(cols, ",")
 	query += ") values (:" + strings.Join(cols, ",:") + ")"
 
-	res, err := ds.dbx.NamedExec(query, session)
+	res, err := tx.NamedExec(query, session)
 	if err != nil {
 		return err
 	}
@@ -204,13 +219,21 @@ func (ds *DataStore) DeleteSession(id int64) error {
 	if err != nil {
 		return err
 	}
+	_, err = ds.dbx.Exec(`delete from sentq where message_id in (select id from message where session_id = ?)`, id)
+
 	_, err = ds.dbx.Exec(`delete from message where session_id = ?`, id)
 
 	return err
 }
 
 func (ds *DataStore) MarkSessionRead(id int64) error {
-	_, err := ds.dbx.Exec(`update session set unread = 0 where id = ?`, id)
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
+
+	_, err = ds.dbx.Exec(`update session set unread = 0 where id = ?`, id)
 	if err != nil {
 		return err
 	}
@@ -227,11 +250,12 @@ func (ds *DataStore) TotalUnread() (int, error) {
 }
 
 func (ds *DataStore) MarkSessionSent(id int64, msg string, ts uint64) error {
-	_, err := ds.dbx.Exec(`update session set timestamp = ?, message = ?, unread = 0, sent = 1 where id = ?`, ts, msg, id)
-	return err
-}
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
 
-func (ds *DataStore) MarkSessionReceived(id int64, ts uint64) error {
-	_, err := ds.dbx.Exec(`update session set received = 1 where id = ?`, id)
+	_, err = ds.dbx.Exec(`update session set timestamp = ?, message = ?, unread = 0, sent = 1 where id = ?`, ts, msg, id)
 	return err
 }

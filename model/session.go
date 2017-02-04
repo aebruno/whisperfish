@@ -18,218 +18,180 @@
 package model
 
 import (
-	"database/sql"
-	"strings"
-
 	log "github.com/Sirupsen/logrus"
-	"github.com/aebruno/textsecure"
 	"github.com/aebruno/whisperfish/store"
-	"github.com/emirpasic/gods/lists/arraylist"
 	"github.com/therecipe/qt/core"
 )
 
 //go:generate qtmoc
-type SessionObject struct {
-	core.QObject
-
-	_ int64  `property:"id"`
-	_ string `property:"source"`
-	_ string `property:"name"`
-	_ bool   `property:"isGroup"`
-	_ string `property:"groupId"`
-	_ string `property:"groupName"`
-	_ string `property:"groupMembers"`
-	_ string `property:"message"`
-	_ string `property:"section"`
-	_ uint64 `property:"timestamp"`
-	_ bool   `property:"unread"`
-	_ bool   `property:"sent"`
-	_ bool   `property:"received"`
-	_ bool   `property:"hasAttachment"`
-}
-
-//go:generate qtmoc
 type SessionModel struct {
-	core.QObject
+	core.QAbstractListModel
 
-	Model *core.QAbstractListModel
-	list  *arraylist.List
-	ds    *store.DataStore
+	sessions []*store.Session
 
-	_ int                                        `property:"unread"`
-	_ func(sid int64)                            `signal:"markSent"`
-	_ func(sid int64)                            `signal:"markReceived"`
-	_ func(sid int64)                            `signal:"markRead"`
-	_ func()                                     `signal:"refresh"`
-	_ func(sess *SessionObject)                  `signal:"update"`
-	_ func()                                     `slot:"load"`
-	_ func(sess *SessionObject)                  `slot:"add"`
-	_ func(sid int64) *SessionObject             `slot:"get"`
-	_ func(sid int64, sent, received, read bool) `slot:"mark"`
-	_ func(index int)                            `slot:"remove"`
-	_ func() int                                 `slot:"count"`
-	_ func()                                     `constructor:"init"`
+	_ map[int]*core.QByteArray        `property:"roles"`
+	_ int                             `property:"unread"`
+	_ func(index int)                 `slot:"remove"`
+	_ func() int                      `slot:"count"`
+	_ func()                          `slot:"reload"`
+	_ func(sid int64, markRead bool)  `slot:"add"`
+	_ func(sid int64)                 `slot:"markRead"`
+	_ func(sid int64)                 `slot:"markReceived"`
+	_ func(sid int64, message string) `slot:"markSent"`
+	_ func()                          `constructor:"init"`
 }
 
-func init() {
-	SessionObject_QRegisterMetaType()
-}
-
-// Convert session store to QML compatable session QObject
-func newSession(s *store.Session) *SessionObject {
-	s.SetSection()
-
-	var sess = NewSessionObject(nil)
-	sess.SetId(s.ID)
-	sess.SetSource(s.Source)
-	sess.SetName(s.Name)
-	sess.SetIsGroup(s.IsGroup)
-	sess.SetGroupName(s.GroupName)
-	sess.SetGroupMembers(s.Members)
-	sess.SetGroupId(s.GroupID)
-	sess.SetMessage(s.Message)
-	sess.SetSection(s.Section)
-	sess.SetTimestamp(s.Timestamp)
-	sess.SetUnread(s.Unread)
-	sess.SetSent(s.Sent)
-	sess.SetReceived(s.Received)
-	sess.SetHasAttachment(s.HasAttachment)
-
-	return sess
-}
-
-// Dependency inject data store
-func (model *SessionModel) SetDataStore(ds *store.DataStore) {
-	model.ds = ds
-}
-
-// Wire up slots
+// Initialize model
 func (model *SessionModel) init() {
-	model.list = arraylist.New()
+	model.sessions = make([]*store.Session, 0)
 
-	model.Model = core.NewQAbstractListModel(nil)
-	model.Model.ConnectData(func(index *core.QModelIndex, role int) *core.QVariant {
-		return model.data(index, role)
+	model.SetRoles(map[int]*core.QByteArray{
+		RoleID:            core.NewQByteArray2("id", len("id")),
+		RoleSource:        core.NewQByteArray2("source", len("source")),
+		RoleIsGroup:       core.NewQByteArray2("isGroup", len("isGroup")),
+		RoleGroupName:     core.NewQByteArray2("groupName", len("groupName")),
+		RoleGroupMembers:  core.NewQByteArray2("groupMembers", len("groupMembers")),
+		RoleMessage:       core.NewQByteArray2("message", len("message")),
+		RoleSection:       core.NewQByteArray2("section", len("section")),
+		RoleTimestamp:     core.NewQByteArray2("timestamp", len("timestamp")),
+		RoleUnread:        core.NewQByteArray2("unread", len("unread")),
+		RoleSent:          core.NewQByteArray2("sent", len("sent")),
+		RoleReceived:      core.NewQByteArray2("received", len("received")),
+		RoleHasAttachment: core.NewQByteArray2("hasAttachment", len("hasAttachment")),
 	})
-	model.Model.ConnectRowCount(func(parent *core.QModelIndex) int {
-		return model.rowCount(parent)
-	})
-	model.ConnectLoad(func() {
-		model.load()
-	})
-	model.ConnectAdd(func(sess *SessionObject) {
-		model.add(sess)
-	})
-	model.ConnectMark(func(sid int64, sent, received, read bool) {
-		model.mark(sid, sent, received, read)
-	})
-	model.ConnectRemove(func(index int) {
-		model.remove(index)
-	})
-	model.ConnectGet(func(sid int64) *SessionObject {
-		return model.get(sid)
-	})
+
+	// Slots
+	model.ConnectRoleNames(model.roleNames)
+	model.ConnectData(model.data)
+	model.ConnectColumnCount(model.columnCount)
+	model.ConnectRowCount(model.rowCount)
+	model.ConnectRemove(model.remove)
+	model.ConnectReload(model.reload)
+	model.ConnectAdd(model.add)
+	model.ConnectMarkRead(model.markRead)
+	model.ConnectMarkSent(model.markSent)
+	model.ConnectMarkReceived(model.markReceived)
 	model.ConnectCount(func() int {
-		return model.count()
+		return model.rowCount(nil)
 	})
 }
 
 // Returns the data stored under the given role for the item referred to by the
-// index. This is a required method of the QAbstractListModel. Roles are
-// currently unsupported so we just return the entire QObject in the default
-// "display" role.
+// index.
 func (model *SessionModel) data(index *core.QModelIndex, role int) *core.QVariant {
-	if role != 0 || !index.IsValid() {
+	if !index.IsValid() {
 		return core.NewQVariant()
 	}
 
-	var sp, exists = model.list.Get(index.Row())
-	if !exists {
+	if index.Row() < 0 || index.Row() > len(model.sessions) {
 		return core.NewQVariant()
 	}
 
-	session := sp.(*SessionObject)
-	return session.ToVariant()
+	session := model.sessions[index.Row()]
+	switch role {
+	case RoleID:
+		return core.NewQVariant9(session.ID)
+	case RoleSource:
+		return core.NewQVariant14(session.Source)
+	case RoleIsGroup:
+		return core.NewQVariant11(session.IsGroup)
+	case RoleGroupID:
+		return core.NewQVariant14(session.GroupID)
+	case RoleGroupName:
+		return core.NewQVariant14(session.GroupName)
+	case RoleGroupMembers:
+		return core.NewQVariant14(session.Members)
+	case RoleMessage:
+		return core.NewQVariant14(session.Message)
+	case RoleSection:
+		return core.NewQVariant14(session.Section)
+	case RoleTimestamp:
+		return core.NewQVariant10(session.Timestamp)
+	case RoleUnread:
+		return core.NewQVariant11(session.Unread)
+	case RoleSent:
+		return core.NewQVariant11(session.Sent)
+	case RoleReceived:
+		return core.NewQVariant11(session.Received)
+	case RoleHasAttachment:
+		return core.NewQVariant11(session.HasAttachment)
+	default:
+		return core.NewQVariant()
+	}
 }
 
-// Returns the number of items in the list. This is a required method of the
-// QAbstractListModel.
+// Returns the number of items in the model.
 func (model *SessionModel) rowCount(parent *core.QModelIndex) int {
-	return model.list.Size()
+	return len(model.sessions)
 }
 
-// Returns the number sessions. This function is exposed to qml
-func (model *SessionModel) count() int {
-	return model.list.Size()
+// Return the number of columns. This will always be 1
+func (model *SessionModel) columnCount(parent *core.QModelIndex) int {
+	return 1
 }
 
-// Add or replace a SessionObject in the list. This can only be called from the
-// main thread.
-func (model *SessionModel) add(sess *SessionObject) {
+// Return the roles for the model
+func (model *SessionModel) roleNames() map[int]*core.QByteArray {
+	return model.Roles()
+}
+
+// Add or replace a Session in the model.
+func (model *SessionModel) add(sid int64, markRead bool) {
+	sess, err := store.DS.FetchSession(sid)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"sid":   sid,
+		}).Error("No session found")
+		return
+	}
+
 	alreadyUnread := false
 
-	it := model.list.Iterator()
-	for it.Next() {
-		index, s := it.Index(), it.Value().(*SessionObject)
-		if s.Id() == sess.Id() {
-			if s.IsUnread() {
+	for index, s := range model.sessions {
+		if s.ID == sess.ID {
+			if s.Unread {
 				alreadyUnread = true
 			}
 
-			// XXX consider moving the row instead of deleting?
-			model.Model.BeginRemoveRows(core.NewQModelIndex(), index, index)
-			model.list.Remove(index)
-			model.Model.EndRemoveRows()
+			model.BeginRemoveRows(core.NewQModelIndex(), index, index)
+			model.sessions = append(model.sessions[:index], model.sessions[index+1:]...)
+			model.EndRemoveRows()
 			break
 		}
 	}
 
-	// sess is a QObject pointer created in a different thread. Before adding
-	// to list model we need to create a new pointer from the main QT thread or
-	// else qml is unhappy
-	var s = NewSessionObject(nil)
-	s.SetId(sess.Id())
-	s.SetSource(sess.Source())
-	s.SetName(sess.Name())
-	s.SetIsGroup(sess.IsIsGroup())
-	s.SetGroupName(sess.GroupName())
-	s.SetGroupMembers(sess.GroupMembers())
-	s.SetGroupId(sess.GroupId())
-	s.SetMessage(sess.Message())
-	s.SetSection(sess.Section())
-	s.SetTimestamp(sess.Timestamp())
-	s.SetUnread(sess.IsUnread())
-	s.SetSent(sess.IsSent())
-	s.SetReceived(sess.IsReceived())
-	s.SetHasAttachment(sess.IsHasAttachment())
-
-	// Add to top of list
-	model.Model.BeginInsertRows(core.NewQModelIndex(), 0, 0)
-	model.list.Insert(0, s)
-	model.Model.EndInsertRows()
-
-	if sess.IsUnread() && !alreadyUnread {
+	if sess.Unread && markRead {
+		store.DS.MarkSessionRead(sid)
+		sess.Unread = false
+		if alreadyUnread {
+			cnt := model.Unread() - 1
+			if cnt < 0 {
+				cnt = 0
+			}
+			model.SetUnread(cnt)
+			model.UnreadChanged(cnt)
+		}
+	} else if sess.Unread && !alreadyUnread {
 		cnt := model.Unread() + 1
 		model.SetUnread(cnt)
 		model.UnreadChanged(cnt)
 	}
+
+	// Add to top of list
+	model.BeginInsertRows(core.NewQModelIndex(), 0, 0)
+	model.sessions = append([]*store.Session{sess}, model.sessions...)
+	model.EndInsertRows()
 }
 
-// Load all sessions. This should only be called from the main thread.  This is
-// wired up in QML as follows:
-//
-//    Connections {
-//        target: SessionModel
-//        onRefresh: {
-//            SessionModel.load()
-//        }
-//    }
-func (model *SessionModel) load() {
-	model.Model.BeginResetModel()
-	model.list.Clear()
-	model.Model.EndResetModel()
+// Reload all sessions in the model. This clears the model and queries the
+// database for the list of sessions
+func (model *SessionModel) reload() {
+	model.BeginResetModel()
+	model.sessions = make([]*store.Session, 0)
+	model.EndResetModel()
 
-	sessions, err := model.ds.FetchAllSessions()
+	sessions, err := store.DS.FetchAllSessions()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -239,9 +201,9 @@ func (model *SessionModel) load() {
 
 	unread := 0
 	for _, s := range sessions {
-		model.Model.BeginInsertRows(core.NewQModelIndex(), model.list.Size(), model.list.Size())
-		model.list.Add(newSession(s))
-		model.Model.EndInsertRows()
+		model.BeginInsertRows(core.NewQModelIndex(), len(model.sessions), len(model.sessions))
+		model.sessions = append(model.sessions, s)
+		model.EndInsertRows()
 		if s.Unread {
 			unread++
 		}
@@ -249,164 +211,72 @@ func (model *SessionModel) load() {
 	model.SetUnread(unread)
 }
 
-// Mark session as sent, received or read. This should only be called from
-// the main thread.  This is wired up in QML as follows:
-//
-//    Connections {
-//        target: SessionModel
-//        onMarkSent: {
-//            SessionModel.mark(sid, true, false, false)
-//        }
-//        onMarkReceived: {
-//            SessionModel.mark(sid, false, true, false)
-//        }
-//        onMarkRead: {
-//            SessionModel.mark(sid, false, false, true)
-//        }
-//    }
-func (model *SessionModel) mark(id int64, sent, received, read bool) {
-	it := model.list.Iterator()
-	for it.Next() {
-		s := it.Value().(*SessionObject)
-		if s.Id() == id {
-			if received {
-				s.SetReceived(true)
-				s.ReceivedChanged(true)
-			}
-			if sent {
-				s.SetSent(true)
-				s.SentChanged(true)
-			}
-			if read && s.IsUnread() {
-				s.SetUnread(false)
-				s.UnreadChanged(false)
-				model.ds.MarkSessionRead(id)
-				cnt := model.Unread() - 1
-				if cnt < 0 {
-					cnt = 0
-				}
-				model.SetUnread(cnt)
-				model.UnreadChanged(cnt)
-			}
+// Mark session as sent
+func (model *SessionModel) markSent(id int64, message string) {
+	for i, s := range model.sessions {
+		if s.ID == id {
+			s.Sent = true
+			s.Message = message
+			var index = model.Index(i, 0, core.NewQModelIndex())
+			model.DataChanged(index, index, []int{RoleSent, RoleMessage})
 			break
 		}
 	}
 }
 
-// Process a new message. Create or fetch the session associated with the
-// message and save to database. message.SID is set to the corresponding
-// session.ID. Should be called from backend thread. No updates to the
-// underlying QAbstractListModel are made, instead this method calls the Update
-// signal to modify the list model. This is wired up in QML as follows:
-//
-//    Connections {
-//        target: SessionModel
-//        onUpdate: {
-//            SessionModel.add(sess)
-//        }
-//    }
-//
-// Here's the general flow For an incoming message from signal:
-//
-// 1. New message arrives via websocket from Signal and
-//    client.Backend.processMesssage is called
-// 2. client.Backend.processMessage calls model.SessionModel.ProcessMessage
-//    which stores message in database and calls model.SessionModel.Update
-//    signal which tells main QT thread to update SessionModel.Model
-// 3. In QML we connect SessionModel.Update signal to SessionModel.Add slot
-//    which modifies the underlying QAbstractListModel which in turn updates
-//    the QML view
-//
-// The above convoluted process is because we listen for incoming Signal
-// messages via websockets in a separate thread which cannot update the
-// QAbstractListModel directly. Updates are only allowed from the main thread.
-func (model *SessionModel) ProcessMessage(message *store.Message, group *textsecure.Group, unread bool) error {
-	var sess *store.Session
-	var err error
-
-	if group != nil {
-		sess, err = model.ds.FetchSessionByGroupID(group.Hexid)
-	} else {
-		sess, err = model.ds.FetchSessionBySource(message.Source)
-	}
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			sess = &store.Session{}
-		} else {
-			return err
+// Mark session as received
+func (model *SessionModel) markReceived(id int64) {
+	for i, s := range model.sessions {
+		if s.ID == id {
+			s.Received = true
+			var index = model.Index(i, 0, core.NewQModelIndex())
+			model.DataChanged(index, index, []int{RoleReceived})
+			break
 		}
 	}
+}
 
-	if group != nil && group.Flags == textsecure.GroupUpdateFlag {
-		message.Message = "Member joined group"
-	} else if group != nil && group.Flags == textsecure.GroupLeaveFlag {
-		message.Message = "Member left group"
+// Mark session as read
+func (model *SessionModel) markRead(id int64) {
+	for i, s := range model.sessions {
+		if s.ID == id && s.Unread {
+			s.Unread = false
+			var index = model.Index(i, 0, core.NewQModelIndex())
+			model.DataChanged(index, index, []int{RoleUnread})
+			store.DS.MarkSessionRead(id)
+			cnt := model.Unread() - 1
+			if cnt < 0 {
+				cnt = 0
+			}
+			model.SetUnread(cnt)
+			model.UnreadChanged(cnt)
+
+			break
+		}
 	}
-
-	sess.Message = message.Message
-	sess.Timestamp = message.Timestamp
-	sess.Unread = unread
-	sess.Sent = message.Sent
-	sess.Received = message.Received
-	sess.HasAttachment = message.HasAttachment
-	if group != nil {
-		sess.Source = group.Hexid
-		sess.GroupID = group.Hexid
-		sess.GroupName = group.Name
-		sess.Members = strings.Join(group.Members, ",")
-		sess.IsGroup = true
-	} else {
-		sess.Source = message.Source
-	}
-
-	err = model.ds.SaveSession(sess)
-	if err != nil {
-		return err
-	}
-
-	message.SID = sess.ID
-
-	model.Update(newSession(sess))
-
-	return nil
 }
 
 // Removes session at index. This removes the session from the list model and
-// deletes it from the database. This should only be called from main QT thread.
+// deletes it from the database.
 func (model *SessionModel) remove(index int) {
-	var sp, exists = model.list.Get(index)
-	if !exists {
+	if index < 0 || index > len(model.sessions)-1 {
 		log.WithFields(log.Fields{
 			"index": index,
-		}).Info("No session found in model")
+		}).Info("Invalid index for session model")
 		return
 	}
 
-	session := sp.(*SessionObject)
+	session := model.sessions[index]
 
-	err := model.ds.DeleteSession(session.Id())
+	err := store.DS.DeleteSession(session.ID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-			"sid":   session.Id(),
+			"sid":   session.ID,
 		}).Error("Failed to delete session")
 	}
 
-	model.Model.BeginRemoveRows(core.NewQModelIndex(), index, index)
-	model.list.Remove(index)
-	model.Model.EndRemoveRows()
-}
-
-// Get SessionObject with id
-func (model *SessionModel) get(sid int64) *SessionObject {
-	it := model.list.Iterator()
-	for it.Next() {
-		s := it.Value().(*SessionObject)
-		if s.Id() == sid {
-			return s
-		}
-	}
-
-	return nil
+	model.BeginRemoveRows(core.NewQModelIndex(), index, index)
+	model.sessions = append(model.sessions[:index], model.sessions[index+1:]...)
+	model.EndRemoveRows()
 }

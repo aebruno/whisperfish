@@ -45,7 +45,7 @@ Dialog {
             readOnly: true
             font.pixelSize: Theme.fontSizeSmall
             width: parent.width
-            text: Backend.identity()
+            text: SetupWorker.identity
         }
 
     }

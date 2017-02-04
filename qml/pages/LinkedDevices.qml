@@ -8,7 +8,7 @@ Page {
         id: listView
         anchors.fill: parent
         spacing: Theme.paddingMedium
-        model: ListModel{}
+        model: DeviceModel
 
         PullDownMenu {
             MenuItem {
@@ -16,14 +16,16 @@ Page {
                 onClicked: {
                     var d = pageStack.push(Qt.resolvedUrl("AddDevice.qml"))
                     d.addDevice.connect(function(tsurl) {
-                        console.log("TODO: Add device: "+tsurl)
+                        console.log("Add device: "+tsurl)
+                        // TODO: handle errors
+                        DeviceModel.link(tsurl)
                     })
                 }
             }
             MenuItem {
                 text: qsTr("Refresh")
                 onClicked: {
-                    console.log("TODO: refresh devices")
+                    DeviceModel.reload()
                 }
             }
         }
@@ -34,12 +36,12 @@ Page {
             contentHeight: created.y + created.height + lastSeen.height + Theme.paddingMedium
             id: delegate
             menu: deviceContextMenu
-            property QtObject dev: model.get(index)
 
             function remove(contentItem) {
                 contentItem.remorseAction(qsTr("Deleting"),
                     function() {
-                        console.log("TODO: Delete device: "+contentItem.dev.id)
+                        console.log("Unlink device: "+model.index)
+                        DeviceModel.unlink(model.index)
                     })
             }
 
@@ -47,7 +49,7 @@ Page {
                 id: name
                 truncationMode: TruncationMode.Fade
                 font.pixelSize: Theme.fontSizeMedium
-                text: dev.name ? dev.name : qsTr("Device "+dev.id)
+                text: model.name ? model.name : qsTr("Device "+model.id)
                 anchors {
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
@@ -55,7 +57,7 @@ Page {
             }
             Label {
                 function createdTime() {
-                    var dt = new Date(dev.created)
+                    var dt = new Date(model.created)
                     var linkDate = Format.formatDate(dt, Formatter.Timepoint)
                     return qsTr("Linked: "+linkDate)
                 }
@@ -71,7 +73,7 @@ Page {
             Label {
                 id: lastSeen
                 function lastSeenTime() {
-                    var dt = new Date(dev.lastSeen)
+                    var dt = new Date(model.lastSeen)
                     var ls = Format.formatDate(dt, Formatter.DurationElapsed)
                     return qsTr("Last active: "+ls)
                 }
@@ -91,7 +93,7 @@ Page {
                     id: menu
                     width: parent ? parent.width : Screen.width
                     MenuItem {
-                        text: "Delete"
+                        text: "Unlink"
                         onClicked: remove(menu.parent)
                     }
                 }

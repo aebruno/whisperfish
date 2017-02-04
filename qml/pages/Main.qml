@@ -17,23 +17,23 @@ Page {
         onPromptPassword: {
             passwordTimer.start()
         }
-        onPromptResetPeerIdentity: {
-            pageStack.push(Qt.resolvedUrl("ResetPeerIdentity.qml"), { source: source })
-        }
     }
 
     Connections {
-        target: Backend
+        target: SetupWorker
         onRegistrationSuccess: {
-            registeredRemorse.execute("Registration complete!", function() { console.log("Registration complete") })
+            setupRemorse.execute("Registration complete!", function() { console.log("Registration complete") })
+        }
+        onInvalidDatastore: {
+            setupRemorse.execute("Failed to setup datastore!", function() { console.log("Failed to setup datastore") })
         }
     }
 
-    RemorsePopup { id: registeredRemorse }
+    RemorsePopup { id: setupRemorse }
 
     SilicaListView {
         id: sessionView
-        model: SessionListModel
+        model: SessionModel
         anchors.fill: parent
         spacing: Theme.paddingMedium
 
@@ -44,12 +44,12 @@ Page {
             }
             MenuItem {
                 text: qsTr("Settings")
-                enabled: !Backend.locked
+                enabled: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
             MenuItem {
                 text: qsTr("New Message")
-                enabled: !Backend.locked
+                enabled: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("NewMessage.qml"))
             }
         }
@@ -58,11 +58,11 @@ Page {
 
         ViewPlaceholder {
             enabled: sessionView.count == 0
-            text: Backend.locked ? qsTr("Whisperfish") : qsTr("No messages")
+            text: SetupWorker.locked ? qsTr("Whisperfish") : qsTr("No messages")
             hintText: {
-                if(!Backend.registered) {
+                if(!SetupWorker.registered) {
                     qsTr("Registration required")
-                } else if(Backend.locked) {
+                } else if(SetupWorker.locked) {
                     qsTr("Locked")
                 } else {
                     ""
@@ -71,7 +71,7 @@ Page {
         }
 
         section {
-            property: 'display.section'
+            property: 'section'
 
             delegate: SectionHeader {
                 text: section
@@ -81,15 +81,17 @@ Page {
 
         delegate: Session{
             onClicked: {
-                console.log("Activating session: "+model.display.id)
+                console.log("Activating session: "+model.id)
                 pageStack.push(Qt.resolvedUrl("Conversation.qml"));
-                SessionModel.markRead(model.display.id)
-                MessageModel.refresh(
-                    model.display.id,
-                    ContactModel.name(model.display.source),
-                    ContactModel.identity(model.display.source),
-                    model.display.source,
-                    model.display.isGroup
+                if(model.unread) {
+                    SessionModel.markRead(model.id)
+                }
+                MessageModel.load(
+                    model.id,
+                    ContactModel.name(model.source),
+                    ContactModel.identity(model.source),
+                    model.source,
+                    model.isGroup
                 )
             }
         }

@@ -12,7 +12,7 @@ Page {
         focus: true
         anchors.fill: parent
 
-        model: MessageListModel
+        model: MessageModel
 
         // Use a placeholder for the ChatTextInput to avoid re-creating the input
         header: Item {
@@ -34,7 +34,7 @@ Page {
                 editorFocus: conversation.editorFocus
 
                 onSendMessage: {
-                    Backend.sendMessage(MessageModel.peerTel, text, "", attachmentPath)
+                    MessageModel.createMessage(MessageModel.peerTel, text, "", attachmentPath, true)
                 }
             }
         }

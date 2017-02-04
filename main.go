@@ -23,7 +23,6 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/aebruno/whisperfish/tools"
 	"github.com/aebruno/whisperfish/ui"
 )
 
@@ -49,7 +48,7 @@ func main() {
 		os.Exit(0)
 	}
 	if convertFlag {
-		tools.ConvertDataStore()
+		ui.ConvertDataStore()
 		os.Exit(0)
 	}
 

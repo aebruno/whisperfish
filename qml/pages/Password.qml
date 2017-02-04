@@ -12,11 +12,11 @@ Dialog {
         if(passwordField.errorHighlight){
             return false
         }
-        if(!Backend.registered && passwordField2.errorHighlight){
+        if(!SetupWorker.registered && passwordField2.errorHighlight){
             return false
         }
 
-        if(!Backend.registered && passwordField.text != passwordField2.text){
+        if(!SetupWorker.registered && passwordField.text != passwordField2.text){
             return false
         }
 
@@ -39,7 +39,7 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: Backend.registered ? qsTr("Enter your password") : qsTr("Set your password")
+            text: SetupWorker.registered ? qsTr("Enter your password") : qsTr("Set your password")
         }
 
         TextField {
@@ -60,7 +60,7 @@ Dialog {
             id: passwordField2
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
-            visible: !Backend.registered
+            visible: !SetupWorker.registered
             validator: RegExpValidator{ regExp: /.{6,}/;}
             label: "Verify Password"
             placeholderText: "Verify Password"
@@ -73,7 +73,7 @@ Dialog {
 
         TextArea {
             anchors.horizontalCenter: parent.horizontalCenter
-            visible: !Backend.registered
+            visible: !SetupWorker.registered
             width: parent.width
             font.pixelSize: Theme.fontSizeTiny
             horizontalAlignment: TextEdit.Center

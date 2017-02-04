@@ -22,69 +22,72 @@ import (
 	"path/filepath"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/emirpasic/gods/lists/arraylist"
 	"github.com/therecipe/qt/core"
 )
 
 //go:generate qtmoc
-type FileObject struct {
-	core.QObject
-
-	_ string `property:"path"`
-}
-
-//go:generate qtmoc
 type FilePicker struct {
-	core.QObject
+	core.QAbstractListModel
 
-	Model      *core.QAbstractListModel
-	list       *arraylist.List
+	paths      []string
 	searchPath string
 
-	_ func() `slot:"search"`
-	_ func() `constructor:"init"`
+	_ map[int]*core.QByteArray `property:"roles"`
+	_ func()                   `slot:"search"`
+	_ func()                   `constructor:"init"`
 }
 
 func (f *FilePicker) init() {
-	f.searchPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__HomeLocation)
-	f.list = arraylist.New()
+	f.SetRoles(map[int]*core.QByteArray{
+		RolePath: core.NewQByteArray2("path", len("path")),
+	})
 
-	f.Model = core.NewQAbstractListModel(nil)
-	f.Model.ConnectData(func(index *core.QModelIndex, role int) *core.QVariant {
-		return f.data(index, role)
-	})
-	f.Model.ConnectRowCount(func(parent *core.QModelIndex) int {
-		return f.rowCount(parent)
-	})
-	f.ConnectSearch(func() {
-		f.search()
-	})
+	f.searchPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__HomeLocation)
+	f.paths = make([]string, 0)
+
+	f.ConnectData(f.data)
+	f.ConnectRowCount(f.rowCount)
+	f.ConnectColumnCount(f.columnCount)
+	f.ConnectSearch(f.search)
+	f.ConnectRoleNames(f.roleNames)
 }
 
 func (f *FilePicker) data(index *core.QModelIndex, role int) *core.QVariant {
-	if role != 0 || !index.IsValid() {
+	if !index.IsValid() {
 		return core.NewQVariant()
 	}
 
-	var ipath, exists = f.list.Get(index.Row())
-	if !exists {
+	if index.Row() < 0 || index.Row() > len(f.paths) {
 		return core.NewQVariant()
 	}
 
-	o := ipath.(*FileObject)
+	p := f.paths[index.Row()]
 
-	return o.ToVariant()
+	switch role {
+	case RolePath:
+		return core.NewQVariant14(p)
+	default:
+		return core.NewQVariant()
+	}
 }
 
 func (f *FilePicker) rowCount(parent *core.QModelIndex) int {
-	return f.list.Size()
+	return len(f.paths)
+}
+
+func (f *FilePicker) columnCount(parent *core.QModelIndex) int {
+	return 1
+}
+
+func (f *FilePicker) roleNames() map[int]*core.QByteArray {
+	return f.Roles()
 }
 
 func (f *FilePicker) search() {
 	log.Infof("Searching for files in path: %s", f.searchPath)
-	f.Model.BeginResetModel()
-	f.list.Clear()
-	f.Model.EndResetModel()
+	f.BeginResetModel()
+	f.paths = make([]string, 0)
+	f.EndResetModel()
 
 	count := 0
 	filepath.Walk(f.searchPath, func(path string, info os.FileInfo, err error) error {
@@ -95,11 +98,9 @@ func (f *FilePicker) search() {
 		switch filepath.Ext(path) {
 		case ".jpg", ".JPG", ".jpeg", ".JPEG", ".png", ".PNG", ".gif", ".GIF":
 			log.Debugf("Found image: %s", path)
-			f.Model.BeginInsertRows(core.NewQModelIndex(), f.list.Size(), f.list.Size())
-			var fo = NewFileObject(nil)
-			fo.SetPath(path)
-			f.list.Add(fo)
-			f.Model.EndInsertRows()
+			f.BeginInsertRows(core.NewQModelIndex(), len(f.paths), len(f.paths))
+			f.paths = append(f.paths, path)
+			f.EndInsertRows()
 			count++
 		}
 

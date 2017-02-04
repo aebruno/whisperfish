@@ -34,13 +34,13 @@ Thumbnail {
     property bool showRetryIcon
     property int size: Theme.itemSizeLarge
     property bool highlighted
-    property bool isThumbnail: messagePart.display.mimeType.substr(0, 6) === "image/"
+    property bool isThumbnail: messagePart.mimeType.substr(0, 6) === "image/"
     property bool isVCard: {
-        var type = messagePart.display.mimeType.toLowerCase()
+        var type = messagePart.mimeType.toLowerCase()
         return type.substr(0, 10) === "text/vcard" || type.substr(0, 12) === "text/x-vcard"
     }
 
-    source: isThumbnail ? messagePart.display.attachment : ""
+    source: isThumbnail ? messagePart.attachment : ""
 
     Image {
         id: icon
@@ -49,9 +49,9 @@ Thumbnail {
         source: iconSource()
 
         function iconSource() {
-            if (messagePart.display === undefined ||
-                messagePart.display.mimeType.substr(0, 16) === "application/smil" ||
-                messagePart.display.mimeType.substr(0, 10) === "text/plain")
+            if (messagePart.mimeType === undefined ||
+                messagePart.mimeType.substr(0, 16) === "application/smil" ||
+                messagePart.mimeType.substr(0, 10) === "text/plain")
                 return ""
             else if (showRetryIcon)
                 return "image://theme/icon-m-refresh?" + (message.highlighted ? Theme.highlightColor : Theme.primaryColor)

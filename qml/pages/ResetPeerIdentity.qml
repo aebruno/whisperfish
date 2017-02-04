@@ -8,9 +8,9 @@ Dialog {
 
     onDone: {
         if (result == DialogResult.Accepted) {
-            Prompt.resetPeerIdentity("yes")
+            SendWorker.resetPeerIdentity("yes")
         } else {
-            Prompt.resetPeerIdentity("no")
+            SendWorker.resetPeerIdentity("no")
         }
     }
 

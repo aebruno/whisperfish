@@ -18,6 +18,7 @@
 package store
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
 	"mime"
@@ -43,6 +44,7 @@ type Message struct {
 	MimeType      string `db:"mime_type"`
 	HasAttachment bool   `db:"has_attachment"`
 	Flags         uint32 `db:"flags"`
+	Queued        bool   `db:"queued"`
 }
 
 func (m *Message) SaveAttachment(dir string, a *textsecure.Attachment) error {
@@ -86,11 +88,17 @@ func (ds *DataStore) SaveMessage(msg *Message) error {
 		cols = append(cols, "id")
 	}
 
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
+
 	query := "insert or replace into message ("
 	query += strings.Join(cols, ",")
 	query += ") values (:" + strings.Join(cols, ",:") + ")"
 
-	res, err := ds.dbx.NamedExec(query, msg)
+	res, err := tx.NamedExec(query, msg)
 	if err != nil {
 		return err
 	}
@@ -121,9 +129,12 @@ func (ds *DataStore) FetchAllMessages(sessionID int64) ([]*Message, error) {
 		m.flags,
 		m.outgoing,
 		m.sent,
-		m.received
+		m.received,
+        case when q.message_id > 0 then 1 else 0 end as queued
 	from 
 		message as m
+	left join sentq as q 
+        on q.message_id = m.id
     where m.session_id = ?
 	order by m.id desc
     `, sessionID)
@@ -149,30 +160,54 @@ func (ds *DataStore) DeleteAllMessages(sid int64) error {
 }
 
 func (ds *DataStore) MarkMessageSent(id int64, ts uint64) error {
-	_, err := ds.dbx.Exec(`update message set timestamp = ?, sent = 1 where id = ?`, ts, id)
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
+
+	_, err = ds.dbx.Exec(`update message set timestamp = ?, sent = 1 where id = ?`, ts, id)
 	return err
 }
 
 func (ds *DataStore) MarkMessageReceived(source string, ts uint64) (int64, int64, error) {
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return 0, 0, err
+	}
+	defer tx.Commit()
+
 	type record struct {
-		SessionID int64 `db:"session_id"`
-		MessageID int64 `db:"id"`
+		SessionID int64  `db:"session_id"`
+		MessageID int64  `db:"id"`
+		Timestamp uint64 `db:"timestamp"`
 	}
 
 	rec := record{}
 
-	err := ds.dbx.Get(&rec, `
-		select id,session_id
+	err = ds.dbx.Get(&rec, `
+		select id,session_id,timestamp
 		from message 
 		where timestamp = ?
 	`, ts)
 	if err != nil {
-		return rec.SessionID, rec.MessageID, err
+		return 0, 0, err
 	}
 
 	_, err = ds.dbx.Exec(`update message set received = 1 where id = ?`, rec.MessageID)
 	if err != nil {
-		return rec.SessionID, rec.MessageID, err
+		return 0, 0, err
+	}
+
+	// only update session if timestamps match
+	_, err = ds.dbx.Exec(`update session set received = 1 where id = ? and timestamp = ?`, rec.SessionID, rec.Timestamp)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":     err,
+			"source":    source,
+			"timestamp": rec.Timestamp,
+		}).Warn("Failed to mark session received")
+		return 0, rec.MessageID, nil
 	}
 
 	return rec.SessionID, rec.MessageID, nil
@@ -193,7 +228,8 @@ func (ds *DataStore) FetchSentq() ([]*Message, error) {
 		m.flags,
 		m.outgoing,
 		m.sent,
-		m.received
+		m.received,
+        1 as queued
 	from 
 		sentq as q
 	join message m
@@ -206,8 +242,43 @@ func (ds *DataStore) FetchSentq() ([]*Message, error) {
 	return messages, nil
 }
 
+func (ds *DataStore) FetchQueuedMessage(id int64) (*Message, error) {
+	message := Message{}
+	err := ds.dbx.Get(&message, `
+	select
+		m.id,
+		m.session_id,
+		m.source,
+		m.message,
+		m.attachment,
+		m.has_attachment,
+		m.mime_type,
+		m.timestamp,
+		m.flags,
+		m.outgoing,
+		m.sent,
+		m.received,
+        1 as queued
+	from 
+		sentq as q
+	join message m
+	    on q.message_id = m.id
+    where m.id = ?`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
+
 func (ds *DataStore) QueueSent(message *Message) error {
-	_, err := ds.dbx.Exec(`insert into sentq (message_id, timestamp) values (?,datetime('now'))`, message.ID)
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
+
+	_, err = tx.Exec(`insert into sentq (message_id, timestamp) values (?,datetime('now'))`, message.ID)
 	if err != nil {
 		return err
 	}
@@ -241,10 +312,79 @@ func (ds *DataStore) TotalMessages() (int, error) {
 
 func (ds *DataStore) FetchMessage(id int64) (*Message, error) {
 	message := Message{}
-	err := ds.dbx.Get(&message, `select * from message where id = ?`, id)
+	err := ds.dbx.Get(&message, `
+	select
+		m.id,
+		m.session_id,
+		m.source,
+		m.message,
+		m.attachment,
+		m.has_attachment,
+		m.mime_type,
+		m.timestamp,
+		m.flags,
+		m.outgoing,
+		m.sent,
+		m.received,
+        case when q.message_id > 0 then 1 else 0 end as queued
+	from 
+		message as m
+	left join sentq as q 
+        on q.message_id = m.id
+    where m.id = ?
+    `, id)
 	if err != nil {
 		return nil, err
 	}
 
 	return &message, nil
+}
+
+// Process message and store in database and update or create a session
+func (ds *DataStore) ProcessMessage(message *Message, group *textsecure.Group, unread bool) (*Session, error) {
+	var sess *Session
+	var err error
+
+	if group != nil {
+		sess, err = ds.FetchSessionByGroupID(group.Hexid)
+	} else {
+		sess, err = ds.FetchSessionBySource(message.Source)
+	}
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			sess = &Session{}
+		} else {
+			return nil, err
+		}
+	}
+
+	sess.Message = message.Message
+	sess.Timestamp = message.Timestamp
+	sess.Unread = unread
+	sess.Sent = message.Sent
+	sess.Received = message.Received
+	sess.HasAttachment = message.HasAttachment
+	if group != nil {
+		sess.Source = group.Hexid
+		sess.GroupID = group.Hexid
+		sess.GroupName = group.Name
+		sess.Members = strings.Join(group.Members, ",")
+		sess.IsGroup = true
+	} else {
+		sess.Source = message.Source
+	}
+
+	err = ds.SaveSession(sess)
+	if err != nil {
+		return nil, err
+	}
+
+	message.SID = sess.ID
+	err = ds.SaveMessage(message)
+	if err != nil {
+		return nil, err
+	}
+
+	return sess, nil
 }

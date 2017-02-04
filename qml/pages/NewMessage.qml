@@ -80,10 +80,12 @@ Page {
 
                         function updateConversation() {
                             var invalidContactFound = false
+                            var exists = true
                             for (var i = 0; i < selectedContacts.count; i++) {
                                 var contact = selectedContacts.get(i)
                                 if (contact.property !== undefined && contact.propertyType === "phoneNumber") {
-                                    var tel = Backend.contactNumber(contact.property.number)
+                                    var tel = ContactModel.format(contact.property.number)
+                                    exists = ContactModel.exists(contact.property.number)
                                     if(tel.length != 0){
                                         recipients[tel] = true
                                     } else {
@@ -97,7 +99,10 @@ Page {
                                 }
                             }
 
-                            if(invalidContactFound == false && Object.keys(recipients).length > 0){
+                            if(!exists && invalidContactFound == false && Object.keys(recipients).length > 0){
+                                errorLabel.text = "Warning: could not verify contact in Signal"
+                                validContacts = Object.keys(recipients).length
+                            } else if(invalidContactFound == false && Object.keys(recipients).length > 0){
                                 validContacts = Object.keys(recipients).length
                                 errorLabel.text = ""
                             }
@@ -149,15 +154,20 @@ Page {
                 onSendMessage: {
                     if (recipientField.validContacts > 0) {
                         var source = Object.keys(recipientField.recipients).join(",")
-                        pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
-                        var sid = Backend.sendMessage(source, text, groupName.text, attachmentPath)
-                        MessageModel.refresh(
-                            sid,
-                            ContactModel.name(source),
-                            ContactModel.identity(source),
-                            source,
-                            groupName.text.length > 0
-                        )
+                        var sid = MessageModel.createMessage(source, text, groupName.text, attachmentPath, false)
+                        if(sid > 0) {
+                            pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
+                            MessageModel.load(
+                                sid,
+                                ContactModel.name(source),
+                                ContactModel.identity(source),
+                                source,
+                                groupName.text.length > 0
+                            )
+                            SessionModel.add(sid, true)
+                        } else {
+                            errorLabel.text = qsTrId("Failed to create message")
+                        }
                     } else {
                         //: Invalid recipient error
                         //% "Invalid recipient"

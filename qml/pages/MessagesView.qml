@@ -99,13 +99,21 @@ SilicaListView {
     function remove(contentItem) {
         contentItem.remorseAction(qsTr("Deleting"),
             function() {
-                console.log("Delete message: "+contentItem.modelData.display.id)
+                console.log("Delete message: "+contentItem.modelData.id)
                 MessageModel.remove(contentItem.modelData.index)
             })
     }
 
+    function resend(contentItem) {
+        contentItem.remorseAction(qsTr("Resending"),
+            function() {
+                console.log("Resending message: "+contentItem.modelData.id)
+                MessageModel.sendMessage(contentItem.modelData.id)
+            })
+    }
+
     function copy(contentItem) {
-        Backend.copyToClipboard(contentItem.modelData.display.message)
+        MessageModel.copyToClipboard(contentItem.modelData.message)
     }
 
     Component {
@@ -124,6 +132,11 @@ SilicaListView {
             MenuItem {
                 text: qsTr("Delete")
                 onClicked: remove(menu.parent)
+            }
+            MenuItem {
+                text: qsTr("Resend")
+                visible: menu.parent && menu.parent.modelData.queued
+                onClicked: resend(menu.parent)
             }
         }
     }
@@ -144,7 +157,7 @@ SilicaListView {
                 remorse.execute(qsTr("Resetting secure session"),
                     function() {
                         console.log("Resetting secure session: "+MessageModel.peerTel)
-                        Backend.endSession(MessageModel.peerTel)
+                        MessageModel.endSession(MessageModel.peerTel)
                     })
             }
         }

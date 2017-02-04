@@ -31,9 +31,11 @@ case "$1" in
             GOARCH=386 $GOROOT/src/run.bash
             ;;
         prep)
-            qtmoc $PWD/client
+            qtmoc $PWD/settings
             qtmoc $PWD/model
-            QT_VERSION=$QT_VERSION QT_DIR=$QT_DIR QT_DOC_DIR=$QT_DOC_DIR QT_PKG_CONFIG=true $GOPATH/bin/qtminimal sailfish-emulator $PWD
+            qtmoc $PWD/worker
+            #QT_VERSION=$QT_VERSION QT_DIR=$QT_DIR QT_DOC_DIR=$QT_DOC_DIR QT_PKG_CONFIG=true $GOPATH/bin/qtminimal sailfish-emulator $PWD
+            $GOPATH/bin/qtminimal sailfish-emulator $PWD
             ;;
         prep-arm)
             qtmoc $PWD/client

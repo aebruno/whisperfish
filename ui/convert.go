@@ -15,17 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Whisperfish.  If not, see <http://www.gnu.org/licenses/>.
 
-package tools
+package ui
 
 import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/aebruno/whisperfish/client"
+	"github.com/aebruno/whisperfish/settings"
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/sailfish"
 	"golang.org/x/crypto/ssh/terminal"
@@ -39,19 +40,21 @@ func ConvertDataStore() {
 	var configPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__ConfigLocation)
 	var dataPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__DataLocation)
 
-	var backend = client.NewBackend(nil)
-	err := backend.Setup(configPath, dataPath, nil)
+	configDir, storageDir := InitDirs(configPath, dataPath)
+
+	var settings = settings.NewSettings(nil)
+	err := settings.Setup(configDir, storageDir)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Fatal("Failed to setup backend")
+		}).Fatal("Failed to initialize settings")
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("***** DANGER ZONE ********")
 	fmt.Println("WARNING: This operation could lock you out of using Whisperfish.")
 	fmt.Println()
-	if backend.HasEncryptedDatabase() {
+	if settings.GetBool("encrypt_database") {
 		fmt.Println("Your database is currently encrypted. This operation will")
 		fmt.Println("decrypt the database. This is NOT recommended and should only")
 		fmt.Println("be used for development purposes.")
@@ -84,7 +87,7 @@ func ConvertDataStore() {
 
 	log.Infof("Converting data store")
 
-	err = backend.ConvertDataStore(password)
+	err = convert(settings, dataPath, password)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -92,4 +95,51 @@ func ConvertDataStore() {
 	}
 
 	log.Info("Data store converted successfully")
+}
+
+func convert(settings *settings.Settings, dataPath, password string) error {
+	if password == "" {
+		return fmt.Errorf("No password given")
+	}
+
+	dbDir := filepath.Join(dataPath, "db")
+	tmp := filepath.Join(dbDir, "tmp.db")
+	encrypt := !settings.GetBool("encrypt_database")
+
+	if encrypt {
+		log.Info("Encrypting database..")
+
+		ds, err := NewStorage(dataPath, "")
+		if err != nil {
+			return err
+		}
+
+		err = ds.Encrypt(tmp, password)
+		if err != nil {
+			return err
+		}
+	} else {
+		log.Info("Decrypting database..")
+
+		ds, err := NewStorage(dataPath, password)
+		if err != nil {
+			return err
+		}
+
+		err = ds.Decrypt(tmp)
+		if err != nil {
+			return err
+		}
+	}
+
+	dbFile := filepath.Join(dbDir, WhisperDB)
+
+	err := os.Rename(tmp, dbFile)
+	if err != nil {
+		return err
+	}
+
+	settings.SetBool("encrypt_database", encrypt)
+	settings.Sync()
+	return nil
 }

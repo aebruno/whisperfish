@@ -18,206 +18,192 @@
 package model
 
 import (
+	"os"
+	"strings"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
+	"github.com/aebruno/textsecure"
 	"github.com/aebruno/whisperfish/store"
-	"github.com/emirpasic/gods/lists/arraylist"
 	"github.com/therecipe/qt/core"
 )
 
 //go:generate qtmoc
-type MessageObject struct {
-	core.QObject
-
-	_ int64  `property:"id"`
-	_ int64  `property:"sid"`
-	_ string `property:"source"`
-	_ string `property:"message"`
-	_ uint64 `property:"timestamp"`
-	_ bool   `property:"outgoing"`
-	_ bool   `property:"sent"`
-	_ bool   `property:"received"`
-	_ string `property:"attachment"`
-	_ string `property:"mimeType"`
-	_ bool   `property:"hasAttachment"`
-}
-
-//go:generate qtmoc
 type MessageModel struct {
-	core.QObject
+	core.QAbstractListModel
 
-	Model *core.QAbstractListModel
-	list  *arraylist.List
-	ds    *store.DataStore
+	messages []*store.Message
 
+	_ map[int]*core.QByteArray                                            `property:"roles"`
 	_ string                                                              `property:"peerIdentity"`
 	_ string                                                              `property:"peerName"`
 	_ string                                                              `property:"peerTel"`
 	_ int64                                                               `property:"sessionId"`
 	_ bool                                                                `property:"group"`
-	_ func(sid int64, source string, group bool)                          `signal:"refresh"`
-	_ func(msg *MessageObject)                                            `signal:"update"`
-	_ func(mid int64)                                                     `signal:"markSent"`
-	_ func(mid int64)                                                     `signal:"markReceived"`
+	_ func(text string)                                                   `slot:"copyToClipboard"`
 	_ func() int                                                          `slot:"total"`
 	_ func() int                                                          `slot:"unsentCount"`
-	_ func(msg *MessageObject)                                            `slot:"add"`
 	_ func(sid int64, peerName, peerIdentity, peerTel string, group bool) `slot:"load"`
-	_ func(mid int64, sent, received bool)                                `slot:"mark"`
 	_ func(index int)                                                     `slot:"remove"`
+	_ func(id int64)                                                      `slot:"add"`
+	_ func(id int64)                                                      `slot:"markSent"`
+	_ func(id int64)                                                      `slot:"markReceived"`
+	_ func(source, message, groupName, attachment string, add bool) int64 `slot:"createMessage"`
+	_ func(source string)                                                 `slot:"endSession"`
+	_ func(mid int64)                                                     `signal:"sendMessage"`
 	_ func()                                                              `constructor:"init"`
-}
-
-func init() {
-	MessageObject_QRegisterMetaType()
-}
-
-// Convert message store to QML compatable message QObject
-func newMessage(m *store.Message) *MessageObject {
-	var msg = NewMessageObject(nil)
-	msg.SetId(m.ID)
-	msg.SetSid(m.SID)
-	msg.SetSource(m.Source)
-	msg.SetMessage(m.Message)
-	msg.SetTimestamp(m.Timestamp)
-	msg.SetOutgoing(m.Outgoing)
-	msg.SetSent(m.Sent)
-	msg.SetReceived(m.Received)
-	msg.SetAttachment(m.Attachment)
-	msg.SetMimeType(m.MimeType)
-	msg.SetHasAttachment(m.HasAttachment)
-
-	return msg
-}
-
-// Dependency inject data store
-func (model *MessageModel) SetDataStore(ds *store.DataStore) {
-	model.ds = ds
 }
 
 // Wire up slots
 func (model *MessageModel) init() {
-	model.list = arraylist.New()
+	model.messages = make([]*store.Message, 0)
 
-	model.Model = core.NewQAbstractListModel(nil)
-	model.Model.ConnectData(func(index *core.QModelIndex, role int) *core.QVariant {
-		return model.data(index, role)
+	model.SetRoles(map[int]*core.QByteArray{
+		RoleID:            core.NewQByteArray2("id", len("id")),
+		RoleSessionID:     core.NewQByteArray2("sid", len("sid")),
+		RoleSource:        core.NewQByteArray2("source", len("source")),
+		RoleMessage:       core.NewQByteArray2("message", len("message")),
+		RoleTimestamp:     core.NewQByteArray2("timestamp", len("timestamp")),
+		RoleOutgoing:      core.NewQByteArray2("outgoing", len("outgoing")),
+		RoleSent:          core.NewQByteArray2("sent", len("sent")),
+		RoleReceived:      core.NewQByteArray2("received", len("received")),
+		RoleHasAttachment: core.NewQByteArray2("hasAttachment", len("hasAttachment")),
+		RoleAttachment:    core.NewQByteArray2("attachment", len("attachment")),
+		RoleMimeType:      core.NewQByteArray2("mimeType", len("mimeType")),
+		RoleQueued:        core.NewQByteArray2("queued", len("queued")),
 	})
-	model.Model.ConnectRowCount(func(parent *core.QModelIndex) int {
-		return model.rowCount(parent)
-	})
+
+	// Slots
+	model.ConnectRoleNames(model.roleNames)
+	model.ConnectData(model.data)
+	model.ConnectColumnCount(model.columnCount)
+	model.ConnectRowCount(model.rowCount)
+	model.ConnectLoad(model.load)
+	model.ConnectRemove(model.remove)
+	model.ConnectAdd(model.add)
+	model.ConnectMarkSent(model.markSent)
+	model.ConnectMarkReceived(model.markReceived)
+	model.ConnectCreateMessage(model.createMessage)
+	model.ConnectEndSession(model.endSession)
+
 	model.ConnectTotal(func() int {
-		total, _ := model.ds.TotalMessages()
+		total, _ := store.DS.TotalMessages()
 		return total
 	})
 	model.ConnectUnsentCount(func() int {
-		messages, _ := model.ds.FetchSentq()
+		messages, _ := store.DS.FetchSentq()
 		return len(messages)
-	})
-	model.ConnectLoad(func(sid int64, peerName, peerIdentity, peerTel string, group bool) {
-		model.load(sid, peerName, peerIdentity, peerTel, group)
-	})
-	model.ConnectAdd(func(msg *MessageObject) {
-		model.add(msg)
-	})
-	model.ConnectRemove(func(index int) {
-		model.remove(index)
-	})
-	model.ConnectMark(func(mid int64, sent, received bool) {
-		model.mark(mid, sent, received)
 	})
 }
 
 // Returns the data stored under the given role for the item referred to by the
-// index. This is a required method of the QAbstractListModel. Roles are
-// currently unsupported so we just return the entire QObject in the default
-// "display" role.
+// index.
 func (model *MessageModel) data(index *core.QModelIndex, role int) *core.QVariant {
-	if role != 0 || !index.IsValid() {
+	if !index.IsValid() {
 		return core.NewQVariant()
 	}
 
-	var mp, exists = model.list.Get(index.Row())
-	if !exists {
+	if index.Row() < 0 || index.Row() > len(model.messages) {
 		return core.NewQVariant()
 	}
 
-	message := mp.(*MessageObject)
-	return message.ToVariant()
+	message := model.messages[index.Row()]
+	switch role {
+	case RoleID:
+		return core.NewQVariant9(message.ID)
+	case RoleSessionID:
+		return core.NewQVariant9(message.SID)
+	case RoleSource:
+		return core.NewQVariant14(message.Source)
+	case RoleMessage:
+		return core.NewQVariant14(message.Message)
+	case RoleTimestamp:
+		return core.NewQVariant10(message.Timestamp)
+	case RoleOutgoing:
+		return core.NewQVariant11(message.Outgoing)
+	case RoleSent:
+		return core.NewQVariant11(message.Sent)
+	case RoleReceived:
+		return core.NewQVariant11(message.Received)
+	case RoleHasAttachment:
+		return core.NewQVariant11(message.HasAttachment)
+	case RoleAttachment:
+		return core.NewQVariant14(message.Attachment)
+	case RoleMimeType:
+		return core.NewQVariant14(message.MimeType)
+	case RoleQueued:
+		return core.NewQVariant11(message.Queued)
+	default:
+		return core.NewQVariant()
+	}
 }
 
-// Returns the number of items in the list. This is a required method of the
-// QAbstractListModel.
+// Returns the number of items in the model.
 func (model *MessageModel) rowCount(parent *core.QModelIndex) int {
-	return model.list.Size()
+	return len(model.messages)
 }
 
-// Add MessageObject to list. This can only be called from the main thread.
-func (model *MessageModel) add(msg *MessageObject) {
-
-	// msg is a QObject pointer created in a different thread. Before adding
-	// to list model we need to create a new pointer from the main QT thread or
-	// else qml is unhappy
-	var m = NewMessageObject(nil)
-	m.SetId(msg.Id())
-	m.SetSid(msg.Sid())
-	m.SetSource(msg.Source())
-	m.SetMessage(msg.Message())
-	m.SetTimestamp(msg.Timestamp())
-	m.SetOutgoing(msg.IsOutgoing())
-	m.SetSent(msg.IsSent())
-	m.SetReceived(msg.IsReceived())
-	m.SetAttachment(msg.Attachment())
-	m.SetMimeType(msg.MimeType())
-	m.SetHasAttachment(msg.IsHasAttachment())
-
-	model.Model.BeginInsertRows(core.NewQModelIndex(), 0, 0)
-	model.list.Insert(0, m)
-	model.Model.EndInsertRows()
+// Return the number of columns. This will always be 1
+func (model *MessageModel) columnCount(parent *core.QModelIndex) int {
+	return 1
 }
 
-// Mark message as sent/received. This should only be called from the main
-// thread.  This is wired up in QML as follows:
-//
-//    Connections {
-//        target: MessageModel
-//        onMarkSent: {
-//            MessageModel.mark(mid, true, false)
-//        }
-//        onMarkReceived: {
-//            MessageModel.mark(mid, false, true)
-//        }
-//    }
+// Return the roles for the model
+func (model *MessageModel) roleNames() map[int]*core.QByteArray {
+	return model.Roles()
+}
+
+// Add MessageObject to list.
+func (model *MessageModel) add(id int64) {
+	m, err := store.DS.FetchMessage(id)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"id":    id,
+		}).Error("No message found")
+		return
+	}
+
+	model.BeginInsertRows(core.NewQModelIndex(), 0, 0)
+	model.messages = append([]*store.Message{m}, model.messages...)
+	model.EndInsertRows()
+}
+
+// Mark message as sent
+func (model *MessageModel) markSent(id int64) {
+	model.mark(id, true, false)
+}
+
+// Mark message as received
+func (model *MessageModel) markReceived(id int64) {
+	model.mark(id, false, true)
+}
+
+// Mark message as sent/received.
 func (model *MessageModel) mark(mid int64, sent, received bool) {
-	it := model.list.Iterator()
-	for it.Next() {
-		m := it.Value().(*MessageObject)
-		if m.Id() == mid && m.Sid() == model.SessionId() {
+	for i, m := range model.messages {
+		if m.ID == mid && m.SID == model.SessionId() {
+			var index = model.Index(i, 0, core.NewQModelIndex())
 			if sent {
-				m.SetSent(true)
-				m.SentChanged(true)
+				m.Sent = true
+				m.Queued = false
+				model.DataChanged(index, index, []int{RoleSent})
+				model.DataChanged(index, index, []int{RoleQueued})
 			}
 			if received {
-				m.SetReceived(true)
-				m.ReceivedChanged(true)
+				m.Received = true
+				model.DataChanged(index, index, []int{RoleReceived})
 			}
 			break
 		}
 	}
 }
 
-// Load all messages for given session id. This should only be called from the
-// main thread.  This is wired up in QML as follows:
-//
-//    Connections {
-//        target: MessageModel
-//        onRefresh: {
-//            MessageModel.load(sid, peerName, peerIdentity, peerTel, group)
-//        }
-//    }
+// Load all messages for given session id.
 func (model *MessageModel) load(sid int64, peerName, peerIdentity, peerTel string, group bool) {
-	model.Model.BeginResetModel()
-	model.list.Clear()
-	model.Model.EndResetModel()
+	model.BeginResetModel()
+	model.messages = make([]*store.Message, 0)
+	model.EndResetModel()
 
 	model.SetSessionId(sid)
 	model.SetPeerName(peerName)
@@ -230,7 +216,7 @@ func (model *MessageModel) load(sid int64, peerName, peerIdentity, peerTel strin
 	model.PeerIdentityChanged(peerIdentity)
 	model.GroupChanged(group)
 
-	messages, err := model.ds.FetchAllMessages(sid)
+	messages, err := store.DS.FetchAllMessages(sid)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":     err,
@@ -240,73 +226,146 @@ func (model *MessageModel) load(sid int64, peerName, peerIdentity, peerTel strin
 	}
 
 	for _, m := range messages {
-		model.Model.BeginInsertRows(core.NewQModelIndex(), model.list.Size(), model.list.Size())
-		model.list.Add(newMessage(m))
-		model.Model.EndInsertRows()
+		model.BeginInsertRows(core.NewQModelIndex(), len(model.messages), len(model.messages))
+		model.messages = append(model.messages, m)
+		model.EndInsertRows()
 	}
-}
-
-// Saves message to database. Should be called from backend thread. No updates
-// to the underlying QAbstractListModel are made, instead this method calls the
-// Update signal to modify the list model. This is wired up in QML as follows:
-//
-//    Connections {
-//        target: MessageModel
-//        onUpdate: {
-//            MessageModel.add(msg)
-//        }
-//    }
-//
-// Here's the general flow For an incoming message from signal:
-//
-// 1. New message arrives via websocket from Signal and
-//    client.Backend.processMesssage is called
-// 2. client.Backend.processMessage calls model.MessageModel.SaveMessage
-//    which stores message in database and calls model.MessageModel.Update
-//    signal which tells main QT thread to update MessageModel.Model
-// 3. In QML we connect MessageModel.Update signal to MessageModel.Add slot
-//    which modifies the underlying QAbstractListModel which in turn updates
-//    the QML view
-//
-// The above convoluted process is because we listen for incoming Signal
-// messages via websockets in a separate thread which cannot update the
-// QAbstractListModel directly. Updates are only allowed from the main thread.
-func (model *MessageModel) SaveMessage(message *store.Message) error {
-	err := model.ds.SaveMessage(message)
-	if err != nil {
-		return err
-	}
-
-	if model.SessionId() == message.SID {
-		model.Update(newMessage(message))
-	}
-
-	return nil
 }
 
 // Removes message at index. This removes the message from the list model and
 // deletes it from the database. This should only be called from main QT
 // thread.
 func (model *MessageModel) remove(index int) {
-	var mp, exists = model.list.Get(index)
-	if !exists {
+	if index < 0 || index > len(model.messages)-1 {
 		log.WithFields(log.Fields{
 			"index": index,
-		}).Info("No message found in model")
+		}).Info("Invalid index for message model")
 		return
 	}
 
-	message := mp.(*MessageObject)
+	message := model.messages[index]
 
-	err := model.ds.DeleteMessage(message.Id())
+	err := store.DS.DeleteMessage(message.ID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-			"sid":   message.Id(),
+			"sid":   message.ID,
 		}).Error("Failed to delete message from database")
 	}
 
-	model.Model.BeginRemoveRows(core.NewQModelIndex(), index, index)
-	model.list.Remove(index)
-	model.Model.EndRemoveRows()
+	model.BeginRemoveRows(core.NewQModelIndex(), index, index)
+	model.messages = append(model.messages[:index], model.messages[index+1:]...)
+	model.EndRemoveRows()
+}
+
+// Create a new outgoing message, save to database and queue for delivery. If add
+// is true then the new message will be appended to the model. When called from
+// the NewMessage page, add should be set to false because there is no active
+// session. Returns the session ID the message was created under.
+func (model *MessageModel) createMessage(source, message, groupName, attachment string, add bool) int64 {
+	var group *textsecure.Group
+
+	// If source is a comma separated list then create a group.
+	m := strings.Split(source, ",")
+	if len(m) > 1 {
+		var err error
+		group, err = textsecure.NewGroup(groupName, m)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error":      err,
+				"group_name": groupName,
+			}).Error("Failed to create new group")
+			return 0
+		}
+
+		source = group.Hexid
+	}
+
+	msg, err := model.queueMessage(source, message, attachment, group)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":  err,
+			"source": source,
+		}).Error("Failed to add message to queue")
+		return 0
+	}
+
+	if add {
+		model.BeginInsertRows(core.NewQModelIndex(), 0, 0)
+		model.messages = append([]*store.Message{msg}, model.messages...)
+		model.EndInsertRows()
+	}
+
+	model.SendMessage(msg.ID)
+
+	return msg.SID
+}
+
+// Perpare outgoing message for delivery to Signal and save message to queue.
+// The message will be fetched from the queue by the SendWorker in a separate
+// go routine and sent to Signal
+func (model *MessageModel) queueMessage(to, msg, attachment string, group *textsecure.Group) (*store.Message, error) {
+	message := &store.Message{
+		Source:    to,
+		Message:   msg,
+		Timestamp: uint64(time.Now().UnixNano() / 1000000),
+		Outgoing:  true,
+		Queued:    true,
+	}
+
+	if len(attachment) > 0 {
+		att, err := os.Open(attachment)
+		if err != nil {
+			return nil, err
+		}
+		defer att.Close()
+		//XXX We have to re-read the attachment to fetch the mime type
+		message.MimeType, _ = textsecure.MIMETypeFromReader(att)
+		message.Attachment = attachment
+		message.HasAttachment = true
+	}
+
+	_, err := store.DS.ProcessMessage(message, group, false)
+	if err != nil {
+		return nil, err
+	}
+
+	err = store.DS.QueueSent(message)
+	if err != nil {
+		return nil, err
+	}
+
+	return message, nil
+}
+
+// Reset secure session
+func (model *MessageModel) endSession(source string) {
+	message := &store.Message{
+		Source:    source,
+		Message:   "[Whisperfish] Reset secure session",
+		Timestamp: uint64(time.Now().UnixNano() / 1000000),
+		Outgoing:  true,
+		Flags:     textsecure.EndSessionFlag,
+	}
+
+	_, err := store.DS.ProcessMessage(message, nil, false)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to add EndSession message to database")
+		return
+	}
+
+	err = store.DS.QueueSent(message)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to add EndSession message to queue")
+	}
+
+	model.BeginInsertRows(core.NewQModelIndex(), 0, 0)
+	model.messages = append([]*store.Message{message}, model.messages...)
+	model.EndInsertRows()
+
+	model.SendMessage(message.ID)
 }

@@ -26,13 +26,14 @@ Page {
             MenuItem {
                 text: qsTr("Reconnect")
                 onClicked: {
-                    Backend.reconnect()
+                    ClientWorker.reconnect()
                 }
             }
             MenuItem {
                 text: qsTr("Refresh Contacts")
                 onClicked: {
-                    Backend.contactRefresh()
+                    ContactModel.refresh()
+                    SessionModel.reload()
                 }
             }
         }
@@ -55,7 +56,7 @@ Page {
                 readOnly: true
                 width: parent.width
                 label: "Phone"
-                text: Backend.phoneNumber()
+                text: SetupWorker.phoneNumber
             }
             TextArea {
                 id: identity
@@ -64,7 +65,7 @@ Page {
                 font.pixelSize: Theme.fontSizeSmall
                 width: parent.width
                 label: "Identity"
-                text: Backend.identity()
+                text: SetupWorker.identity
             }
             SectionHeader {
                 text: qsTr("Notifications")
@@ -117,6 +118,17 @@ Page {
                     }
                 }
             }
+            TextSwitch {
+                id: shareContacts
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Share Contacts")
+                checked: SettingsBridge.boolValue("share_contacts")
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.boolValue("share_contacts")) {
+                        SettingsBridge.boolSet("share_contacts", checked)
+                    }
+                }
+            }
             SectionHeader {
                 text: qsTr("Advanced")
             }
@@ -131,7 +143,7 @@ Page {
                             qsTr("Restarting whisperfish..."),
                             function() {
                                 SettingsBridge.boolSet("incognito", checked)
-                                Backend.restart()
+                                SetupWorker.restart()
                         })
                     }
                 }
@@ -140,8 +152,8 @@ Page {
                 text: qsTr("Statistics")
             }
             DetailItem {
-                label: qsTr("Network Status")
-                value: Backend.connected ? "Connected" : "Disconnected"
+                label: qsTr("Websocket Status")
+                value: ClientWorker.connected ? "Connected" : "Disconnected"
             }
             DetailItem {
                 label: qsTr("Unsent Messages")
@@ -157,11 +169,11 @@ Page {
             }
             DetailItem {
                 label: qsTr("Signal Contacts")
-                value: Backend.contactCount()
+                value: ContactModel.total()
             }
             DetailItem {
                 label: qsTr("Encrypted Key Store")
-                value: Backend.hasEncryptedKeystore() ? qsTr("Enabled") : qsTr("Disabled")
+                value: SetupWorker.encryptedKeystore ? qsTr("Enabled") : qsTr("Disabled")
             }
             DetailItem {
                 label: qsTr("Encrypted Database")

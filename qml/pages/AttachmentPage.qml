@@ -38,15 +38,15 @@ SplitViewPage {
 
         source: root.source
         anchors.fill: parent
-        filter: root.message.display.mimeType
-        content: QtObject { property string type: root.message.display.mimeType }
+        filter: root.message.mimeType
+        content: QtObject { property string type: root.message.mimeType }
 
         header: PageHeader {
             function msgDate() {
-                var dt = new Date(root.message.display.timestamp)
+                var dt = new Date(root.message.timestamp)
                 return Format.formatDate(dt, Formatter.Timepoint)
             }
-            title: root.message.display.outgoing ? qsTr("Me") : MessageModel.peerName
+            title: root.message.outgoing ? qsTr("Me") : MessageModel.peerName
             description: msgDate()
         }
     }

@@ -27,7 +27,7 @@ ListItem {
     menu: messageContextMenu
 
     property QtObject modelData
-    property bool inbound: modelData.display.outgoing ? false : true
+    property bool inbound: modelData.outgoing ? false : true
     property bool hasText
     property bool canRetry
 
@@ -55,7 +55,7 @@ ListItem {
 
         Repeater {
             id: attachmentLoader
-            model: modelData.display.hasAttachment ? 1 : 0
+            model: modelData.hasAttachment ? 1 : 0
             property QtObject attachmentItem: modelData
 
             Attachment {
@@ -82,9 +82,9 @@ ListItem {
         wrapMode: Text.Wrap
 
         plainText: {
-            if (modelData.display.message != "") {
+            if (modelData.message != "") {
                 hasText = true
-                return modelData.display.message
+                return modelData.message
             } else {
                 hasText = false
                 return ""
@@ -109,7 +109,7 @@ ListItem {
         }
 
         function msgDate() {
-            var dt = new Date(modelData.display.timestamp)
+            var dt = new Date(modelData.timestamp)
             var md = Format.formatDate(dt, Formatter.Timepoint)
             return md
         }
@@ -122,21 +122,23 @@ ListItem {
 
         text: {
            var re = msgDate()
-           if (modelData.display.received) {
+           if (modelData.received) {
                re += qsTr("  ✓✓")
-           } else if (modelData.display.sent) {
+           } else if (modelData.sent) {
                re += qsTr("  ✓")
+           } else if (modelData.queued) {
+               re += qsTr("  x")
            }
            if(inbound && MessageModel.group) {
-               re += " | " + ContactModel.name(modelData.display.source)
+               re += " | " + ContactModel.name(modelData.source)
            }
            return re
         }
     }
 
     onClicked: {
-        if (modelData.display.hasAttachment && attachmentBox.height > 0) {
-            pageStack.push(Qt.resolvedUrl("../pages/AttachmentPage.qml"), { 'source': modelData.display.attachment, 'message': modelData })
+        if (modelData.hasAttachment && attachmentBox.height > 0) {
+            pageStack.push(Qt.resolvedUrl("../pages/AttachmentPage.qml"), { 'source': modelData.attachment, 'message': modelData })
         }
     }
 }

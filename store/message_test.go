@@ -82,6 +82,19 @@ func TestMessage(t *testing.T) {
 	if total != 1 {
 		t.Error("Failed to total messages: got '%d' should be '%d'", total, 1)
 	}
+
+	m, err := ds.FetchMessage(msg.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if m.ID != msg.ID {
+		t.Error("Failed to fetch message by id: got '%d' should be '%d'", m.ID, msg.ID)
+	}
+
+	if m.Queued {
+		t.Error("Message should not be queued")
+	}
 }
 
 func TestMessageDelete(t *testing.T) {

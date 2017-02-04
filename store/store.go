@@ -51,6 +51,8 @@ const (
 	`
 )
 
+var DS *DataStore
+
 type DataStore struct {
 	dbx *sqlx.DB
 }
