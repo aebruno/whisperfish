@@ -19,11 +19,15 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: qsTr("Verify ") + MessageModel.peerName
+            //: Verify contact identity
+            //% "Verify %1"
+            text: qsTrId("whisperfish-verify-contact-identity-title").arg(MessageModel.peerName)
         }
 
         SectionHeader {
-            text: qsTr("Their Identity (they read)")
+            //: Contact identity message
+            //% "Their Identity (they read)"
+            text: qsTrId("whisperfish-contact-identity-section")
         }
 
         TextArea {
@@ -36,7 +40,9 @@ Dialog {
         }
 
         SectionHeader {
-            text: qsTr("Your Identity (you read)")
+            //: Your identity message
+            //% "Your Identity (you read)"
+            text: qsTrId("whisperfish-your-identity-section")
         }
 
         TextArea {

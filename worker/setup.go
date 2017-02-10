@@ -51,7 +51,9 @@ type SetupWorker struct {
 	_ func() `constructor:"init"`
 	_ func() `signal:"registrationSuccess"`
 	_ func() `signal:"setupComplete"`
+	_ func() `signal:"invalidPhoneNumber"`
 	_ func() `signal:"invalidDatastore"`
+	_ func() `signal:"clientFailed"`
 	_ func() `slot:"restart"`
 }
 
@@ -133,16 +135,18 @@ func (s *SetupWorker) Run(client *textsecure.Client) {
 		if _, ok := err.(*strconv.NumError); ok {
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Fatal("Invalid phone number in config file. Re-registration with Signal is required")
+			}).Error("Invalid phone number in config file. Re-registration with Signal is required")
+			s.InvalidPhoneNumber()
+			return
 		}
 
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Fatal("Failed to setup textsecure client")
+		}).Error("Failed to setup Signal client")
+		s.ClientFailed()
 		return
 	}
 
-	s.SetLocked(false)
 	s.SetPhoneNumber(s.phoneNumber())
 	s.SetIdentity(s.identity())
 	s.SetEncryptedKeystore(!s.config.UnencryptedStorage)

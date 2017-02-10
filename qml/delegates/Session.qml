@@ -67,7 +67,9 @@ ListItem {
                 if (model.message != '') {
                     return model.message
                 } else if (model.hasAttachment) {
-                    return qsTr("Attachment")
+                    //: Session contains an attachment label
+                    //% "Attachment"
+                    return qsTrId("whisperfish-session-has-attachment")
                 }
                 return ''
             }
@@ -100,9 +102,9 @@ ListItem {
             text: {
                var re = Format.formatDate(dt, Formatter.TimepointRelative)
                if (model.received) {
-                   re += qsTr("  ✓✓")
+                   re += "  ✓✓"
                } else if (model.sent) {
-                   re += qsTr("  ✓")
+                   re += "  ✓"
                }
                return re
             }
@@ -110,7 +112,9 @@ ListItem {
     }
 
     function remove(contentItem) {
-        contentItem.remorseAction(qsTr("Deleting all messages"),
+        //: Delete all messages from session
+        //% "Deleting all messages"
+        contentItem.remorseAction(qsTrId("whisperfish-session-delete-all"),
             function() {
                 console.log("Deleting all messages for session: "+model.id)
                 SessionModel.remove(model.index)
@@ -123,7 +127,9 @@ ListItem {
         ContextMenu {
             id: menu
             MenuItem {
-                text: qsTr("Delete Conversation")
+                //: Delete all messages from session menu
+                //% "Delete Conversation"
+                text: qsTrId("whisperfish-delete-session")
                 onClicked: remove(menu.parent)
             }
         }

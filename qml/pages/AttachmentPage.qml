@@ -46,8 +46,14 @@ SplitViewPage {
                 var dt = new Date(root.message.timestamp)
                 return Format.formatDate(dt, Formatter.Timepoint)
             }
-            title: root.message.outgoing ? qsTr("Me") : MessageModel.peerName
             description: msgDate()
+            title: root.message.outgoing ?
+            //: Personalized placeholder showing the attachment is from oneself
+            //% "Me"
+                qsTrId("whisperfish-attachment-from-self") :
+            //: Personalized placeholder showing the attachment is from contact
+            //% "From %1"
+                qsTrId("whisperfish-attachment-from-contact").arg(MessageModel.peerName)
         }
     }
 

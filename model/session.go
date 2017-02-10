@@ -18,6 +18,8 @@
 package model
 
 import (
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/aebruno/whisperfish/store"
 	"github.com/therecipe/qt/core"
@@ -146,6 +148,8 @@ func (model *SessionModel) add(sid int64, markRead bool) {
 		return
 	}
 
+	model.SetSection(sess)
+
 	alreadyUnread := false
 
 	for index, s := range model.sessions {
@@ -201,6 +205,7 @@ func (model *SessionModel) reload() {
 
 	unread := 0
 	for _, s := range sessions {
+		model.SetSection(s)
 		model.BeginInsertRows(core.NewQModelIndex(), len(model.sessions), len(model.sessions))
 		model.sessions = append(model.sessions, s)
 		model.EndInsertRows()
@@ -279,4 +284,26 @@ func (model *SessionModel) remove(index int) {
 	model.BeginRemoveRows(core.NewQModelIndex(), index, index)
 	model.sessions = append(model.sessions[:index], model.sessions[index+1:]...)
 	model.EndRemoveRows()
+}
+
+func (model *SessionModel) SetSection(s *store.Session) {
+	ts := time.Unix(0, int64(1000000*s.Timestamp)).Local()
+	now := time.Now().Local()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	diff := today.Sub(ts)
+	if diff.Seconds() <= 0.0 {
+		s.Section = core.QCoreApplication_Translate("", "whisperfish-session-section-today", "", -1)
+	} else if diff.Seconds() >= 0 && diff.Hours() <= 24 {
+		s.Section = core.QCoreApplication_Translate("", "whisperfish-session-section-yesterday", "", -1)
+	} else if diff.Seconds() >= 0 && diff.Hours() <= (24*7) {
+		dow := ts.Weekday()
+		if dow == 0 {
+			// In QLocale days are 1 = Monday .. 7 = Sunday
+			// In Go days are 0 = Sunday .. 6 = Saturday
+			dow = 7
+		}
+		s.Section = core.QLocale_System().DayName(int(dow), core.QLocale__LongFormat)
+	} else {
+		s.Section = core.QCoreApplication_Translate("", "whisperfish-session-section-older", "", -1)
+	}
 }

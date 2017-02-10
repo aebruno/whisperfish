@@ -87,6 +87,21 @@ func Run(version string) {
 	app.SetOrganizationName("")
 	app.SetApplicationName("harbour-whisperfish")
 
+	// Setup i18n Translations
+	var translator = core.NewQTranslator(nil)
+	if translator.Load2(core.QLocale_System(), "whisperfish", "_", "/usr/share/harbour-whisperfish/qml/i18n", ".qm") {
+		core.QCoreApplication_InstallTranslator(translator)
+		log.WithFields(log.Fields{
+			"locale": core.QLocale_System().Name(),
+		}).Info("Successfully loaded system locale")
+	} else {
+		translator.Load2(core.NewQLocale3(core.QLocale__English, core.QLocale__UnitedStates), "whisperfish", "_", "/usr/share/harbour-whisperfish/qml/i18n", ".qm")
+		core.QCoreApplication_InstallTranslator(translator)
+		log.WithFields(log.Fields{
+			"locale": core.QLocale_System().Name(),
+		}).Info("No translations found for system locale. Using default")
+	}
+
 	var view = sailfish.SailfishApp_CreateView()
 
 	var configPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__ConfigLocation)
@@ -162,7 +177,7 @@ func Run(version string) {
 				if err != nil {
 					log.WithFields(log.Fields{
 						"error": err,
-					}).Fatal("Failed to open encrypted database")
+					}).Error("Failed to open encrypted database")
 				}
 			}
 
@@ -195,21 +210,21 @@ func Run(version string) {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
-				}).Fatal("Failed to open unencrypted database")
+				}).Error("Failed to open unencrypted database")
 			}
 		}
 
 		if store.DS == nil {
 			log.Error("No datastore found")
-			setupWorker.SetLocked(true)
 			setupWorker.InvalidDatastore()
 			return
 		}
 
+		setupWorker.SetLocked(false)
 		contactModel.Refresh()
-		clientWorker.Reconnect()
 		sessionModel.Reload()
 		deviceModel.Reload()
+		clientWorker.Reconnect()
 	})
 
 	messageModel.ConnectSendMessage(func(mid int64) {

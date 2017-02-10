@@ -123,11 +123,11 @@ ListItem {
         text: {
            var re = msgDate()
            if (modelData.received) {
-               re += qsTr("  ✓✓")
+               re += "  ✓✓"
            } else if (modelData.sent) {
-               re += qsTr("  ✓")
+               re += "  ✓"
            } else if (modelData.queued) {
-               re += qsTr("  x")
+               re += "  x"
            }
            if(inbound && MessageModel.group) {
                re += " | " + ContactModel.name(modelData.source)

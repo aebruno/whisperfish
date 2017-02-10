@@ -39,7 +39,9 @@ Dialog {
 
     DialogHeader {
         id: title
-        title: qsTr("Select picture")
+        //: Title for image picker page
+        //% "Select picture"
+        title: qsTrId("whisperfish-select-picture")
     }
 
     onStatusChanged: {

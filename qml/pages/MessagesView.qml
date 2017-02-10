@@ -28,14 +28,7 @@ SilicaListView {
     verticalLayoutDirection: ListView.BottomToTop
     // Necessary to avoid resetting focus every time a row is added, which breaks text input
     currentIndex: -1
-    quickScroll: false
-
-    PullDownMenu {
-        MenuItem {
-            text: qsTr("Load More")
-            onClicked: console.log("Load more messages!")
-        }
-    }
+    quickScroll: true
 
     delegate: Item {
         id: wrapper
@@ -91,13 +84,19 @@ SilicaListView {
                 id: text
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeExtraSmall
-                text: MessageModel.group ? qsTr("Group: "+MessageModel.peerName) : MessageModel.peerName
+                text: MessageModel.group ? 
+                    //: Group message label
+                    //% "Group: %1"
+                    qsTrId("whisperfish-group-label").arg(MessageModel.peerName) : 
+                    MessageModel.peerName
             }
         }
     }
 
     function remove(contentItem) {
-        contentItem.remorseAction(qsTr("Deleting"),
+        //: Deleteing message remorse
+        //% "Deleteing"
+        contentItem.remorseAction(qsTrId("whisperfish-delete-message"),
             function() {
                 console.log("Delete message: "+contentItem.modelData.id)
                 MessageModel.remove(contentItem.modelData.index)
@@ -105,7 +104,9 @@ SilicaListView {
     }
 
     function resend(contentItem) {
-        contentItem.remorseAction(qsTr("Resending"),
+        //: Resend message remorse
+        //% "Resending"
+        contentItem.remorseAction(qsTrId("whisperfish-resend-message"),
             function() {
                 console.log("Resending message: "+contentItem.modelData.id)
                 MessageModel.sendMessage(contentItem.modelData.id)
@@ -126,15 +127,21 @@ SilicaListView {
 
             MenuItem {
                 visible: menu.parent && menu.parent.hasText
-                text: qsTr("Copy")
+                //: Copy message menu item
+                //% "Copy"
+                text: qsTrId("whisperfish-copy-message-menu")
                 onClicked: copy(menu.parent)
             }
             MenuItem {
-                text: qsTr("Delete")
+                //: Delete message menu item
+                //% "Delete"
+                text: qsTrId("whisperfish-delete-message-menu")
                 onClicked: remove(menu.parent)
             }
             MenuItem {
-                text: qsTr("Resend")
+                //: Resend message menu item
+                //% "Resend"
+                text: qsTrId("whisperfish-resend-message-menu")
                 visible: menu.parent && menu.parent.modelData.queued
                 onClicked: resend(menu.parent)
             }
@@ -146,15 +153,21 @@ SilicaListView {
 
     PushUpMenu {
         MenuItem {
-            text: qsTr("Verify Identity")
+            //: Verify contact identity menu item
+            //% "Verify Identity"
+            text: qsTrId("whisperfish-verify-identity-menu")
             enabled: MessageModel.peerIdentity.length > 0
             onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
         }
         MenuItem {
-            text: qsTr("Reset Secure Session")
+            //: Reset secure session menu item
+            //% "Reset Secure Session"
+            text: qsTrId("whisperfish-reset-session-menu")
             enabled: MessageModel.peerIdentity.length > 0
             onClicked: {
-                remorse.execute(qsTr("Resetting secure session"),
+                //: Reset secure session remorse message
+                //% "Resetting secure session"
+                remorse.execute(qsTrId("whisperfish-reset-session-message"),
                     function() {
                         console.log("Resetting secure session: "+MessageModel.peerTel)
                         MessageModel.endSession(MessageModel.peerTel)

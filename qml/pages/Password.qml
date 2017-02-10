@@ -39,7 +39,13 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: SetupWorker.registered ? qsTr("Enter your password") : qsTr("Set your password")
+            text: SetupWorker.registered ? 
+                //: Enter password prompt
+                //% "Enter your password"
+                qsTrId("whisperfish-enter-password") : 
+                //: Set password prompt
+                //% "Set your password"
+                qsTrId("whisperfish-set-password")
         }
 
         TextField {
@@ -47,8 +53,12 @@ Dialog {
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
             validator: RegExpValidator{ regExp: /.{6,}/;}
-            label: "Password"
-            placeholderText: "Password"
+            //: Password label
+            //% "Password"
+            label: qsTrId("whisperfish-password-label")
+            //: Password placeholder
+            //% "Password"
+            placeholderText: qsTrId("whisperfish-password-placeholder")
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight? "red" : Theme.primaryColor
@@ -62,8 +72,12 @@ Dialog {
             inputMethodHints: Qt.ImhNoPredictiveText
             visible: !SetupWorker.registered
             validator: RegExpValidator{ regExp: /.{6,}/;}
-            label: "Verify Password"
-            placeholderText: "Verify Password"
+            //: Verify Password label
+            //% "Verify Password"
+            label: qsTrId("whisperfish-verify-password-label")
+            //: Verify Password label
+            //% "Verify Password"
+            placeholderText: qsTrId("whisperfish-verify-password-placeholder")
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight ? "red" : Theme.primaryColor
@@ -78,7 +92,9 @@ Dialog {
             font.pixelSize: Theme.fontSizeTiny
             horizontalAlignment: TextEdit.Center
             readOnly: true
-            text: qsTr("Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.")
+            //: Whisperfish password informational message
+            //% "Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page."
+            text: qsTrId("whisperfish-password-info")
         }
     }
 }

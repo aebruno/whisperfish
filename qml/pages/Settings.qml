@@ -20,17 +20,23 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Linked Devices")
+                //: Linked devices menu option
+                //% "Linked Devices"
+                text: qsTrId("whisperfish-settings-linked-devices-menu")
                 onClicked: pageStack.push(Qt.resolvedUrl("LinkedDevices.qml"))
             }
             MenuItem {
-                text: qsTr("Reconnect")
+                //: Reconnect menu
+                //% "Reconnect"
+                text: qsTrId("whisperfish-settings-reconnect-menu")
                 onClicked: {
                     ClientWorker.reconnect()
                 }
             }
             MenuItem {
-                text: qsTr("Refresh Contacts")
+                //: Refresh contacts menu
+                //% "Refresh Contacts"
+                text: qsTrId("whisperfish-settings-refresh-contacts-menu")
                 onClicked: {
                     ContactModel.refresh()
                     SessionModel.reload()
@@ -45,17 +51,23 @@ Page {
             spacing: Theme.paddingLarge
             width: parent.width
             PageHeader {
-                title: qsTr("Whisperfish Settings")
+                //: Settings page title
+                //% "Whisperfish Settings"
+                title: qsTrId("whisperfish-settings-title")
             }
             SectionHeader {
-                text: qsTr("My Identity")
+                //: Settings page My identity section label
+                //% "My Identity"
+                text: qsTrId("whisperfish-settings-identity-section-label")
             }
             TextField {
                 id: phone
                 anchors.horizontalCenter: parent.horizontalCenter
                 readOnly: true
                 width: parent.width
-                label: "Phone"
+                //: Settings page My phone number
+                //% "Phone"
+                label: qsTrId("whisperfish-settings-my-phone-number")
                 text: SetupWorker.phoneNumber
             }
             TextArea {
@@ -64,16 +76,22 @@ Page {
                 readOnly: true
                 font.pixelSize: Theme.fontSizeSmall
                 width: parent.width
-                label: "Identity"
+                //: Settings page Identity label
+                //% "Identity"
+                label: qsTrId("whisperfish-settings-identity-label")
                 text: SetupWorker.identity
             }
             SectionHeader {
-                text: qsTr("Notifications")
+                //: Settings page notifications section
+                //% "Notifications"
+                text: qsTrId("whisperfish-settings-notifications-section")
             }
             TextSwitch {
                 id: enableNotify
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Enable")
+                //: Settings page notifications enable
+                //% "Enabled"
+                text: qsTrId("whisperfish-settings-notifications-enable")
                 checked: SettingsBridge.boolValue("enable_notify")
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("enable_notify")) {
@@ -83,7 +101,9 @@ Page {
             }
             TextSwitch {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Show Message Body")
+                //: Settings page notifications show message body
+                //% "Show Message Body"
+                text: qsTrId("whisperfish-settings-notifications-show-body")
                 checked: SettingsBridge.boolValue("show_notify_message")
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("show_notify_message")) {
@@ -92,12 +112,16 @@ Page {
                 }
             }
             SectionHeader {
-                text: qsTr("General")
+                //: Settings page general section
+                //% "General"
+                text: qsTrId("whisperfish-settings-general-section")
             }
             ValueButton {
                 id: countryCode
                 anchors.horizontalCenter: parent.horizontalCenter
-                label: qsTr("Country Code")
+                //: Settings page country code
+                //% "Country Code"
+                label: qsTrId("whisperfish-settings-country-code")
                 value: SettingsBridge.stringValue("country_code")
                 onClicked: {
                     var cd = pageStack.push(Qt.resolvedUrl("CountryCodeDialog.qml"))
@@ -110,7 +134,9 @@ Page {
             TextSwitch {
                 id: saveAttachments
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Save Attachments")
+                //: Settings page save attachments
+                //% "Save Attachments"
+                text: qsTrId("whisperfish-settings-save-attachments")
                 checked: SettingsBridge.boolValue("save_attachments")
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("save_attachments")) {
@@ -121,7 +147,9 @@ Page {
             TextSwitch {
                 id: shareContacts
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Share Contacts")
+                //: Settings page share contacts
+                //% "Share Contacts"
+                text: qsTrId("Share Contacts")
                 checked: SettingsBridge.boolValue("share_contacts")
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("share_contacts")) {
@@ -130,17 +158,23 @@ Page {
                 }
             }
             SectionHeader {
-                text: qsTr("Advanced")
+                //: Settings page advanced section
+                //% "Advanced"
+                text: qsTrId("whisperfish-settings-advanced-section")
             }
             TextSwitch {
                 id: incognitoModeSwitch
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Incognito Mode")
+                //: Settings page incognito mode
+                //% "Incognito Mode"
+                text: qsTrId("whisperfish-settings-incognito-mode")
                 checked: SettingsBridge.boolValue("incognito")
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("incognito")) {
                         remorse.execute(
-                            qsTr("Restarting whisperfish..."),
+                            //: Restart whisperfish message
+                            //% "Restart Whisperfish..."
+                            qsTrId("whisperfish-settings-restarting-message"),
                             function() {
                                 SettingsBridge.boolSet("incognito", checked)
                                 SetupWorker.restart()
@@ -149,35 +183,69 @@ Page {
                 }
             }
             SectionHeader {
-                text: qsTr("Statistics")
+                //: Settings page stats section
+                //% "Statistics"
+                text: qsTrId("whisperfish-settings-stats-section")
             }
             DetailItem {
-                label: qsTr("Websocket Status")
-                value: ClientWorker.connected ? "Connected" : "Disconnected"
+                //: Settings page websocket status
+                //% "Websocket Status"
+                label: qsTrId("whisperfish-settings-websocket")
+                value: ClientWorker.connected ? 
+                    //: Settings page connected message
+                    //% "Connected"
+                    qsTrId("whisperfish-settings-connected") : 
+                    //: Settings page disconnected message
+                    //% "Disconnected"
+                    qsTrId("whisperfish-settings-disconnected")
             }
             DetailItem {
-                label: qsTr("Unsent Messages")
+                //: Settings page unsent messages
+                //% "Unsent Messages"
+                label: qsTrId("whisperfish-settings-unsent-messages")
                 value: MessageModel.unsentCount()
             }
             DetailItem {
-                label: qsTr("Total Sessions")
+                //: Settings page total sessions
+                //% "Total Sessions"
+                label: qsTrId("whisperfish-settings-total-sessions")
                 value: SessionModel.count()
             }
             DetailItem {
-                label: qsTr("Total Messages")
+                //: Settings page total messages
+                //% "Total Messages"
+                label: qsTrId("whisperfish-settings-total-messages")
                 value: MessageModel.total()
             }
             DetailItem {
-                label: qsTr("Signal Contacts")
+                //: Settings page total signal contacts
+                //% "Signal Contacts"
+                label: qsTrId("whisperfish-settings-total-contacts")
                 value: ContactModel.total()
             }
             DetailItem {
-                label: qsTr("Encrypted Key Store")
-                value: SetupWorker.encryptedKeystore ? qsTr("Enabled") : qsTr("Disabled")
+                //: Settings page encrypted key store
+                //% "Encrypted Key Store"
+                label: qsTrId("whisperfish-settings-encrypted-keystore")
+                value: SetupWorker.encryptedKeystore ? 
+                    //: Settings page encrypted key store enabled
+                    //% "Enabled"
+                    qsTrId("whisperfish-settings-encrypted-keystore-enabled") : 
+                    //: Settings page encrypted key store disabled
+                    //% "Disabled"
+                    qsTrId("whisperfish-settings-encrypted-keystore-disabled")
             }
             DetailItem {
-                label: qsTr("Encrypted Database")
-                value: SettingsBridge.boolValue("encrypt_database") ? qsTr("Enabled") : qsTr("Disabled")
+                //: Settings page encrypted database
+                //% "Encrypted Database"
+                label: qsTrId("whisperfish-settings-encrypted-db")
+                value: SettingsBridge.boolValue("encrypt_database") ? 
+                    //: Settings page encrypted db enabled
+                    //% "Enabled"
+                    qsTrId("whisperfish-settings-encrypted-db-enabled") : 
+                    //: Settings page encrypted db disabled
+                    //% "Disabled"
+                    qsTrId("whisperfish-settings-encrypted-db-disabled")
             }
         }
     }

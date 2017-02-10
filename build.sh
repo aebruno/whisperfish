@@ -67,6 +67,13 @@ case "$1" in
                 mb2 -x -t SailfishOS-armv7hl build
             fi
             ;;
+        i18n)
+            # Compile translations
+            for filename in qml/i18n/whisperfish_*.ts; do
+                name="${filename%.*}"
+                sb2 lrelease -idbased  ${name}.ts -qm ${name}.qm
+            done
+            ;;
         deploy)
             mb2 -x -s rpm/$APPNAME.spec -d "SailfishOS Emulator" deploy  --sdk
             ;;

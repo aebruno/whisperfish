@@ -53,7 +53,9 @@ ApplicationWindow
         if(SettingsBridge.boolValue("show_notify_message")) {
             m.body = message
         } else {
-            m.body = qsTr("New Message")
+            //: Default label for new message notification
+            //% "New Message"
+            m.body = qsTrId("whisperfish-notification-default-message")
         }
         m.category = "harbour-whisperfish-message"
         m.previewSummary = source
@@ -172,5 +174,19 @@ ApplicationWindow
             console.log("Ethernet connection changed")
             mainWindow.checkConnection()
         }
+    }
+
+    function logSectionHeaders() {
+        //: Session section label for today
+        //% "Today"
+        console.log(qsTrId("whisperfish-session-section-today"))
+
+        //: Session section label for yesterday
+        //% "Yesterday"
+        console.log(qsTrId("whisperfish-session-section-yesterday"))
+
+        //: Session section label for older
+        //% "Older"
+        console.log(qsTrId("whisperfish-session-section-older"))
     }
 }

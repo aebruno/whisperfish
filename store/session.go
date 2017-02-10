@@ -20,7 +20,6 @@ package store
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aebruno/textsecure"
@@ -55,20 +54,6 @@ func (s *Session) ContactIdentity() string {
 	return fmt.Sprintf("% 0X", id)
 }
 
-func (s *Session) SetSection() {
-	ts := time.Unix(0, int64(1000000*s.Timestamp)).Local()
-	now := time.Now().Local()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
-	diff := today.Sub(ts)
-	if diff.Seconds() <= 0.0 {
-		s.Section = "Today"
-	} else if diff.Seconds() >= 0 && diff.Hours() <= (24*7) {
-		s.Section = ts.Weekday().String()
-	} else {
-		s.Section = "Older"
-	}
-}
-
 func (ds *DataStore) FetchSessionBySource(source string) (*Session, error) {
 	session := Session{}
 	err := ds.dbx.Get(&session, `
@@ -91,8 +76,6 @@ func (ds *DataStore) FetchSessionBySource(source string) (*Session, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	session.SetSection()
 
 	return &session, nil
 }
@@ -120,8 +103,6 @@ func (ds *DataStore) FetchSessionByGroupID(groupID string) (*Session, error) {
 		return nil, err
 	}
 
-	session.SetSection()
-
 	return &session, nil
 }
 
@@ -148,8 +129,6 @@ func (ds *DataStore) FetchSession(id int64) (*Session, error) {
 		return nil, err
 	}
 
-	session.SetSection()
-
 	return &session, nil
 }
 
@@ -174,10 +153,6 @@ func (ds *DataStore) FetchAllSessions() ([]*Session, error) {
 	order by s.timestamp desc`)
 	if err != nil {
 		return nil, err
-	}
-
-	for _, s := range sessions {
-		s.SetSection()
 	}
 
 	return sessions, nil

@@ -22,10 +22,24 @@ Page {
     Connections {
         target: SetupWorker
         onRegistrationSuccess: {
-            setupRemorse.execute("Registration complete!", function() { console.log("Registration complete") })
+            //: Registration complete remorse message
+            //% "Registration complete!"
+            setupRemorse.execute(qsTrId("whisperfish-registration-complete"), function() { console.log("Registration complete") })
         }
         onInvalidDatastore: {
-            setupRemorse.execute("Failed to setup datastore!", function() { console.log("Failed to setup datastore") })
+            //: Failed to setup datastore error message
+            //% "ERROR - Failed to setup datastore"
+            setupRemorse.execute(qsTrId("whisperfish-error-invalid-datastore"), function() { console.log("Failed to setup datastore") })
+        }
+        onInvalidPhoneNumber: {
+            //: Invalid phone number error message
+            //% "ERROR - Invalid phone number registered with Signal"
+            setupRemorse.execute(qsTrId("whisperfish-error-invalid-number"), function() { console.log("Invalid phone numberi registered with signal") })
+        }
+        onClientFailed: {
+            //: Failed to setup signal client error message
+            //% "ERROR - Failed to setup Signal client"
+            setupRemorse.execute(qsTrId("whisperfish-error-setup-client"), function() { console.log("Failed to setup Signal client") })
         }
     }
 
@@ -39,16 +53,22 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("About Whisperfish")
+                //: About whisperfish menu item
+                //% "About Whisperfish"
+                text: qsTrId("whisperfish-about-menu")
                 onClicked: pageStack.push(Qt.resolvedUrl("About.qml"))
             }
             MenuItem {
-                text: qsTr("Settings")
+                //: Whisperfish settings menu item
+                //% "Settings"
+                text: qsTrId("whisperfish-settings-menu")
                 enabled: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
             MenuItem {
-                text: qsTr("New Message")
+                //: Whisperfish new message menu item
+                //% "New Message"
+                text: qsTrId("whisperfish-new-message-menu")
                 enabled: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("NewMessage.qml"))
             }
@@ -58,12 +78,20 @@ Page {
 
         ViewPlaceholder {
             enabled: sessionView.count == 0
-            text: SetupWorker.locked ? qsTr("Whisperfish") : qsTr("No messages")
+            text: SetupWorker.locked ? 
+                "Whisperfish" : 
+                //: Whisperfish no messages found message
+                //% "No messages"
+                qsTrId("whisperfish-no-messages-found")
             hintText: {
                 if(!SetupWorker.registered) {
-                    qsTr("Registration required")
+                    //: Whisperfish registration required message
+                    //% "Registration required"
+                    qsTrId("whisperfish-registration-required-message")
                 } else if(SetupWorker.locked) {
-                    qsTr("Locked")
+                    //: Whisperfish locked message
+                    //% "Locked"
+                    qsTrId("whisperfish-locked-message")
                 } else {
                     ""
                 }
