@@ -83,16 +83,16 @@ func (m *Message) SaveAttachment(dir string, a *textsecure.Attachment) error {
 }
 
 func (ds *DataStore) SaveMessage(msg *Message) error {
-	cols := []string{"session_id", "source", "message", "timestamp", "outgoing", "sent", "received", "flags", "attachment", "mime_type", "has_attachment"}
-	if msg.ID > int64(0) {
-		cols = append(cols, "id")
-	}
-
 	tx, err := ds.dbx.Beginx()
 	if err != nil {
 		return err
 	}
 	defer tx.Commit()
+
+	cols := []string{"session_id", "source", "message", "timestamp", "outgoing", "sent", "received", "flags", "attachment", "mime_type", "has_attachment"}
+	if msg.ID > int64(0) {
+		cols = append(cols, "id")
+	}
 
 	query := "insert or replace into message ("
 	query += strings.Join(cols, ",")
@@ -108,7 +108,7 @@ func (ds *DataStore) SaveMessage(msg *Message) error {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Info("Failed to fetch last insert id for message")
-		// XXX Should we bail here?
+		return err
 	}
 
 	return nil
@@ -146,16 +146,29 @@ func (ds *DataStore) FetchAllMessages(sessionID int64) ([]*Message, error) {
 }
 
 func (ds *DataStore) DeleteMessage(id int64) error {
-	_, err := ds.dbx.Exec(`delete from message where id = ?`, id)
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
+
+	_, err = tx.Exec(`delete from message where id = ?`, id)
 	return err
 }
 
 func (ds *DataStore) DeleteAllMessages(sid int64) error {
-	_, err := ds.dbx.Exec(`delete from message where session_id = ?`, sid)
+	tx, err := ds.dbx.Beginx()
 	if err != nil {
 		return err
 	}
-	_, err = ds.dbx.Exec(`delete from session where id = ?`, sid)
+	defer tx.Commit()
+
+	_, err = tx.Exec(`delete from message where session_id = ?`, sid)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(`delete from session where id = ?`, sid)
 	return err
 }
 
@@ -166,7 +179,7 @@ func (ds *DataStore) MarkMessageSent(id int64, ts uint64) error {
 	}
 	defer tx.Commit()
 
-	_, err = ds.dbx.Exec(`update message set timestamp = ?, sent = 1 where id = ?`, ts, id)
+	_, err = tx.Exec(`update message set timestamp = ?, sent = 1 where id = ?`, ts, id)
 	return err
 }
 
@@ -185,7 +198,7 @@ func (ds *DataStore) MarkMessageReceived(source string, ts uint64) (int64, int64
 
 	rec := record{}
 
-	err = ds.dbx.Get(&rec, `
+	err = tx.Get(&rec, `
 		select id,session_id,timestamp
 		from message 
 		where timestamp = ?
@@ -194,13 +207,13 @@ func (ds *DataStore) MarkMessageReceived(source string, ts uint64) (int64, int64
 		return 0, 0, err
 	}
 
-	_, err = ds.dbx.Exec(`update message set received = 1 where id = ?`, rec.MessageID)
+	_, err = tx.Exec(`update message set received = 1 where id = ?`, rec.MessageID)
 	if err != nil {
 		return 0, 0, err
 	}
 
 	// only update session if timestamps match
-	_, err = ds.dbx.Exec(`update session set received = 1 where id = ? and timestamp = ?`, rec.SessionID, rec.Timestamp)
+	_, err = tx.Exec(`update session set received = 1 where id = ? and timestamp = ?`, rec.SessionID, rec.Timestamp)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":     err,
@@ -287,7 +300,13 @@ func (ds *DataStore) QueueSent(message *Message) error {
 }
 
 func (ds *DataStore) DequeueSent(id int64) error {
-	_, err := ds.dbx.Exec(`delete from sentq where message_id = ?`, id)
+	tx, err := ds.dbx.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Commit()
+
+	_, err = tx.Exec(`delete from sentq where message_id = ?`, id)
 	if err != nil {
 		return err
 	}

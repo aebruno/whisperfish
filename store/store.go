@@ -60,7 +60,7 @@ type DataStore struct {
 // Create new data store at path. If salt and password are provided the store will
 // be encrypted
 func NewDataStore(dbPath, saltPath, password string) (*DataStore, error) {
-	dsn := dbPath
+	params := "_busy_timeout=5000&cache=shared"
 
 	if password != "" && saltPath != "" {
 		log.Info("Connecting to encrypted data store")
@@ -72,10 +72,10 @@ func NewDataStore(dbPath, saltPath, password string) (*DataStore, error) {
 			return nil, err
 		}
 
-		dsn = fmt.Sprintf("%s?_pragma_key=x'%X'&_pragma_cipher_page_size=4096", dbPath, key)
+		params = fmt.Sprintf("%s&_pragma_key=x'%X'&_pragma_cipher_page_size=4096", params, key)
 	}
 
-	db, err := sqlx.Open("sqlite3", dsn)
+	db, err := sqlx.Open("sqlite3", fmt.Sprintf("%s?%s", dbPath, params))
 	if err != nil {
 		return nil, err
 	}

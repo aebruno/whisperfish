@@ -31,18 +31,19 @@ ApplicationWindow
         Notification {}
     }
 
-    function activateSession(sid, source, isGroup) {
+    function activateSession(sid, name, source, isGroup) {
+        console.log("Activating session for source: "+source)
         SessionModel.markRead(sid)
         MessageModel.load(
             sid,
-            ContactModel.name(source),
+            name,
             ContactModel.identity(source),
             source,
             isGroup
         )
     }
 
-    function newMessageNotification(sid, source, message, isGroup) {
+    function newMessageNotification(sid, name, source, message, isGroup) {
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == "main" ||
            (sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
@@ -58,15 +59,15 @@ ApplicationWindow
             m.body = qsTrId("whisperfish-notification-default-message")
         }
         m.category = "harbour-whisperfish-message"
-        m.previewSummary = source
+        m.previewSummary = name
         m.previewBody = m.body
-        m.summary = source
+        m.summary = name
         m.clicked.connect(function() {
             console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
             pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), {}, PageStackAction.Immediate)
-            mainWindow.activateSession(sid, source, isGroup)
+            mainWindow.activateSession(sid, name, source, isGroup)
         })
         // This is needed to call default action
         m.remoteActions = [ {
@@ -102,7 +103,7 @@ ApplicationWindow
             }
         }
         onNotifyMessage: {
-            newMessageNotification(sid, ContactModel.name(source), message)
+            newMessageNotification(sid, ContactModel.name(source), source, message, isGroup)
         }
     }
 

@@ -18,11 +18,9 @@
 package store
 
 import (
-	"fmt"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/aebruno/textsecure"
 )
 
 type Session struct {
@@ -39,19 +37,6 @@ type Session struct {
 	Sent          bool   `db:"sent"`
 	Received      bool   `db:"received"`
 	HasAttachment bool   `db:"has_attachment"`
-}
-
-// Returns identity of session contact
-func (s *Session) ContactIdentity() string {
-	id, err := textsecure.ContactIdentityKey(s.Source)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to fetch contact identity")
-		return ""
-	}
-
-	return fmt.Sprintf("% 0X", id)
 }
 
 func (ds *DataStore) FetchSessionBySource(source string) (*Session, error) {
@@ -159,16 +144,16 @@ func (ds *DataStore) FetchAllSessions() ([]*Session, error) {
 }
 
 func (ds *DataStore) SaveSession(session *Session) error {
-	cols := []string{"source", "message", "timestamp", "is_group", "group_id", "group_members", "group_name", "unread", "sent", "received", "has_attachment"}
-	if session.ID > int64(0) {
-		cols = append(cols, "id")
-	}
-
 	tx, err := ds.dbx.Beginx()
 	if err != nil {
 		return err
 	}
 	defer tx.Commit()
+
+	cols := []string{"source", "message", "timestamp", "is_group", "group_id", "group_members", "group_name", "unread", "sent", "received", "has_attachment"}
+	if session.ID > int64(0) {
+		cols = append(cols, "id")
+	}
 
 	query := "insert or replace into session ("
 	query += strings.Join(cols, ",")
@@ -190,13 +175,19 @@ func (ds *DataStore) SaveSession(session *Session) error {
 }
 
 func (ds *DataStore) DeleteSession(id int64) error {
-	_, err := ds.dbx.Exec(`delete from session where id = ?`, id)
+	tx, err := ds.dbx.Beginx()
 	if err != nil {
 		return err
 	}
-	_, err = ds.dbx.Exec(`delete from sentq where message_id in (select id from message where session_id = ?)`, id)
+	defer tx.Commit()
 
-	_, err = ds.dbx.Exec(`delete from message where session_id = ?`, id)
+	_, err = tx.Exec(`delete from session where id = ?`, id)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(`delete from sentq where message_id in (select id from message where session_id = ?)`, id)
+
+	_, err = tx.Exec(`delete from message where session_id = ?`, id)
 
 	return err
 }
@@ -208,7 +199,7 @@ func (ds *DataStore) MarkSessionRead(id int64) error {
 	}
 	defer tx.Commit()
 
-	_, err = ds.dbx.Exec(`update session set unread = 0 where id = ?`, id)
+	_, err = tx.Exec(`update session set unread = 0 where id = ?`, id)
 	if err != nil {
 		return err
 	}
@@ -231,6 +222,6 @@ func (ds *DataStore) MarkSessionSent(id int64, msg string, ts uint64) error {
 	}
 	defer tx.Commit()
 
-	_, err = ds.dbx.Exec(`update session set timestamp = ?, message = ?, unread = 0, sent = 1 where id = ?`, ts, msg, id)
+	_, err = tx.Exec(`update session set timestamp = ?, message = ?, unread = 0, sent = 1 where id = ?`, ts, msg, id)
 	return err
 }
