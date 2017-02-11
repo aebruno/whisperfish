@@ -20,6 +20,7 @@ package ui
 import (
 	"os"
 	"path/filepath"
+	"syscall"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aebruno/textsecure"
@@ -40,6 +41,9 @@ const (
 
 // Create new DataStore
 func NewStorage(dataPath, password string) (*store.DataStore, error) {
+	// Set more restrictive umask to ensure database files are created 0600
+	syscall.Umask(0077)
+
 	var settings = settings.NewSettings(nil)
 
 	dbDir := filepath.Join(dataPath, "db")
