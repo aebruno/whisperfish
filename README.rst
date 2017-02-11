@@ -45,10 +45,8 @@ Building from source
 Whisperfish uses `Glide <https://glide.sh/>`_ for package management. Ensure you
 have a working Go runtime and that your GOPATH is set. Whisperfish uses QT
 bindings for Go. More information on installing this library can be found 
-`here <https://github.com/therecipe/qt>`_. Sailfish currently uses QT 5.2.0 so
-you'll need to download this version of QT 
-`here <https://download.qt.io/archive/qt/5.2/5.2.0/>`_. The build scripts assume
-you've installed QT here: $HOME/Qt5.2.0. You'll also need the `MerSDK
+`here <https://github.com/therecipe/qt>`_. The build scripts assume
+you've installed QT here: $HOME/Qt5.x.x. You'll also need the `MerSDK
 <https://sailfishos.org/wiki/Application_SDK_Installation>`_.
 
 To build Whisperfish from source::
@@ -56,7 +54,7 @@ To build Whisperfish from source::
     $ git clone https://github.com/aebruno/whisperfish.git
     $ cd whisperfish
     $ glide install
-    $ ./build.sh rebuildqt
+    $ ./build.sh bootstrap-qt
     $ ./build.sh prep
 
     $ ssh to merdsk
@@ -85,13 +83,16 @@ version (``mb2 -x``). To add git hashes to the package version modify the
 i18n Translations (help wanted)
 -------------------------------------------------------------------------------
 
-Whisperfish supports i18n translations. To translate the application strings in
-your language run (for example German)::
+Whisperfish supports i18n translations and uses Text ID Based Translations. See
+`here <http://doc.qt.io/qt-5/linguist-id-based-i18n.html>`_ for more info. To
+translate the application strings in your language run (for example German)::
 
     $ cd whisperfish
-    $ sb2 lupdate qml/pages -ts qml/i18n/qml_de.ts
-    [edit qml_de.ts]
-    $ sb2 lrelease qml/i18n/qml_de.ts -qm qml/i18n/qml_de.qm
+    $ sb2 lupdate qml/ -ts qml/i18n/whisperfish_de.ts
+    [edit whisperfish_de.ts]
+    $ sb2 lrelease -idbased qml/i18n/whisperfish_de.ts -qm qml/i18n/whisperfish_de.qm
+
+Currently translations are only accepted through github pull requests.
 
 -------------------------------------------------------------------------------
 License

@@ -1,5 +1,5 @@
-hash: 334908ac96179d8f6e1b178dd4b31510aba08f0a130261503a03a733621924c1
-updated: 2017-01-05T12:42:12.999348972-05:00
+hash: d20595e0e07aacf2ab1cb75d208d7040cc10a278c45dd9ff28b150edeff511ac
+updated: 2017-02-10T23:17:44.544203704-05:00
 imports:
 - name: bitbucket.org/taruti/mimemagic
   version: e5179c80a024fe516da65f0b006f56fa7800694e
@@ -9,13 +9,6 @@ imports:
   version: 278e1ec8e8a6e017cd07577924d6766039146ced
   subpackages:
   - edwards25519
-- name: github.com/emirpasic/gods
-  version: efcbbe62748bdffae6f7e29fddd0324d108022db
-  subpackages:
-  - containers
-  - lists
-  - lists/arraylist
-  - utils
 - name: github.com/golang/protobuf
   version: 8ee79997227bf9b34611aee7946ae64735e6fd93
   subpackages:
@@ -33,6 +26,8 @@ imports:
   version: 398dd5876282499cdfd4cb8ea0f31a672abe9495
   subpackages:
   - reflectx
+- name: github.com/mutecomm/go-sqlcipher
+  version: 23f3da79a822938b308480e190972e41323adda9
 - name: github.com/rogpeppe/fastuuid
   version: 6724a57986aff9bff1a1770e9347036def7c89f6
 - name: github.com/Sirupsen/logrus
@@ -41,8 +36,6 @@ imports:
   version: 7f152c3cf4714fd6318739f8f3dbcd14c2a18b39
 - name: github.com/ttacon/libphonenumber
   version: 1197dfb91fa03c779576ad248ad5ca0a43fb3a31
-- name: github.com/mutecomm/go-sqlcipher
-  version: 23f3da79a822938b308480e190972e41323adda9
 - name: golang.org/x/crypto
   version: b6789ab629056511030d652d851e7dc10c9e9c9e
   subpackages:
@@ -50,6 +43,7 @@ imports:
   - hkdf
   - pbkdf2
   - scrypt
+  - ssh/terminal
 - name: golang.org/x/sys
   version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:

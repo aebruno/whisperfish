@@ -1,9 +1,21 @@
 #!/bin/bash
 
+#==============================================================================
+# Whisperfish build script
+#==============================================================================
+#
+# This script preforms the following functions:
+#
+# - Bootstrap github.com/therecipe/qt Go bindings
+# - Create i386 go binary for use on mersdk
+# - Runs qtmoc and qtminmal code generation
+# - Compiles whisperfish
+# - Build translation *.qm files using lrelease
+# - Deploys whisperfish to Sailfish emulator
+# - Creates RPM release for Jolla (armv7hl) device
+#
+
 APPNAME=harbour-whisperfish
-QT_VERSION=5.2.0
-QT_DIR=$HOME/Qt5.2.0
-QT_DOC_DIR=$QT_DIR/5.2.0/gcc_64/doc/
 VERSION=$(git describe --long --tags --dirty --always 2>/dev/null | cut -f2 -d'v')
 
 case "$1" in
@@ -24,9 +36,6 @@ case "$1" in
             go install .
             popd
             ;;
-        setup-qt)
-            QT_VERSION=$QT_VERSION QT_DIR=$QT_DIR QT_DOC_DIR=$QT_DOC_DIR QT_PKG_CONFIG=true $GOPATH/bin/qtsetup generate sailfish-emulator
-            ;;
         setup-mer)
             GOARCH=386 $GOROOT/src/run.bash
             ;;
@@ -34,13 +43,13 @@ case "$1" in
             qtmoc $PWD/settings
             qtmoc $PWD/model
             qtmoc $PWD/worker
-            #QT_VERSION=$QT_VERSION QT_DIR=$QT_DIR QT_DOC_DIR=$QT_DOC_DIR QT_PKG_CONFIG=true $GOPATH/bin/qtminimal sailfish-emulator $PWD
             $GOPATH/bin/qtminimal sailfish-emulator $PWD
             ;;
         prep-arm)
-            qtmoc $PWD/client
+            qtmoc $PWD/settings
             qtmoc $PWD/model
-            QT_VERSION=$QT_VERSION QT_DIR=$QT_DIR QT_DOC_DIR=$QT_DOC_DIR QT_PKG_CONFIG=true $GOPATH/bin/qtminimal sailfish $PWD
+            qtmoc $PWD/worker
+            $GOPATH/bin/qtminimal sailfish $PWD
             ;;
         compile)
             rm -f $APPNAME
@@ -76,6 +85,11 @@ case "$1" in
             ;;
         deploy)
             mb2 -x -s rpm/$APPNAME.spec -d "SailfishOS Emulator" deploy  --sdk
+            ;;
+        clean)
+            rm -f settings/moc*
+            rm -f model/moc*
+            rm -f worker/moc*
             ;;
         *)
             echo $"Usage: $0 {prep|prep-arm|compile|rpm|deploy}"

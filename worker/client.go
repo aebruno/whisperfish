@@ -17,11 +17,6 @@
 
 package worker
 
-/*
-   .Duration(
-   .UpdateCurrentTime(
-*/
-
 import (
 	"time"
 
@@ -176,3 +171,13 @@ func (c *ClientWorker) ReceiptHandler(source string, devID uint32, ts uint64) {
 
 	c.MessageReceipt(sessionID, messageID)
 }
+
+/*
+    XXX This is currently a bug in the go qt bindings. Including this comment
+    is dirty fix for unimplemented pure virtual functions. This will be removed
+    once a better parser is implemented. For more information see here:
+    https://github.com/therecipe/qt/issues/220
+
+   .Duration(
+   .UpdateCurrentTime(
+*/

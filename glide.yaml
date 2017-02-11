@@ -1,6 +1,8 @@
 package: github.com/aebruno/whisperfish
 homepage: https://github.com/aebruno/whisperfish
 license: GPLv3
+ignore:
+- github.com/therecipe/qt
 import:
 - package: github.com/Sirupsen/logrus
 - package: github.com/aebruno/textsecure
@@ -19,7 +21,4 @@ import:
 - package: gopkg.in/yaml.v2
 - package: github.com/ttacon/builder
 - package: github.com/gorilla/websocket
-- package: github.com/emirpasic/gods
-  subpackages:
-  - lists/arraylist
 - package: github.com/mutecomm/go-sqlcipher
