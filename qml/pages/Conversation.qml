@@ -34,7 +34,11 @@ Page {
                 editorFocus: conversation.editorFocus
 
                 onSendMessage: {
-                    MessageModel.createMessage(MessageModel.peerTel, text, "", attachmentPath, true)
+                    var sid = MessageModel.createMessage(MessageModel.peerTel, text, "", attachmentPath, true)
+                    if(sid > 0) {
+                        // Update session model
+                        SessionModel.add(sid, true)
+                    }
                 }
             }
         }
