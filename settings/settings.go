@@ -173,12 +173,12 @@ func (s *Settings) Setup(configDir, storageDir string) error {
 	if attachDir == "" {
 		attachDir = filepath.Join(storageDir, "attachments")
 		os.MkdirAll(attachDir, 0700)
+		s.SetString("attachment_dir", attachDir)
 	}
 
 	stat, err := os.Stat(attachDir)
 	if os.IsNotExist(err) {
-		attachDir = filepath.Join(storageDir, "attachments")
-		s.SetString("attachment_dir", attachDir)
+		return fmt.Errorf("Attachment dir does not exist: %s", err)
 	} else if err != nil {
 		return fmt.Errorf("Failed to read attachment dir: %s", err)
 	} else if !stat.IsDir() {
