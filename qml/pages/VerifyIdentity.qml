@@ -49,7 +49,7 @@ Page {
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
                 width: parent.width
-                text: MessageModel.numericFingerprint(SetupWorker.phoneNumber, MessageModel.peerTel)
+                text: MessageModel.numericFingerprint(SetupWorker.localId, MessageModel.peerTel)
             }
 
             TextArea {

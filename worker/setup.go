@@ -46,6 +46,7 @@ type SetupWorker struct {
 	_ bool   `property:"locked"`
 	_ bool   `property:"registered"`
 	_ string `property:"phoneNumber"`
+	_ string `property:"localId"`
 	_ string `property:"identity"`
 	_ bool   `property:"encryptedKeystore"`
 	_ func() `constructor:"init"`
@@ -148,6 +149,7 @@ func (s *SetupWorker) Run(client *textsecure.Client) {
 	}
 
 	s.SetPhoneNumber(s.phoneNumber())
+	s.SetLocalId(s.config.Tel)
 	s.SetIdentity(s.identity())
 	s.SetEncryptedKeystore(!s.config.UnencryptedStorage)
 	s.SetupComplete()
