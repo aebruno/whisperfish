@@ -18,6 +18,7 @@
 package model
 
 import (
+	"bytes"
 	"os"
 	"strings"
 	"time"
@@ -50,6 +51,7 @@ type MessageModel struct {
 	_ func(id int64)                                                      `slot:"markReceived"`
 	_ func(source, message, groupName, attachment string, add bool) int64 `slot:"createMessage"`
 	_ func(source string)                                                 `slot:"endSession"`
+	_ func(localID, remoteID string) string                               `slot:"numericFingerprint"`
 	_ func(mid int64)                                                     `signal:"sendMessage"`
 	_ func()                                                              `constructor:"init"`
 }
@@ -85,6 +87,7 @@ func (model *MessageModel) init() {
 	model.ConnectMarkReceived(model.markReceived)
 	model.ConnectCreateMessage(model.createMessage)
 	model.ConnectEndSession(model.endSession)
+	model.ConnectNumericFingerprint(model.numericFingerprint)
 
 	model.ConnectTotal(func() int {
 		total, _ := store.DS.TotalMessages()
@@ -368,4 +371,31 @@ func (model *MessageModel) endSession(source string) {
 	model.EndInsertRows()
 
 	model.SendMessage(message.ID)
+}
+
+func (model *MessageModel) numericFingerprint(localID, remoteID string) string {
+	localKey := textsecure.MyIdentityKey()
+	remoteKey, err := textsecure.ContactIdentityKey(remoteID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":  err,
+			"source": model.PeerTel(),
+		}).Error("Failed to fetch contact identity")
+		return ""
+	}
+
+	fp := store.NumericFingerprint(localID, localKey, remoteID, remoteKey)
+
+	var buffer bytes.Buffer
+
+	for i, n := range fp {
+		buffer.WriteRune(n)
+		if (i+1)%20 == 0 {
+			buffer.WriteString("\n")
+		} else if (i+1)%5 == 0 {
+			buffer.WriteString("  ")
+		}
+	}
+
+	return buffer.String()
 }

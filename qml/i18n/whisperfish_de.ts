@@ -28,25 +28,25 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../harbour-whisperfish.qml" line="58"/>
+        <location filename="../harbour-whisperfish.qml" line="59"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../harbour-whisperfish.qml" line="182"/>
+        <location filename="../harbour-whisperfish.qml" line="183"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Heute</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../harbour-whisperfish.qml" line="186"/>
+        <location filename="../harbour-whisperfish.qml" line="187"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Gestern</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../harbour-whisperfish.qml" line="190"/>
+        <location filename="../harbour-whisperfish.qml" line="191"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Älter</translation>
@@ -279,22 +279,22 @@
         <extracomment>Resend message menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
-    <message id="whisperfish-verify-identity-menu">
-        <location filename="../pages/MessagesView.qml" line="158"/>
-        <source>Verify Identity</source>
-        <extracomment>Verify contact identity menu item</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
     <message id="whisperfish-reset-session-menu">
-        <location filename="../pages/MessagesView.qml" line="165"/>
+        <location filename="../pages/VerifyIdentity.qml" line="18"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../pages/MessagesView.qml" line="170"/>
+        <location filename="../pages/VerifyIdentity.qml" line="23"/>
         <source>Resetting secure session</source>
         <extracomment>Reset secure session remorse message</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-numeric-fingerprint-directions">
+        <location filename="../pages/VerifyIdentity.qml" line="64"/>
+        <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
+        <extracomment>Numeric fingerprint instructions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-new-message-title">
@@ -664,21 +664,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../pages/VerifyIdentity.qml" line="24"/>
-        <source>Verify %1</source>
-        <extracomment>Verify contact identity</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message id="whisperfish-contact-identity-section">
-        <location filename="../pages/VerifyIdentity.qml" line="30"/>
-        <source>Their Identity (they read)</source>
-        <extracomment>Contact identity message</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message id="whisperfish-your-identity-section">
-        <location filename="../pages/VerifyIdentity.qml" line="45"/>
-        <source>Your Identity (you read)</source>
-        <extracomment>Your identity message</extracomment>
+        <location filename="../pages/VerifyIdentity.qml" line="44"/>
+        <source>Verify safety numbers</source>
+        <oldsource>Verify %1</oldsource>
+        <extracomment>Verify safety numbers</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

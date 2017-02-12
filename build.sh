@@ -76,6 +76,12 @@ case "$1" in
                 mb2 -x -t SailfishOS-armv7hl build
             fi
             ;;
+        i18n-up)
+            # Update translations
+            for filename in qml/i18n/whisperfish_*.ts; do
+                sb2 lupdate qml/ -ts ${filename}
+            done
+            ;;
         i18n)
             # Compile translations
             for filename in qml/i18n/whisperfish_*.ts; do

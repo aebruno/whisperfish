@@ -6,6 +6,11 @@ Page {
     id: conversation
     objectName: "conversation"
     property bool editorFocus
+    onStatusChanged: {
+        if(status == PageStatus.Active) {
+            pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
+        }
+    }
 
     MessagesView {
         id: messages

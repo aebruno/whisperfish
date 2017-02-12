@@ -151,31 +151,6 @@ SilicaListView {
 
     RemorsePopup { id: remorse }
 
-    PushUpMenu {
-        MenuItem {
-            //: Verify contact identity menu item
-            //% "Verify Identity"
-            text: qsTrId("whisperfish-verify-identity-menu")
-            enabled: MessageModel.peerIdentity.length > 0
-            onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
-        }
-        MenuItem {
-            //: Reset secure session menu item
-            //% "Reset Secure Session"
-            text: qsTrId("whisperfish-reset-session-menu")
-            enabled: MessageModel.peerIdentity.length > 0
-            onClicked: {
-                //: Reset secure session remorse message
-                //% "Resetting secure session"
-                remorse.execute(qsTrId("whisperfish-reset-session-message"),
-                    function() {
-                        console.log("Resetting secure session: "+MessageModel.peerTel)
-                        MessageModel.endSession(MessageModel.peerTel)
-                    })
-            }
-        }
-    }
-
     VerticalScrollDecorator {}
 }
 
