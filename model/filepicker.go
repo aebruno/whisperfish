@@ -42,7 +42,8 @@ func (f *FilePicker) init() {
 		RolePath: core.NewQByteArray2("path", len("path")),
 	})
 
-	f.searchPath = core.QStandardPaths_WritableLocation(core.QStandardPaths__HomeLocation)
+	// XXX Limit to Pictures folder for now? Consider making this configurable
+	f.searchPath = filepath.Join(core.QStandardPaths_WritableLocation(core.QStandardPaths__HomeLocation), "Pictures")
 	f.paths = make([]string, 0)
 
 	f.ConnectData(f.data)

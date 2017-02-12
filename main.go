@@ -27,10 +27,11 @@ import (
 )
 
 var (
-	Version     = "dev-build"
-	versionFlag bool
-	debugFlag   bool
-	convertFlag bool
+	Version        = "dev-build"
+	versionFlag    bool
+	debugFlag      bool
+	convertFlag    bool
+	attachmentFlag bool
 )
 
 func init() {
@@ -39,6 +40,7 @@ func init() {
 	flag.BoolVar(&debugFlag, "debug", false, "debug to file")
 	flag.BoolVar(&debugFlag, "d", false, "debug to file (shorthand)")
 	flag.BoolVar(&convertFlag, "convert", false, "convert datastore")
+	flag.BoolVar(&attachmentFlag, "fix-attachments", false, "Add extensions to attachments")
 }
 
 func main() {
@@ -47,8 +49,12 @@ func main() {
 		fmt.Printf("Whisperfish v%s\n", Version)
 		os.Exit(0)
 	}
+
 	if convertFlag {
 		ui.ConvertDataStore()
+		os.Exit(0)
+	} else if attachmentFlag {
+		ui.AddAttachmentExtensions()
 		os.Exit(0)
 	}
 

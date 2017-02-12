@@ -197,3 +197,7 @@ func (ds *DataStore) Decrypt(path string) error {
 
 	return nil
 }
+
+func (ds *DataStore) DBX() *sqlx.DB {
+	return ds.dbx
+}
