@@ -97,7 +97,7 @@
         <location filename="../pages/AddDevice.qml" line="52"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation>Installiere Signal Desktop. Nutze eine QR-Code Scanner um die URL aus dem QR-Code hinzuzufügen.</translation>
+        <translation>Installiere Signal Desktop. Nutze einen QR-Code Scanner um die URL aus dem QR-Code hinzuzufügen.</translation>
     </message>
     <message id="whisperfish-attachment-from-self">
         <location filename="../pages/AttachmentPage.qml" line="53"/>
@@ -175,7 +175,7 @@
         <location filename="../pages/LinkedDevices.qml" line="94"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation>Letzte aktivität: %1</translation>
+        <translation>Letzte Aktivität: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../pages/LinkedDevices.qml" line="114"/>
@@ -289,13 +289,13 @@
         <location filename="../pages/VerifyIdentity.qml" line="23"/>
         <source>Resetting secure session</source>
         <extracomment>Reset secure session remorse message</extracomment>
-        <translation>Sichere Sitzung wird zurücksetzen</translation>
+        <translation>Sichere Sitzung wird zurückgsetzen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../pages/VerifyIdentity.qml" line="64"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation>Um die Sicherheit, der End-zu-End verschlüsselung zu verifizieren mit %1, vergleiche die obrieben Nummer mit den auf dem Gerät des Gesprächspatner.</translation>
+        <translation>Um die Sicherheit, der Ende-zu-Ende-Verschlüsselung zu verifizieren mit %1, vergleiche die obrige Nummer mit den auf dem Gerät des Gesprächspatner.</translation>
     </message>
     <message id="whisperfish-new-message-title">
         <location filename="../pages/NewMessage.qml" line="67"/>
@@ -391,7 +391,7 @@
         <location filename="../pages/Password.qml" line="97"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish speichert Identitätsschlüssel, Sitzungsverläufe und locale Nachrichten verschlüsselt ab. Das Passwort wird nicht gespeichert, ein Verlust dessen bedeuted, dass Du die Daten nicht wiederherstellen kannst. Beachte: Anhänge werden derzeit unverschlüsselt gespeichert. Das Speichern von Anhängen kann in den Einstellungen deaktiviert werden.</translation>
+        <translation>Whisperfish speichert Identitätsschlüssel, Sitzungsverläufe und lokale Nachrichten verschlüsselt ab. Das Passwort wird nicht gespeichert, ein Verlust dessen bedeuted, dass Du die Daten nicht wiederherstellen kannst. Beachte: Anhänge werden derzeit unverschlüsselt gespeichert. Das Speichern von Anhängen kann in den Einstellungen deaktiviert werden.</translation>
     </message>
     <message id="whisperfish-register-accept">
         <location filename="../pages/Register.qml" line="25"/>
@@ -511,7 +511,7 @@
         <location filename="../pages/Settings.qml" line="117"/>
         <source>General</source>
         <extracomment>Settings page general section</extracomment>
-        <translation>ALlgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message id="whisperfish-settings-country-code">
         <location filename="../pages/Settings.qml" line="124"/>
@@ -559,7 +559,7 @@
         <location filename="../pages/Settings.qml" line="193"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
-        <translation>Websocket status</translation>
+        <translation>Websocket Status</translation>
     </message>
     <message id="whisperfish-settings-connected">
         <location filename="../pages/Settings.qml" line="197"/>
