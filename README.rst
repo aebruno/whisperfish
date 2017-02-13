@@ -91,6 +91,7 @@ Building from source
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
     $ cd $GOPATH/src/github.com/aebruno/whisperfish
     $ ./build.sh compile
+    $ ./build.sh i18n
     $ ./build.sh deploy
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

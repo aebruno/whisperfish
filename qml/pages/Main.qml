@@ -114,13 +114,7 @@ Page {
                 if(model.unread) {
                     SessionModel.markRead(model.id)
                 }
-                MessageModel.load(
-                    model.id,
-                    ContactModel.name(model.source),
-                    ContactModel.identity(model.source),
-                    model.source,
-                    model.isGroup
-                )
+                MessageModel.load(model.id, ContactModel.name(model.source))
             }
         }
     }

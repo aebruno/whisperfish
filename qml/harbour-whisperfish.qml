@@ -31,16 +31,10 @@ ApplicationWindow
         Notification {}
     }
 
-    function activateSession(sid, name, source, isGroup) {
+    function activateSession(sid, name, source) {
         console.log("Activating session for source: "+source)
         SessionModel.markRead(sid)
-        MessageModel.load(
-            sid,
-            name,
-            ContactModel.identity(source),
-            source,
-            isGroup
-        )
+        MessageModel.load(sid, name)
     }
 
     function newMessageNotification(sid, name, source, message, isGroup) {
@@ -67,7 +61,7 @@ ApplicationWindow
             mainWindow.activate()
             showMainPage()
             pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), {}, PageStackAction.Immediate)
-            mainWindow.activateSession(sid, name, source, isGroup)
+            mainWindow.activateSession(sid, name, source)
         })
         // This is needed to call default action
         m.remoteActions = [ {

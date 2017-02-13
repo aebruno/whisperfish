@@ -19,6 +19,7 @@ package model
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -44,7 +45,7 @@ type MessageModel struct {
 	_ func(text string)                                                   `slot:"copyToClipboard"`
 	_ func() int                                                          `slot:"total"`
 	_ func() int                                                          `slot:"unsentCount"`
-	_ func(sid int64, peerName, peerIdentity, peerTel string, group bool) `slot:"load"`
+	_ func(sid int64, peerName string)                                    `slot:"load"`
 	_ func(index int)                                                     `slot:"remove"`
 	_ func(id int64)                                                      `slot:"add"`
 	_ func(id int64)                                                      `slot:"markSent"`
@@ -203,21 +204,44 @@ func (model *MessageModel) mark(mid int64, sent, received bool) {
 }
 
 // Load all messages for given session id.
-func (model *MessageModel) load(sid int64, peerName, peerIdentity, peerTel string, group bool) {
+func (model *MessageModel) load(sid int64, peerName string) {
 	model.BeginResetModel()
 	model.messages = make([]*store.Message, 0)
 	model.EndResetModel()
 
+	sess, err := store.DS.FetchSession(sid)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"sid":   sid,
+		}).Error("No session found")
+		return
+	}
+
 	model.SetSessionId(sid)
-	model.SetPeerName(peerName)
-	model.SetPeerTel(peerTel)
-	model.SetPeerIdentity(peerIdentity)
-	model.SetGroup(group)
 	model.SessionIdChanged(sid)
+
+	model.SetGroup(sess.IsGroup)
+	model.GroupChanged(sess.IsGroup)
+
+	if sess.IsGroup && sess.GroupName != "" {
+		peerName = sess.GroupName
+	} else if peerName == "" {
+		peerName = sess.Source
+	}
+
+	model.SetPeerName(peerName)
 	model.PeerNameChanged(peerName)
-	model.PeerTelChanged(peerTel)
-	model.PeerIdentityChanged(peerIdentity)
-	model.GroupChanged(group)
+
+	model.SetPeerTel(sess.Source)
+	model.PeerTelChanged(sess.Source)
+
+	remoteIdentity, err := textsecure.ContactIdentityKey(sess.Source)
+	if err == nil {
+		identity := fmt.Sprintf("% 0X", remoteIdentity)
+		model.SetPeerIdentity(identity)
+		model.PeerIdentityChanged(identity)
+	}
 
 	messages, err := store.DS.FetchAllMessages(sid)
 	if err != nil {

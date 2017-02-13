@@ -166,13 +166,7 @@ Page {
                         var sid = MessageModel.createMessage(source, text, groupName.text, attachmentPath, false)
                         if(sid > 0) {
                             pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
-                            MessageModel.load(
-                                sid,
-                                ContactModel.name(source),
-                                ContactModel.identity(source),
-                                source,
-                                groupName.text.length > 0
-                            )
+                            MessageModel.load(sid, ContactModel.name(source))
                             SessionModel.add(sid, true)
                         } else {
                             //: Failed to create message
