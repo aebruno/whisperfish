@@ -43,7 +43,8 @@ Building from source
 *These instructions assume you're running Linux*
 
 1. Install Go >= 1.7.1 and setup a proper `GOPATH <https://golang.org/doc/code.html#GOPATH>`_ 
-   somewhere in your home directory, for example ``$HOME/projects/go``.
+   somewhere in your home directory, for example ``GOROOT=$HOME/projects/goroot/go`` and
+   ``GOPATH=$HOME/projects/go``.
 
 2. Install `Glide <https://glide.sh/>`_
 
@@ -63,7 +64,7 @@ Building from source
 
     $ ./build.sh bootstrap-qt
 
-7. Run qtmoc and qtminimal (these are run your local machine not the mersdk)::
+7. Run qtmoc and qtminimal (this is run on your local machine not the mersdk)::
 
     $ ./build.sh prep
 
@@ -72,7 +73,9 @@ Building from source
 
     $ ./build.sh setup-mer
 
-9. Login to mersdk and setup environment. Note only needs to be done once::
+9. Login to mersdk and setup environment. Installing Go in your homedirectory
+   will provide mersdk access to the Go binaries for compiling whisperfish.
+   Note only needs to be done once::
 
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
     $ vim ~/.bashrc
