@@ -17,17 +17,16 @@
 
 APPNAME=harbour-whisperfish
 VERSION=$(git describe --long --tags --dirty --always 2>/dev/null | cut -f2 -d'v')
+GOQT_VERSION=d874b0a4b22e34a1cc253218e2f4ca09c9fe686d
 
 case "$1" in
-        clean-qt)
-            rm -Rf  $GOPATH/src/github.com/therecipe/qt
-            rm -Rf  $GOPATH/pkg/linux_amd64/github.com/therecipe/qt
-            rm -f $GOPATH/bin/{qtmoc,qtsetup,qtminimal}
-            mkdir -p $GOPATH/src/github.com/therecipe
-            ;;
-        rebuild-qt)
+        bootstrap-qt)
             pushd .
-            cd $GOPATH/src/github.com/therecipe/qt
+            mkdir -p $GOPATH/src/github.com/therecipe
+            cd $GOPATH/src/github.com/therecipe
+            git clone https://github.com/therecipe/qt
+            cd qt
+            git checkout $GOQT_VERSION
             cd cmd/qtsetup
             go install .
             cd ../qtmoc
@@ -96,6 +95,23 @@ case "$1" in
             rm -f settings/moc*
             rm -f model/moc*
             rm -f worker/moc*
+            ;;
+        clean-qt)
+            rm -Rf  $GOPATH/src/github.com/therecipe/qt
+            rm -Rf  $GOPATH/pkg/linux_amd64/github.com/therecipe/qt
+            rm -f $GOPATH/bin/{qtmoc,qtsetup,qtminimal}
+            mkdir -p $GOPATH/src/github.com/therecipe
+            ;;
+        rebuild-qt)
+            pushd .
+            cd $GOPATH/src/github.com/therecipe/qt
+            cd cmd/qtsetup
+            go install .
+            cd ../qtmoc
+            go install .
+            cd ../qtminimal
+            go install .
+            popd
             ;;
         *)
             echo $"Usage: $0 {prep|prep-arm|compile|rpm|deploy}"
