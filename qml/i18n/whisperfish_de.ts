@@ -379,7 +379,7 @@
         <location filename="../pages/Password.qml" line="77"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
-        <translation">Passwort überprüfen</translation>
+        <translation>Passwort überprüfen</translation>
     </message>
     <message id="whisperfish-verify-password-placeholder">
         <location filename="../pages/Password.qml" line="80"/>
