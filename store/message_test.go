@@ -1,4 +1,21 @@
-package main
+// Copyright 2016 Andrew E. Bruno
+//
+// This file is part of Whisperfish.
+//
+// Whisperfish is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Whisperfish is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Whisperfish.  If not, see <http://www.gnu.org/licenses/>.
+
+package store
 
 import (
 	"io/ioutil"
@@ -7,11 +24,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/janimo/textsecure"
+	"github.com/aebruno/textsecure"
 )
 
 func TestMessage(t *testing.T) {
-	db, err := newTestDb()
+	ds, err := newTestDataStore()
 	if err != nil {
 		t.Error(err)
 	}
@@ -21,13 +38,13 @@ func TestMessage(t *testing.T) {
 	tel := "+1771111006"
 	text := "Hello World"
 	sess := &Session{Source: tel, Message: text, Timestamp: now}
-	err = SaveSession(db, sess)
+	err = ds.SaveSession(sess)
 	if err != nil {
 		t.Error(err)
 	}
 
 	msg := &Message{SID: sess.ID, Source: tel, Message: text, Timestamp: now}
-	err = SaveMessage(db, msg)
+	err = ds.SaveMessage(msg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -36,7 +53,7 @@ func TestMessage(t *testing.T) {
 		t.Error("Failed to set message ID after insert")
 	}
 
-	messages, err := FetchAllMessages(db, sess.ID)
+	messages, err := ds.FetchAllMessages(sess.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -57,7 +74,7 @@ func TestMessage(t *testing.T) {
 		}
 	}
 
-	total, err := TotalMessages(db)
+	total, err := ds.TotalMessages()
 	if err != nil {
 		t.Error(err)
 	}
@@ -65,10 +82,23 @@ func TestMessage(t *testing.T) {
 	if total != 1 {
 		t.Error("Failed to total messages: got '%d' should be '%d'", total, 1)
 	}
+
+	m, err := ds.FetchMessage(msg.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if m.ID != msg.ID {
+		t.Error("Failed to fetch message by id: got '%d' should be '%d'", m.ID, msg.ID)
+	}
+
+	if m.Queued {
+		t.Error("Message should not be queued")
+	}
 }
 
 func TestMessageDelete(t *testing.T) {
-	db, err := newTestDb()
+	ds, err := newTestDataStore()
 	if err != nil {
 		t.Error(err)
 	}
@@ -79,7 +109,7 @@ func TestMessageDelete(t *testing.T) {
 
 	now := uint64(time.Now().UnixNano() / 1000000)
 	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: now}
-	err = SaveMessage(db, msg)
+	err = ds.SaveMessage(msg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -88,7 +118,7 @@ func TestMessageDelete(t *testing.T) {
 		t.Error("Failed to set message ID after insert")
 	}
 
-	messages, err := FetchAllMessages(db, sid)
+	messages, err := ds.FetchAllMessages(sid)
 	if err != nil {
 		t.Error(err)
 	}
@@ -97,12 +127,12 @@ func TestMessageDelete(t *testing.T) {
 		t.Error("Failed to fetch all messages")
 	}
 
-	err = DeleteMessage(db, msg.ID)
+	err = ds.DeleteMessage(msg.ID)
 	if err != nil {
 		t.Error(err)
 	}
 
-	messages, err = FetchAllMessages(db, sid)
+	messages, err = ds.FetchAllMessages(sid)
 	if err != nil {
 		t.Error(err)
 	}
@@ -148,7 +178,7 @@ func TestMessageAttachment(t *testing.T) {
 }
 
 func TestSentq(t *testing.T) {
-	db, err := newTestDb()
+	ds, err := newTestDataStore()
 	if err != nil {
 		t.Error(err)
 	}
@@ -159,17 +189,17 @@ func TestSentq(t *testing.T) {
 	now := uint64(time.Now().UnixNano() / 1000000)
 	msg := &Message{SID: sid, Source: tel, Message: text, Timestamp: now}
 
-	err = SaveMessage(db, msg)
+	err = ds.SaveMessage(msg)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = QueueSent(db, msg)
+	err = ds.QueueSent(msg)
 	if err != nil {
 		t.Error(err)
 	}
 
-	messages, err := FetchSentq(db)
+	messages, err := ds.FetchSentq()
 	if err != nil {
 		t.Error(err)
 	}
@@ -178,12 +208,12 @@ func TestSentq(t *testing.T) {
 		t.Errorf("Incorrect number of messages in sentq: got %d should be 1", len(messages))
 	}
 
-	err = DequeueSent(db, msg.ID)
+	err = ds.DequeueSent(msg.ID)
 	if err != nil {
 		t.Error(err)
 	}
 
-	messages, err = FetchSentq(db)
+	messages, err = ds.FetchSentq()
 	if err != nil {
 		t.Error(err)
 	}

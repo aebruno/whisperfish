@@ -6,7 +6,7 @@ Item {
     height: unreadLabel.height + unreadLabel.y
     Label {
         id: titleLabel
-        text: qsTr("Whisperfish")
+        text: "Whisperfish"
         width: parent.width
         color: Theme.highlightColor
         font.pixelSize: Theme.fontSizeSmall
@@ -20,10 +20,12 @@ Item {
     }
     Label {
         id: statusLabel
-        text: qsTr("New")
+        //: Cover new message label
+        //% "New"
+        text: qsTrId("whisperfish-cover-new-label")
         opacity: 0.6
         width: parent.width
-        visible: sessionModel.unread > 0
+        visible: SessionModel.unread > 0
         font.pixelSize: Theme.fontSizeExtraSmall
         truncationMode: TruncationMode.Fade
         color: Theme.highlightColor
@@ -37,8 +39,8 @@ Item {
         id: unreadLabel
         y: Theme.paddingMedium
         color: Theme.primaryColor
-        text: sessionModel.unread
-        visible: sessionModel.unread > 0
+        text: SessionModel.unread
+        visible: SessionModel.unread > 0
         font {
             pixelSize: Theme.fontSizeHuge
             family: Theme.fontFamilyHeading

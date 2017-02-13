@@ -62,8 +62,9 @@ Page {
                     id: recipientHeader
                     width: parent.width
                     PageHeader {
+                        //: New message page title
                         //% "New message"
-                        title: "New Message"
+                        title: qsTrId("whisperfish-new-message-title")
                         visible: newMessagePage.isPortrait
                     }
                     RecipientField {
@@ -80,36 +81,45 @@ Page {
 
                         function updateConversation() {
                             var invalidContactFound = false
+                            var exists = true
                             for (var i = 0; i < selectedContacts.count; i++) {
                                 var contact = selectedContacts.get(i)
                                 if (contact.property !== undefined && contact.propertyType === "phoneNumber") {
-                                    var c = contactsModel.find(contact.property.number, whisperfish.settings().countryCode)
-                                    if(c.name.length != 0){
-                                        recipients[c.tel] = true
+                                    var tel = ContactModel.format(contact.property.number)
+                                    exists = ContactModel.exists(contact.property.number)
+                                    if(tel.length != 0){
+                                        recipients[tel] = true
                                     } else {
                                         invalidContactFound = true
                                         var p = personComponent.createObject(null)
                                         p.resolvePhoneNumber(contact.property.number, true)
                                         if (p.id) {
-                                            errorLabel.text = "Error: " + p.firstName + " is not in Signal"
+                                            //: Could not format contact phone number error message
+                                            //% "Error: invalid phone number for %1"
+                                            errorLabel.text = qsTrId("whisperfish-error-contact-number-format").arg(p.firstName)
                                         }
                                     }
                                 }
                             }
 
-                            if(invalidContactFound == false && Object.keys(recipients).length > 0){
+                            if(!exists && invalidContactFound == false && Object.keys(recipients).length > 0){
+                                //: Could verify contact is registered with signal
+                                //% "Warning: could not verify contact in Signal"
+                                errorLabel.text = qsTrId("whisperfish-error-verify-contact")
+                                validContacts = Object.keys(recipients).length
+                            } else if(invalidContactFound == false && Object.keys(recipients).length > 0){
                                 validContacts = Object.keys(recipients).length
                                 errorLabel.text = ""
                             }
                         }
 
                         //: A single recipient
-                        //% "recipient"
-                        placeholderText: qsTr("Recipient")
+                        //% "Recipient"
+                        placeholderText: qsTrId("whisperfish-recipient")
 
                         //: Summary of all selected recipients, e.g. "Bob, Jane, 75553243"
                         //% "Recipients"
-                        summaryPlaceholderText: qsTr("Recipients")
+                        summaryPlaceholderText: qsTrId("whisperfish-recipients")
 
                         onFinishedEditing: {
                             textInput.forceActiveFocus()
@@ -123,8 +133,12 @@ Page {
                     TextField {
                         id: groupName
                         width: parent.width
-                        label: "Group Name"
-                        placeholderText: "Group Name"
+                        //: Group name label
+                        //% "Group Name"
+                        label: qsTrId("whisperfish-group-name-label")
+                        //: Group name placeholder
+                        //% "Group Name"
+                        placeholderText: qsTrId("whisperfish-group-name-placeholder")
                         placeholderColor: Theme.highlightColor
                         visible: recipientField.validContacts > 1
                         horizontalAlignment: TextInput.AlignLeft
@@ -149,12 +163,26 @@ Page {
                 onSendMessage: {
                     if (recipientField.validContacts > 0) {
                         var source = Object.keys(recipientField.recipients).join(",")
-                        whisperfish.sendMessage(source, text, groupName.text, attachmentPath)
-                        pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
+                        var sid = MessageModel.createMessage(source, text, groupName.text, attachmentPath, false)
+                        if(sid > 0) {
+                            pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
+                            MessageModel.load(
+                                sid,
+                                ContactModel.name(source),
+                                ContactModel.identity(source),
+                                source,
+                                groupName.text.length > 0
+                            )
+                            SessionModel.add(sid, true)
+                        } else {
+                            //: Failed to create message
+                            //% "Failed to create message"
+                            errorLabel.text = qsTrId("whisperfish-error-message-create")
+                        }
                     } else {
                         //: Invalid recipient error
                         //% "Invalid recipient"
-                        errorLabel.text = qsTrId("Invalid recipients")
+                        errorLabel.text = qsTrId("whisperfish-error-invalid-recipient")
                     }
                 }
             }

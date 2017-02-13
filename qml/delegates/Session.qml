@@ -26,6 +26,7 @@ ListItem {
     id: delegate
     contentHeight: textColumn.height + Theme.paddingMedium + textColumn.y
     menu: contextMenuComponent
+    property var dt: new Date(model.timestamp)
 
     Column {
         id: textColumn
@@ -53,7 +54,7 @@ ListItem {
 
                 truncationMode: TruncationMode.Fade
                 color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
-                text: model.isGroup ? model.groupName : model.name
+                text: model.isGroup ? model.groupName : ContactModel.name(model.source)
             }
         }
 
@@ -66,7 +67,9 @@ ListItem {
                 if (model.message != '') {
                     return model.message
                 } else if (model.hasAttachment) {
-                    return qsTr("Attachment")
+                    //: Session contains an attachment label
+                    //% "Attachment"
+                    return qsTrId("whisperfish-session-has-attachment")
                 }
                 return ''
             }
@@ -97,11 +100,11 @@ ListItem {
             color: delegate.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
             font.pixelSize: Theme.fontSizeExtraSmall
             text: {
-               var re = model.date
+               var re = Format.formatDate(dt, Formatter.TimepointRelative)
                if (model.received) {
-                   re += qsTr("  ✓✓")
+                   re += "  ✓✓"
                } else if (model.sent) {
-                   re += qsTr("  ✓")
+                   re += "  ✓"
                }
                return re
             }
@@ -109,10 +112,12 @@ ListItem {
     }
 
     function remove(contentItem) {
-        contentItem.remorseAction(qsTr("Deleting all messages"),
+        //: Delete all messages from session
+        //% "Deleting all messages"
+        contentItem.remorseAction(qsTrId("whisperfish-session-delete-all"),
             function() {
                 console.log("Deleting all messages for session: "+model.id)
-                whisperfish.deleteAllMessages(model.id)
+                SessionModel.remove(model.index)
             })
     }
 
@@ -122,7 +127,9 @@ ListItem {
         ContextMenu {
             id: menu
             MenuItem {
-                text: qsTr("Delete Conversation")
+                //: Delete all messages from session menu
+                //% "Delete Conversation"
+                text: qsTrId("whisperfish-delete-session")
                 onClicked: remove(menu.parent)
             }
         }

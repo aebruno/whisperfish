@@ -39,7 +39,9 @@ Dialog {
 
     DialogHeader {
         id: title
-        title: qsTr("Select picture")
+        //: Title for image picker page
+        //% "Select picture"
+        title: qsTrId("whisperfish-select-picture")
     }
 
     onStatusChanged: {
@@ -64,7 +66,7 @@ Dialog {
         cellHeight: cellWidth
         cacheBuffer: cellHeight * 2
 
-        model: fileModel
+        model: FilePicker
 
         delegate: Item {
             width: view.cellWidth - 1
@@ -117,7 +119,7 @@ Dialog {
                 anchors.margins: 3
                 //height: 26
                 font.pixelSize: Theme.fontSizeExtraSmall
-                text: model.name
+                text: model.path
                 wrapMode: Text.NoWrap
                 elide: Text.ElideRight
                 horizontalAlignment : Text.AlignHCenter

@@ -28,7 +28,7 @@ SilicaListView {
     verticalLayoutDirection: ListView.BottomToTop
     // Necessary to avoid resetting focus every time a row is added, which breaks text input
     currentIndex: -1
-    quickScroll: false
+    quickScroll: true
 
     delegate: Item {
         id: wrapper
@@ -84,21 +84,37 @@ SilicaListView {
                 id: text
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeExtraSmall
-                text: messageModel.isGroup ? qsTr("Group: "+messageModel.name) : messageModel.name
+                text: MessageModel.group ? 
+                    //: Group message label
+                    //% "Group: %1"
+                    qsTrId("whisperfish-group-label").arg(MessageModel.peerName) : 
+                    MessageModel.peerName
             }
         }
     }
 
     function remove(contentItem) {
-        contentItem.remorseAction(qsTr("Deleting"),
+        //: Deleteing message remorse
+        //% "Deleteing"
+        contentItem.remorseAction(qsTrId("whisperfish-delete-message"),
             function() {
                 console.log("Delete message: "+contentItem.modelData.id)
-                whisperfish.deleteMessage(contentItem.modelData.id)
+                MessageModel.remove(contentItem.modelData.index)
+            })
+    }
+
+    function resend(contentItem) {
+        //: Resend message remorse
+        //% "Resending"
+        contentItem.remorseAction(qsTrId("whisperfish-resend-message"),
+            function() {
+                console.log("Resending message: "+contentItem.modelData.id)
+                MessageModel.sendMessage(contentItem.modelData.id)
             })
     }
 
     function copy(contentItem) {
-        whisperfish.copyToClipboard(contentItem.modelData.message)
+        MessageModel.copyToClipboard(contentItem.modelData.message)
     }
 
     Component {
@@ -111,37 +127,29 @@ SilicaListView {
 
             MenuItem {
                 visible: menu.parent && menu.parent.hasText
-                text: qsTr("Copy")
+                //: Copy message menu item
+                //% "Copy"
+                text: qsTrId("whisperfish-copy-message-menu")
                 onClicked: copy(menu.parent)
             }
             MenuItem {
-                text: qsTr("Delete")
+                //: Delete message menu item
+                //% "Delete"
+                text: qsTrId("whisperfish-delete-message-menu")
                 onClicked: remove(menu.parent)
+            }
+            MenuItem {
+                //: Resend message menu item
+                //% "Resend"
+                text: qsTrId("whisperfish-resend-message-menu")
+                visible: menu.parent && menu.parent.modelData.queued
+                onClicked: resend(menu.parent)
             }
         }
     }
 
 
     RemorsePopup { id: remorse }
-
-    PushUpMenu {
-        MenuItem {
-            text: qsTr("Verify Identity")
-            enabled: messageModel.identity.length > 0
-            onClicked: pageStack.push(Qt.resolvedUrl("VerifyIdentity.qml"))
-        }
-        MenuItem {
-            text: qsTr("Reset Secure Session")
-            enabled: messageModel.identity.length > 0
-            onClicked: {
-                remorse.execute(qsTr("Resetting secure session"),
-                    function() {
-                        console.log("Resetting secure session: "+messageModel.tel)
-                        whisperfish.endSession(messageModel.tel)
-                    })
-            }
-        }
-    }
 
     VerticalScrollDecorator {}
 }

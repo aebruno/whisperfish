@@ -26,7 +26,9 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: qsTr("Add Device")
+            //: Add Device
+            //% "Add Device"
+            text: qsTrId("whisperfish-add-device")
         }
 
         TextArea {
@@ -45,7 +47,9 @@ Dialog {
             width: parent.width
             horizontalAlignment: TextEdit.Center
             readOnly: true
-            text: qsTr("Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.")
+            //: Instructions on how to scan QR code for device linking
+            //% "Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here."
+            text: qsTrId("whisperfish-device-link-instructions")
         }
 
     }

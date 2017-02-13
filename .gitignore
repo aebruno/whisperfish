@@ -4,3 +4,8 @@ whisperfish
 RPMS/
 rpmbuilddir/
 vendor/
+moc_*.cpp
+moc_*.go
+moc_*.h
+moc.*
+qml/i18n/whisperfish_*.qm

@@ -8,26 +8,28 @@ Dialog {
 
     onDone: {
         if (result == DialogResult.Accepted) {
-            resetConfirm("yes")
+            SendWorker.resetPeerIdentity("yes")
         } else {
-            resetConfirm("no")
+            SendWorker.resetPeerIdentity("no")
         }
     }
-
-    signal resetConfirm(string text)
 
     Column {
         width: parent.width
         spacing: Theme.paddingLarge
 
         DialogHeader {
-            acceptText: "Confirm"
+            //: Reset peer identity accept text
+            //% "Confirm"
+            acceptText: qsTrId("whisperfish-reset-peer-accept")
         }
 
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            text: qsTr("Peer identity is not trusted")
+            //: Peer identity not trusted 
+            //% "Peer identity is not trusted"
+            text: qsTrId("whisperfish-peer-not-trusted")
         }
 
         TextArea {
@@ -35,7 +37,9 @@ Dialog {
             width: parent.width
             horizontalAlignment: TextEdit.Center
             readOnly: true
-            text: qsTr("WARNING: "+source+" identity is no longer trusted. Tap Confirm to reset peer identity.")
+            //: Peer identity not trusted message
+            //% "WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity."
+            text: qsTrId("whisperfish-peer-not-trusted-message").arg(source)
         }
 
     }

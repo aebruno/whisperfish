@@ -101,10 +101,10 @@ InverseMouseArea {
         placeholderText: contactName.length ?
         //: Personalized placeholder for chat input, e.g. "Hi John"
         //% "Hi %1"
-                         qsTrId("Hi %1").arg(contactName) :
+             qsTrId("whisperfish-chatinput-contact").arg(contactName) :
         //: Generic placeholder for chat input
         //% "Hi"
-                         qsTrId("Hi")
+             qsTrId("whisperfish-chatinput-generic")
     }
 
     onClickedOutside: textField.focus = false
@@ -133,14 +133,11 @@ InverseMouseArea {
         onClicked: chatInputArea.send()
         visible: true
         onPressAndHold: {
-            //Workaround for rpm validator
             chatInputArea.attachmentPath = ""
-            fileModel.searchPath = "foo"
+            FilePicker.search()
             pageStack.push(imagepicker)
             imagepicker.selected.connect(chatInputArea.setAttachmentPath)
         }
-
-        //% "Send"
     }
 
     Label {

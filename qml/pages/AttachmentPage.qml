@@ -27,8 +27,6 @@ SplitViewPage {
     property alias source: viewer.source
     property var message
 
-    signal copy()
-
     allowedOrientations: Orientation.All
     backNavigation: true
     open: true
@@ -43,23 +41,19 @@ SplitViewPage {
         filter: root.message.mimeType
         content: QtObject { property string type: root.message.mimeType }
 
-        PullDownMenu {
-            id: pullDownMenu
-            MenuItem {
-                //% "Copy to gallery"
-                text: qsTr("Copy to gallery")
-                onClicked: root.copy()
-            }
-        }
-
-
         header: PageHeader {
             function msgDate() {
                 var dt = new Date(root.message.timestamp)
                 return Format.formatDate(dt, Formatter.Timepoint)
             }
-            title: root.message.outgoing ? qsTr("Me") : messageModel.name
             description: msgDate()
+            title: root.message.outgoing ?
+            //: Personalized placeholder showing the attachment is from oneself
+            //% "Me"
+                qsTrId("whisperfish-attachment-from-self") :
+            //: Personalized placeholder showing the attachment is from contact
+            //% "From %1"
+                qsTrId("whisperfish-attachment-from-contact").arg(MessageModel.peerName)
         }
     }
 

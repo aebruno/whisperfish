@@ -8,40 +8,48 @@ Page {
         id: listView
         anchors.fill: parent
         spacing: Theme.paddingMedium
-        model: deviceModel.len
+        model: DeviceModel
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Add")
+                //: Menu option to add new linked device
+                //% "Add"
+                text: qsTrId("whisperfish-add-linked-device")
                 onClicked: {
                     var d = pageStack.push(Qt.resolvedUrl("AddDevice.qml"))
                     d.addDevice.connect(function(tsurl) {
                         console.log("Add device: "+tsurl)
-                        whisperfish.linkDevice(tsurl)
+                        // TODO: handle errors
+                        DeviceModel.link(tsurl)
                     })
                 }
             }
             MenuItem {
-                text: qsTr("Refresh")
+                //: Menu option to refresh linked devices
+                //% "Refresh"
+                text: qsTrId("whisperfish-refresh-linked-devices")
                 onClicked: {
-                    whisperfish.refreshDevices()
+                    DeviceModel.reload()
                 }
             }
         }
         header: PageHeader {
-            title: qsTr("Linked Devices")
+            //: Title for Linked Devices page
+            //% "Linked Devices"
+            title: qsTrId("whisperfish-linked-devices")
         }
         delegate: ListItem {
             contentHeight: created.y + created.height + lastSeen.height + Theme.paddingMedium
             id: delegate
             menu: deviceContextMenu
-            property QtObject dev: deviceModel.device(index)
 
             function remove(contentItem) {
-                contentItem.remorseAction(qsTr("Deleting"),
+                //: Unlinking remorse info message
+                //% "Unlinking"
+                contentItem.remorseAction(qsTrId("whisperfish-device-unlink-message"),
                     function() {
-                        console.log("Delete device: "+contentItem.dev.id)
-                        whisperfish.unlinkDevice(contentItem.dev.id)
+                        console.log("Unlink device: "+model.index)
+                        DeviceModel.unlink(model.index)
                     })
             }
 
@@ -49,7 +57,11 @@ Page {
                 id: name
                 truncationMode: TruncationMode.Fade
                 font.pixelSize: Theme.fontSizeMedium
-                text: dev.name ? dev.name : qsTr("Device "+dev.id)
+                text: model.name ? 
+                    model.name : 
+                //: Linked device name
+                //% "Device %1"
+                    qsTrId("whisperfish-device-name").arg(model.id)
                 anchors {
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
@@ -57,9 +69,11 @@ Page {
             }
             Label {
                 function createdTime() {
-                    var dt = new Date(dev.created)
+                    var dt = new Date(model.created)
                     var linkDate = Format.formatDate(dt, Formatter.Timepoint)
-                    return qsTr("Linked: "+linkDate)
+                    //: Linked device date
+                    //% "Linked: %1"
+                    return qsTrId("whisperfish-device-link-date").arg(linkDate)
                 }
                 id: created
                 text: createdTime()
@@ -73,9 +87,11 @@ Page {
             Label {
                 id: lastSeen
                 function lastSeenTime() {
-                    var dt = new Date(dev.lastSeen)
+                    var dt = new Date(model.lastSeen)
                     var ls = Format.formatDate(dt, Formatter.DurationElapsed)
-                    return qsTr("Last active: "+ls)
+                    //: Linked device last active date
+                    //% "Last active: %1"
+                    return qsTrId("whisperfish-device-last-active").arg(ls)
                 }
                 text: lastSeenTime()
                 font.pixelSize: Theme.fontSizeExtraSmall
@@ -93,7 +109,9 @@ Page {
                     id: menu
                     width: parent ? parent.width : Screen.width
                     MenuItem {
-                        text: "Delete"
+                        //: Device unlink menu option
+                        //% "Unlink"
+                        text: qsTrId("whisperfish-device-unlink")
                         onClicked: remove(menu.parent)
                     }
                 }

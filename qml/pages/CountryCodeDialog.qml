@@ -12,7 +12,9 @@ Dialog {
         spacing: Theme.paddingMedium
         model: CountryData.isoCountries.length
         header: PageHeader {
-            title: "Choose Country Code"
+            //: Directions for choosing country code
+            //% "Choose Country Code"
+            title: qsTrId("whisperfish-choose-country-code")
         }
         delegate: ListItem {
             Label {

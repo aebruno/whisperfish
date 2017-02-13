@@ -15,36 +15,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Whisperfish.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package model
 
 import (
-	"github.com/aebruno/qml"
-	"github.com/janimo/textsecure"
+	"github.com/therecipe/qt/core"
 )
 
-type DeviceModel struct {
-	devices []textsecure.DeviceInfo
-	Len     int
-}
-
-// Get device by index i
-func (d *DeviceModel) Device(i int) textsecure.DeviceInfo {
-	if i == -1 {
-		return textsecure.DeviceInfo{}
-	}
-	return d.devices[i]
-}
-
-// Refresh list of linked devices
-func (d *DeviceModel) Refresh() error {
-	linkedDevices, err := textsecure.LinkedDevices()
-	if err != nil {
-		return err
-	}
-
-	d.devices = linkedDevices
-	d.Len = len(d.devices)
-	qml.Changed(d, &d.Len)
-
-	return nil
-}
+// Unique list of Roles for the QAbstractListModels
+const (
+	RoleID = int(core.Qt__UserRole) + 1<<iota
+	RoleSessionID
+	RoleSource
+	RoleIsGroup
+	RoleGroupID
+	RoleGroupName
+	RoleGroupMembers
+	RoleMessage
+	RoleSection
+	RoleTimestamp
+	RoleUnread
+	RoleOutgoing
+	RoleSent
+	RoleReceived
+	RoleHasAttachment
+	RoleAttachment
+	RoleMimeType
+	RolePath
+	RoleQueued
+	RoleName
+	RoleCreated
+	RoleLastSeen
+)

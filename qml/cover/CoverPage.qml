@@ -5,7 +5,7 @@ CoverBackground {
     Image {
         x: Theme.paddingLarge
         horizontalAlignment: Text.AlignHCenter
-        source: sessionModel.unread > 0 ? "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-gold.png" : "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png"
+        source: SessionModel.unread > 0 ? "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-gold.png" : "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png"
         anchors {
             bottom: parent.bottom
             bottomMargin: Theme.itemSizeHuge
@@ -17,7 +17,7 @@ CoverBackground {
         CoverAction {
             iconSource: "image://theme/icon-cover-message"
             onTriggered: {
-                if(!whisperfish.locked) {
+                if(!SetupWorker.locked) {
                     mainWindow.activate()
                     mainWindow.newMessage(PageStackAction.Immediate)
                 }

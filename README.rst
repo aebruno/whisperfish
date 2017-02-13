@@ -3,18 +3,10 @@ Whisperfish - Signal client for Sailfish OS
 ===============================================================================
 
 Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
-`Sailfish OS <https://sailfishos.org/>`_. Whisperfish builds on and includes
-code from the following projects:
-
-- `Signal client library in go <https://github.com/janimo/textsecure>`_
-- `go-qml <https://github.com/go-qml/qml>`_ QML support for Go 
-- `Jolla MerSDK Go patches <https://github.com/nekrondev/jolla_go>`_ by nekrondev
-- Backend code is based off the TextSecure client for the Ubuntu Phone written
-  by `janimo <https://github.com/janimo/textsecure-qml>`_ 
-- The user interface is heavily based on the jolla-messages application written
-  by Jolla Ltd.
-- Image picker is from `hangish <https://github.com/rogora/hangish>`_ written
-  by Daniele Rogora
+`Sailfish OS <https://sailfishos.org/>`_. Whisperfish uses the `Signal client
+library for Go <https://github.com/janimo/textsecure>`_ and `Qt binding for Go
+<https://github.com/therecipe/qt>`_.  The user interface is heavily based on
+the jolla-messages application written by Jolla Ltd.
   
 -------------------------------------------------------------------------------
 Project Status
@@ -36,44 +28,90 @@ Features
 - [x] Direct messages
 - [x] Group messages
 - [x] Storing conversations
-- [x] Photo/video attachments
+- [x] Photo attachments
 - [x] Encrypted identity and session store
 - [x] Encrypted message store
 - [x] Advanced user settings
-- [x] Multi-Device support (links with Signal Desktop)
+- [ ] Multi-Device support (links with Signal Desktop)
 - [ ] Encrypted attachments
 - [ ] Archiving conversations
 
 -------------------------------------------------------------------------------
-Developing
+Building from source
 -------------------------------------------------------------------------------
 
-Whisperfish is written in Go. First need to setup `MerSDK
-<https://sailfishos.org/develop/sdk-overview/develop-installation-article/>`_
-and install the Go runtime. More details `here
-<https://github.com/nekrondev/jolla_go>`_. Note Whisperfish now requires Go
-v1.6. 
+*These instructions assume you're running Linux*
 
-Whisperfish uses a patched version of `go-qml <https://github.com/go-qml/qml>`_ 
-for use with Safilish Silica UI. A complete patched version can be found 
-`here <https://github.com/aebruno/qml/tree/whisperfish>`_.
+1. Install Go >= 1.7.1 and setup a proper `GOPATH <https://golang.org/doc/code.html#GOPATH>`_ 
+   somewhere in your home directory, for example ``GOROOT=$HOME/projects/goroot/go`` and
+   ``GOPATH=$HOME/projects/go``.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Building from source
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2. Install `Glide <https://glide.sh/>`_
 
-Whisperfish now uses `Glide <https://glide.sh/>`_ for package management which
-utilizes the new vendor/ directory. First install Glide::
+3. Install Qt 5.7.0 the offical `prebuilt package <https://download.qt.io/official_releases/qt/5.7/5.7.0/qt-opensource-linux-x64-android-5.7.0.run>`_
 
-    $ go get -u github.com/Masterminds/glide
+4. Install `Sailfish OS SDK <https://sailfishos.org/wiki/Application_SDK_Installation>`_
 
-To build Whisperfish from source::
+5. Clone whisperfish and download dependencies::
 
     $ git clone https://github.com/aebruno/whisperfish.git
     $ cd whisperfish
     $ glide install
-    $ go test
-    $ mb2 -x build
+
+6. Download and install Go QT bindings. This will clone
+   https://github.com/therecipe/qt and checkout the specific version that has
+   been known to work with whisperfish::
+
+    $ ./build.sh bootstrap-qt
+
+7. Run qtmoc and qtminimal (this is run on your local machine not the mersdk)::
+
+    $ ./build.sh prep
+
+8. Create i386 Go binary for use in Sailfish SDK. Note this only needs to be
+   done once::
+
+    $ ./build.sh setup-mer
+
+9. Login to mersdk and setup environment. Installing Go in your homedirectory
+   will provide mersdk access to the Go binaries for compiling whisperfish.
+   Note only needs to be done once::
+
+    $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
+    $ vim ~/.bashrc
+    [add these lines to .bashrc]
+    export GOROOT=/home/src1/projects/goroot/go
+    export GOPATH=/home/src1/projects/go
+    export PATH=$GOROOT/bin/linux_386:$PATH
+
+    $ source ~/.bashrc
+
+10. Login to mersdk, compile whisperfish, and deploy to emulator::
+
+    $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
+    $ cd $GOPATH/src/github.com/aebruno/whisperfish
+    $ ./build.sh compile
+    $ ./build.sh deploy
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+i18n Translations (help wanted)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Whisperfish supports i18n translations and uses Text ID Based Translations. See
+`here <http://doc.qt.io/qt-5/linguist-id-based-i18n.html>`_ for more info. To
+translate the application strings in your language run (for example German)::
+
+    $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
+    $ cd $GOPATH/src/github.com/aebruno/whisperfish
+    $ sb2 lupdate qml/ -ts qml/i18n/whisperfish_de.ts
+    [edit whisperfish_de.ts]
+    $ sb2 lrelease -idbased qml/i18n/whisperfish_de.ts -qm qml/i18n/whisperfish_de.qm
+
+Currently translations are only accepted through github pull requests.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Making new releases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *Note*: The latest tag from the current git branch is used in the package
 version (``mb2 -x``). To add git hashes to the package version modify the
@@ -91,53 +129,11 @@ version (``mb2 -x``). To add git hashes to the package version modify the
              # tagver piece copied from tar_git service
              if [[ $(echo $tag | grep "/") ]] ; then
 
-If you have the SailfishOS Emulator you can install the rpm into the emulator
-directly with::
-
-    $ ./deploy
-
-To build the arm binaries::
-
-    $ mb2 -x -t SailfishOS-armv7hl build
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Developing without MerSDK
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It's possible to build and run the tests without installing MerSDK. Here's
-some instructions for building the required devel packages on Debian::
-
-    $ sudo apt-get install libqt5quick5 qtdeclarative5-dev qt5-qmake \
-                           libglib2.0-dev qt5-default libffi-dev libsqlite3-dev \
-                           qtbase5-private-dev qtdeclarative5-private-dev
-
-    $ git clone https://git.merproject.org/mer-core/mlite.git
-    $ cd mlite
-    $ qmake
-    $ make
-    $ sudo make install
-    $ git clone https://github.com/sailfish-sdk/libsailfishapp
-    $ cd libsailfishapp
-    $ qmake
-    $ sudo make install
-
--------------------------------------------------------------------------------
-i18n Translations (help wanted)
--------------------------------------------------------------------------------
-
-Whisperfish supports i18n translations. To translate the application strings in
-your language run (for example German)::
-
-    $ cd whisperfish
-    $ sb2 lupdate qml/pages -ts qml/i18n/qml_de.ts
-    [edit qml_de.ts]
-    $ sb2 lrelease qml/i18n/qml_de.ts -qm qml/i18n/qml_de.qm
-
 -------------------------------------------------------------------------------
 License
 -------------------------------------------------------------------------------
 
-Copyright (C) 2016 Andrew E. Bruno
+Copyright (C) 2016-2017 Andrew E. Bruno
 
 Whisperfish is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software

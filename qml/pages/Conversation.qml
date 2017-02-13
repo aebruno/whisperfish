@@ -6,59 +6,18 @@ Page {
     id: conversation
     objectName: "conversation"
     property bool editorFocus
-
-    property int msglen: messageModel.length
-
-    onMsglenChanged: {
-        refreshMessages()
-    }
-
-    function updateSent(id) {
-        for (var j = 0; j < messages.model.count; j++) {
-            var m = messages.model.get(j)
-            if(m.id == id) {
-                messages.model.setProperty(j, "sent", true)
-            }
+    onStatusChanged: {
+        if(status == PageStatus.Active) {
+            pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
         }
     }
 
-    function updateReceived(id) {
-        for (var j = 0; j < messages.model.count; j++) {
-            var m = messages.model.get(j)
-            if(m.id == id) {
-                messages.model.setProperty(j, "received", true)
-            }
-        }
-    }
-
-    function refreshMessages() {
-        var now = new Date().getTime()
-        messages.model.clear()
-        for (var i = 0; i < messageModel.length; i++) {
-            var m = messageModel.get(i)
-            var dt = new Date(m.timestamp)
-            messages.model.append({
-                'id': m.id,
-                'sid': m.sid,
-                'source': m.source,
-                'message': m.message,
-                'timestamp': m.timestamp,
-                'outgoing': m.outgoing,
-                'sent': m.sent,
-                'received': m.received,
-                'attachment': m.attachment,
-                'mimeType': m.mimeType,
-                'hasAttachment': m.hasAttachment
-            })
-        }
-    }
-    
     MessagesView {
         id: messages
         focus: true
         anchors.fill: parent
 
-        model: ListModel {}
+        model: MessageModel
 
         // Use a placeholder for the ChatTextInput to avoid re-creating the input
         header: Item {
@@ -75,12 +34,16 @@ Page {
             ChatTextInput {
                 id: textInput
                 width: parent.width
-                contactName: messageModel.name
+                contactName: MessageModel.peerName
                 enabled: true
                 editorFocus: conversation.editorFocus
 
                 onSendMessage: {
-                    whisperfish.sendMessage(messageModel.tel, text, "", attachmentPath)
+                    var sid = MessageModel.createMessage(MessageModel.peerTel, text, "", attachmentPath, true)
+                    if(sid > 0) {
+                        // Update session model
+                        SessionModel.add(sid, true)
+                    }
                 }
             }
         }

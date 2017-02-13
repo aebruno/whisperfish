@@ -14,8 +14,8 @@ ApplicationWindow
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
 
-    property var notifications: new Object()
     property bool connected: false
+    property var enumFlags: {'group': 1, 'received': 2, 'unread': 4, 'sent': 8, 'attachment': 16, 'outgoing': 32}
 
     ImagePicker {
         id: imagepicker
@@ -31,30 +31,45 @@ ApplicationWindow
         Notification {}
     }
 
-    function newMessageNotification(id, name, message) {
-        var m = notifications[id]
-        if(m) {
-            m.itemCount++
-        } else {
-            m = messageNotification.createObject(null)
-            m.itemCount = 1
+    function activateSession(sid, name, source, isGroup) {
+        console.log("Activating session for source: "+source)
+        SessionModel.markRead(sid)
+        MessageModel.load(
+            sid,
+            name,
+            ContactModel.identity(source),
+            source,
+            isGroup
+        )
+    }
+
+    function newMessageNotification(sid, name, source, message, isGroup) {
+        if(Qt.application.state == Qt.ApplicationActive &&
+           (pageStack.currentPage.objectName == "main" ||
+           (sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
+           return
         }
-        var body = qsTr("New Message")
-        if(whisperfish.settings().showNotifyMessage) {
-            body = message
-        } else if(m.itemCount > 1) {
-            body += " ("+m.itemCount+")"
+
+        var m = messageNotification.createObject(null)
+        if(SettingsBridge.boolValue("show_notify_message")) {
+            m.body = message
+        } else {
+            //: Default label for new message notification
+            //% "New Message"
+            m.body = qsTrId("whisperfish-notification-default-message")
         }
         m.category = "harbour-whisperfish-message"
         m.previewSummary = name
-        m.previewBody = body
+        m.previewBody = m.body
         m.summary = name
-        m.body = body
         m.clicked.connect(function() {
+            console.log("Activating session: "+sid)
             mainWindow.activate()
-            mainWindow.showSession(id, PageStackAction.Immediate)
+            showMainPage()
+            pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), {}, PageStackAction.Immediate)
+            mainWindow.activateSession(sid, name, source, isGroup)
         })
-        // This is needed to call default action??
+        // This is needed to call default action
         m.remoteActions = [ {
             "name": "default",
             "displayName": "Show Conversation",
@@ -63,57 +78,84 @@ ApplicationWindow
             "path": "/message",
             "iface": "org.whisperfish.session",
             "method": "showConversation",
-            "arguments": [ "id", id ]
+            "arguments": [ "sid", sid ]
         } ]
         m.publish()
-        notifications[id] = m
     }
 
-    function showMainPage(operationType) {
+    Connections {
+        target: ClientWorker
+        onMessageReceived: {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
+                SessionModel.add(sid, true)
+                MessageModel.add(mid)
+            } else {
+                SessionModel.add(sid, false)
+            }
+        }
+        onMessageReceipt: {
+            if(mid > 0 && pageStack.currentPage.objectName == "conversation") {
+                MessageModel.markReceived(mid)
+            }
+
+            if(sid > 0) {
+                SessionModel.markReceived(sid)
+            }
+        }
+        onNotifyMessage: {
+            newMessageNotification(sid, ContactModel.name(source), source, message, isGroup)
+        }
+    }
+
+    Connections {
+        target: SendWorker
+        onMessageSent: {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
+                SessionModel.markSent(sid, message)
+                MessageModel.markSent(mid)
+            } else {
+                SessionModel.markSent(sid, message)
+            }
+        }
+        onPromptResetPeerIdentity: {
+            pageStack.push(Qt.resolvedUrl("pages/ResetPeerIdentity.qml"), { source: source })
+        }
+    }
+
+    function showMainPage() {
         pageStack.clear()
         pageStack.push(Qt.resolvedUrl("pages/Main.qml"), {}, PageStackAction.Immediate)
     }
 
     function newMessage(operationType) {
-        showMainPage(PageStackAction.Immediate)
+        showMainPage()
         pageStack.push(Qt.resolvedUrl("pages/NewMessage.qml"), { }, operationType)
     }
 
-    function removeNotification(id) {
-        var n = notifications[id]
-        if(n) {
-            n.close()
-            n.destroy()
-            delete notifications[id]
-        }
-    }
+    function checkConnection() {
+        var connected = false
 
-    function showSession(id, operationType) {
-        removeNotification(id)
-        showMainPage(PageStackAction.Immediate)
-        whisperfish.setSession(id)
-        pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), { }, operationType)
-    }
-
-    function isConnected() {
         if(wifi.available && wifi.connected) {
-            return true
-        }
-        if(cellular.available && cellular.connected) {
-            return true
-        }
-        if(ethernet.available && ethernet.connected) {
-            return true
+            connected = true
+        } else if(cellular.available && cellular.connected) {
+            connected = true
+        } else if(ethernet.available && ethernet.connected) {
+            connected = true
         }
 
-        return false
+        if(!SetupWorker.locked && connected && !ClientWorker.connected) {
+            ClientWorker.reconnect()
+        } else if(!SetupWorker.locked && !connected && ClientWorker.connected) {
+            ClientWorker.disconnect()
+        }
     }
 
     TechnologyModel {
         id: wifi
         name: "wifi"
         onConnectedChanged: {
-            mainWindow.connected = mainWindow.isConnected()
+            console.log("Wifi connection changed")
+            mainWindow.checkConnection()
         }
     }
 
@@ -121,7 +163,8 @@ ApplicationWindow
         id: cellular
         name: "cellular"
         onConnectedChanged: {
-            mainWindow.connected = mainWindow.isConnected()
+            console.log("Cellular connection changed")
+            mainWindow.checkConnection()
         }
     }
 
@@ -129,7 +172,22 @@ ApplicationWindow
         id: ethernet
         name: "ethernet"
         onConnectedChanged: {
-            mainWindow.connected = mainWindow.isConnected()
+            console.log("Ethernet connection changed")
+            mainWindow.checkConnection()
         }
+    }
+
+    function logSectionHeaders() {
+        //: Session section label for today
+        //% "Today"
+        console.log(qsTrId("whisperfish-session-section-today"))
+
+        //: Session section label for yesterday
+        //% "Yesterday"
+        console.log(qsTrId("whisperfish-session-section-yesterday"))
+
+        //: Session section label for older
+        //% "Older"
+        console.log(qsTrId("whisperfish-session-section-older"))
     }
 }

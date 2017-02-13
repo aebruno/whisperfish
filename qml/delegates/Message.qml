@@ -123,12 +123,14 @@ ListItem {
         text: {
            var re = msgDate()
            if (modelData.received) {
-               re += qsTr("  ✓✓")
+               re += "  ✓✓"
            } else if (modelData.sent) {
-               re += qsTr("  ✓")
+               re += "  ✓"
+           } else if (modelData.queued) {
+               re += "  x"
            }
-           if(inbound && messageModel.isGroup) {
-               re += " | " + contactsModel.name(modelData.source, whisperfish.settings().countryCode)
+           if(inbound && MessageModel.group) {
+               re += " | " + ContactModel.name(modelData.source)
            }
            return re
         }

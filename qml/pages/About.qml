@@ -15,7 +15,9 @@ Page {
 			spacing: Theme.paddingLarge
 			width: parent.width
 			PageHeader {
-				title: qsTr("About Whisperfish")
+                //: Title for about page
+                //% "About Whisperfish"
+				title: qsTrId("whisperfish-about")
 			}
 
 			Image {
@@ -26,7 +28,9 @@ Page {
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.bold: true
-                text: qsTr("Whisperfish v") + Qt.application.version
+                //: Whisperfish version string
+                //% "Whisperfish v%1"
+                text: qsTrId("whisperfish-version").arg(Qt.application.version)
             }
 
             TextArea {
@@ -34,7 +38,9 @@ Page {
                 width: parent.width
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
-                text: qsTr("Signal client for Sailfish OS")
+                //: Whisperfish description
+                //% "Signal client for Sailfish OS"
+                text: qsTrId("whisperfish-description")
             }
 
             TextArea {
@@ -42,12 +48,14 @@ Page {
                 width: parent.width
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
-                text: qsTr("Copyright: Andrew E. Bruno\nLicense: GPLv3")
+                text: "Copyright: Andrew E. Bruno\nLicense: GPLv3"
             }
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Source Code")
+                //: Source Code
+                //% "Source Code"
+                text: qsTrId("whisperfish-source-code")
                 onClicked: {
                     Qt.openUrlExternally("https://github.com/aebruno/whisperfish")
                 }
@@ -55,18 +63,22 @@ Page {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Report a Bug")
+                //: Report a Bug
+                //% "Report a Bug"
+                text: qsTrId("whisperfish-bug-report")
                 onClicked: {
                     Qt.openUrlExternally("https://github.com/aebruno/whisperfish/issues")
                 }
             }
 
             SectionHeader {
-                text: qsTr("Additional Copyright")
+                //: Additional Copyright
+                //% "Additional Copyright"
+                text: qsTrId("whisperfish-extra-copyright")
             }
 
             Label {
-                text: qsTr("Signal client library for Go (C) Jani Monoses.")
+                text: "Signal client library for Go (C) Jani Monoses"
                 anchors.horizontalCenter: parent.horizontalCenter
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
@@ -74,16 +86,6 @@ Page {
                 horizontalAlignment: Text.AlignLeft
                 x: Theme.paddingLarge
             }
-
-			Label {
-				text: qsTr("Go QML bindings (C) Gustavo Niemeyer.")
-				anchors.horizontalCenter: parent.horizontalCenter
-				wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-				width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
-				verticalAlignment: Text.AlignVCenter
-				horizontalAlignment: Text.AlignLeft
-				x: Theme.paddingLarge
-			}
 		}
 	}
 }

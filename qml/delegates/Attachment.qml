@@ -49,7 +49,7 @@ Thumbnail {
         source: iconSource()
 
         function iconSource() {
-            if (messagePart === undefined ||
+            if (messagePart.mimeType === undefined ||
                 messagePart.mimeType.substr(0, 16) === "application/smil" ||
                 messagePart.mimeType.substr(0, 10) === "text/plain")
                 return ""

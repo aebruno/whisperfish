@@ -1,20 +1,41 @@
-package main
+// Copyright 2016 Andrew E. Bruno
+//
+// This file is part of Whisperfish.
+//
+// Whisperfish is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Whisperfish is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Whisperfish.  If not, see <http://www.gnu.org/licenses/>.
+
+package store
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 	"testing"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
-func newTestDb() (*sqlx.DB, error) {
-	key := "9AE7F9E29BF18153C24BE38605A65C759034B611CDA549204D066FC6382BDC2D"
-	return NewDb(fmt.Sprintf(":memory:?_pragma_key=x'%X'&_pragma_cipher_page_size=4096", key))
+func newTestDataStore() (*DataStore, error) {
+	saltFile, err := ioutil.TempFile(os.TempDir(), "whispersalt")
+	if err != nil {
+		return nil, err
+	}
+	defer os.Remove(saltFile.Name())
+	return NewDataStore(":memory:", saltFile.Name(), "secret")
 }
 
 func TestSession(t *testing.T) {
-	db, err := newTestDb()
+	ds, err := newTestDataStore()
 	if err != nil {
 		t.Error(err)
 	}
@@ -22,7 +43,8 @@ func TestSession(t *testing.T) {
 	tel := "+1771111006"
 	now := uint64(time.Now().UnixNano() / 1000000)
 	sess := &Session{Source: tel, Message: "Hello", Timestamp: now}
-	err = SaveSession(db, sess)
+	sess.Unread = true
+	err = ds.SaveSession(sess)
 	if err != nil {
 		t.Error(err)
 	}
@@ -33,7 +55,7 @@ func TestSession(t *testing.T) {
 
 	id := sess.ID
 
-	sess, err = FetchSessionBySource(db, tel)
+	sess, err = ds.FetchSessionBySource(tel)
 	if err != nil {
 		t.Error(err)
 	}
@@ -42,7 +64,7 @@ func TestSession(t *testing.T) {
 		t.Error("Failed to fetch session by tel")
 	}
 
-	sess, err = FetchSession(db, id)
+	sess, err = ds.FetchSession(id)
 	if err != nil {
 		t.Error(err)
 	}
@@ -51,7 +73,7 @@ func TestSession(t *testing.T) {
 		t.Error("Failed to fetch session by id")
 	}
 
-	sessions, err := FetchAllSessions(db)
+	sessions, err := ds.FetchAllSessions()
 	if err != nil {
 		t.Error(err)
 	}
@@ -59,10 +81,19 @@ func TestSession(t *testing.T) {
 	if len(sessions) != 1 {
 		t.Error("Failed to fetch all sessions")
 	}
+
+	total, err := ds.TotalUnread()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if total != 1 {
+		t.Error("Failed to fetch all unread sessions")
+	}
 }
 
 func TestSessionSave(t *testing.T) {
-	db, err := newTestDb()
+	ds, err := newTestDataStore()
 	if err != nil {
 		t.Error(err)
 	}
@@ -73,13 +104,13 @@ func TestSessionSave(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		sess.Message = fmt.Sprintf("Hello: %d", i)
-		err = SaveSession(db, sess)
+		err = ds.SaveSession(sess)
 		if err != nil {
 			t.Error(err)
 		}
 	}
 
-	sessions, err := FetchAllSessions(db)
+	sessions, err := ds.FetchAllSessions()
 	if err != nil {
 		t.Error(err)
 	}
@@ -90,7 +121,7 @@ func TestSessionSave(t *testing.T) {
 }
 
 func TestSessionDelete(t *testing.T) {
-	db, err := newTestDb()
+	ds, err := newTestDataStore()
 	if err != nil {
 		t.Error(err)
 	}
@@ -99,12 +130,12 @@ func TestSessionDelete(t *testing.T) {
 	now := uint64(time.Now().UnixNano() / 1000000)
 	sess := &Session{Source: tel, Message: "Hello", Timestamp: now}
 
-	err = SaveSession(db, sess)
+	err = ds.SaveSession(sess)
 	if err != nil {
 		t.Error(err)
 	}
 
-	sessions, err := FetchAllSessions(db)
+	sessions, err := ds.FetchAllSessions()
 	if err != nil {
 		t.Error(err)
 	}
@@ -113,12 +144,12 @@ func TestSessionDelete(t *testing.T) {
 		t.Errorf("Incorrect number of sessions: got %d should be 1", len(sessions))
 	}
 
-	err = DeleteSession(db, sess.ID)
+	err = ds.DeleteSession(sess.ID)
 	if err != nil {
 		t.Error(err)
 	}
 
-	sessions, err = FetchAllSessions(db)
+	sessions, err = ds.FetchAllSessions()
 	if err != nil {
 		t.Error(err)
 	}
