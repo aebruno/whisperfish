@@ -37,6 +37,29 @@ Features
 - [ ] Archiving conversations
 
 -------------------------------------------------------------------------------
+Performance Tips
+-------------------------------------------------------------------------------
+
+Whisperfish connects to Signal using Websockets. For a better user experience
+try adjusting the power settings on your Jolla to disable late suspend [1].
+This should keep the network interfaces up and allow Whisperfish to maintain
+websocket connections even when the device is in "sleep". This could
+potentially impact your battery life depending on your usage. Otherwise
+every time your device goes into deep sleep, the Websocket connection is broken
+and you may not receive messages until the next time the OS wakes up and
+Whisperfish reconnects.
+
+To disable late suspend and enable "early suspend" run::
+
+    $ mcetool --set-suspend-policy=early    
+
+See here for more information:
+
+[1] https://together.jolla.com/question/55056/dynamic-pm-in-jolla/
+[2] http://talk.maemo.org/showpost.php?p=1401956&postcount=29
+[3] https://sailfishos.org/wiki/Sailfish_OS_Cheat_Sheet#Blocking_Device_Suspend
+
+-------------------------------------------------------------------------------
 Building from source
 -------------------------------------------------------------------------------
 
@@ -48,7 +71,7 @@ Building from source
 
 2. Install `Glide <https://glide.sh/>`_
 
-3. Install Qt 5.7.0 the offical `prebuilt package <https://download.qt.io/official_releases/qt/5.7/5.7.0/qt-opensource-linux-x64-android-5.7.0.run>`_
+3. Install Qt 5.7.0 the official `prebuilt package <https://download.qt.io/official_releases/qt/5.7/5.7.0/qt-opensource-linux-x64-android-5.7.0.run>`_
 
 4. Install `Sailfish OS SDK <https://sailfishos.org/wiki/Application_SDK_Installation>`_
 
@@ -73,7 +96,7 @@ Building from source
 
     $ ./build.sh setup-mer
 
-9. Login to mersdk and setup environment. Installing Go in your homedirectory
+9. Login to mersdk and setup environment. Installing Go in your home directory
    will provide mersdk access to the Go binaries for compiling whisperfish.
    Note only needs to be done once::
 
