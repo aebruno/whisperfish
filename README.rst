@@ -53,11 +53,11 @@ To disable late suspend and enable "early suspend" run::
 
     $ mcetool --set-suspend-policy=early    
 
-See here for more information:
+See here for more information.
 
-[1] https://together.jolla.com/question/55056/dynamic-pm-in-jolla/
-[2] http://talk.maemo.org/showpost.php?p=1401956&postcount=29
-[3] https://sailfishos.org/wiki/Sailfish_OS_Cheat_Sheet#Blocking_Device_Suspend
+1. https://together.jolla.com/question/55056/dynamic-pm-in-jolla/
+2. http://talk.maemo.org/showpost.php?p=1401956&postcount=29
+3. https://sailfishos.org/wiki/Sailfish_OS_Cheat_Sheet#Blocking_Device_Suspend
 
 -------------------------------------------------------------------------------
 Building from source
