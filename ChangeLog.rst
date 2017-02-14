@@ -22,6 +22,9 @@ v0.4.0 (unreleased)
 * Add ability to resend messages
 * Fix #63 Add support for numeric fingerprints
 * Add CLI tool for adding extensions to attachment file names
+* Add Dutch translation by d9h02f
+* Add German translation by Nokius & bonanza123
+* Notifications use chat instead of sms sound
 
 `v0.3.0`_ (2016-06-07)
 ---------------------------

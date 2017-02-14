@@ -4,7 +4,7 @@
 # Whisperfish build script
 #==============================================================================
 #
-# This script preforms the following functions:
+# This script performs the following functions:
 #
 # - Bootstrap github.com/therecipe/qt Go bindings
 # - Create i386 go binary for use on mersdk
