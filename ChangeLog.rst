@@ -2,7 +2,7 @@
 ChangeLog
 ===============================================================================
 
-v0.4.0 (unreleased)
+`v0.4.0`_ (2017-02-14)
 ---------------------------
 
 * Built using SailfishOSSDK-Beta-1611-Qt5-linux-64
@@ -56,3 +56,4 @@ v0.4.0 (unreleased)
 .. _v0.1.1: https://github.com/aebruno/whisperfish/releases/tag/v0.1.1
 .. _v0.2.0: https://github.com/aebruno/whisperfish/releases/tag/v0.2.0
 .. _v0.3.0: https://github.com/aebruno/whisperfish/releases/tag/v0.3.0
+.. _v0.4.0: https://github.com/aebruno/whisperfish/releases/tag/v0.4.0
