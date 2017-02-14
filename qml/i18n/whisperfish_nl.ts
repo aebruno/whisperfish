@@ -415,7 +415,7 @@
         <location filename="../pages/Register.qml" line="46"/>
         <source>18875550100</source>
         <extracomment>Phone number placeholder</extracomment>
-        <translation>18875550100</translation>
+        <translation>32474123456</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../pages/Register.qml" line="58"/>
