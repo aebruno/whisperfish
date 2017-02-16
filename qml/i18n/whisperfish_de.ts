@@ -445,7 +445,7 @@
         <location filename="../pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>WARNUNG: %1 Identität wird nicht länger vertaut. Drücke Bestätigen um die Identität zurückzusetzen</translation>
+        <translation>WARNUNG: %1 Identität wird nicht länger vertraut. Drücke Bestätigen um die Identität zurückzusetzen</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../pages/Settings.qml" line="25"/>
