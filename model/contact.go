@@ -66,7 +66,7 @@ func (c *Contact) init() {
 		return c.contactStore.Len()
 	})
 	c.ConnectRefresh(func() {
-		c.contactStore.Refresh()
+		c.contactStore.Refresh(c.settings.GetString("country_code"))
 		c.RefreshComplete()
 	})
 }

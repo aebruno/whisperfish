@@ -43,8 +43,8 @@ func (c *Contact) Len() int {
 	return len(c.contacts)
 }
 
-func (c *Contact) Refresh() {
-	contacts, err := textsecure.GetRegisteredContacts()
+func (c *Contact) Refresh(country string) {
+	contacts, err := SailfishContacts(country)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -78,7 +78,7 @@ func (c *Contact) Format(tel, countryCode string) string {
 	return n
 }
 
-// Check if contact exists by tel
+// Check if contact is registered with Signal
 func (c *Contact) Exists(tel, countryCode string) bool {
 	num, err := libphonenumber.Parse(tel, countryCode)
 	if err != nil {
@@ -86,7 +86,16 @@ func (c *Contact) Exists(tel, countryCode string) bool {
 	}
 
 	n := libphonenumber.Format(num, libphonenumber.E164)
-	for _, r := range c.contacts {
+
+	contacts, err := textsecure.GetRegisteredContacts()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to fetch signal contacts")
+		return false
+	}
+
+	for _, r := range contacts {
 		if r.Tel == n {
 			return true
 		}
