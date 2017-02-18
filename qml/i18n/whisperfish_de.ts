@@ -193,7 +193,7 @@
         <location filename="../pages/Main.qml" line="32"/>
         <source>ERROR - Failed to setup datastore</source>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation>FEHLER - Datastore konnte nicht erstelt werden</translation>
+        <translation>FEHLER - Datastore konnte nicht erstellt werden</translation>
     </message>
     <message id="whisperfish-error-invalid-number">
         <location filename="../pages/Main.qml" line="37"/>
@@ -205,7 +205,7 @@
         <location filename="../pages/Main.qml" line="42"/>
         <source>ERROR - Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>FEHLER - Signal Client konnte nicht erstellt werden</translation>
+        <translation>FEHLER - Signal Client konnte nicht eingerichtet werden</translation>
     </message>
     <message id="whisperfish-about-menu">
         <location filename="../pages/Main.qml" line="58"/>
@@ -289,13 +289,13 @@
         <location filename="../pages/VerifyIdentity.qml" line="23"/>
         <source>Resetting secure session</source>
         <extracomment>Reset secure session remorse message</extracomment>
-        <translation>Sichere Sitzung wird zurückgsetzen</translation>
+        <translation>Sichere Sitzung wird zurückgesetzt</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../pages/VerifyIdentity.qml" line="64"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation>Um die Sicherheit, der Ende-zu-Ende-Verschlüsselung zu verifizieren mit %1, vergleiche die obrige Nummer mit den auf dem Gerät des Gesprächspatner.</translation>
+        <translation>Um die Sicherheit der Ende-zu-Ende-Verschlüsselung mit %1 zu verifizieren, vergleiche die obrigen Nummern mit denen auf dem Gerät des Gesprächspartners.</translation>
     </message>
     <message id="whisperfish-new-message-title">
         <location filename="../pages/NewMessage.qml" line="67"/>
@@ -307,13 +307,13 @@
         <location filename="../pages/NewMessage.qml" line="99"/>
         <source>Error: invalid phone number for %1</source>
         <extracomment>Could not format contact phone number error message</extracomment>
-        <translation>FEHLER: - Rufnummer is unzulässig für %1</translation>
+        <translation>FEHLER: Rufnummer ist unzulässig für %1</translation>
     </message>
     <message id="whisperfish-error-verify-contact">
         <location filename="../pages/NewMessage.qml" line="108"/>
         <source>Warning: could not verify contact in Signal</source>
         <extracomment>Could verify contact is registered with signal</extracomment>
-        <translation>Warnung: Kontakt konnte nicht verifizieren werden</translation>
+        <translation>Warnung: Kontakt konnte nicht verifiziert werden</translation>
     </message>
     <message id="whisperfish-recipient">
         <location filename="../pages/NewMessage.qml" line="118"/>
@@ -391,7 +391,7 @@
         <location filename="../pages/Password.qml" line="97"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish speichert Identitätsschlüssel, Sitzungsverläufe und lokale Nachrichten verschlüsselt ab. Das Passwort wird nicht gespeichert, ein Verlust dessen bedeuted, dass Du die Daten nicht wiederherstellen kannst. Beachte: Anhänge werden derzeit unverschlüsselt gespeichert. Das Speichern von Anhängen kann in den Einstellungen deaktiviert werden.</translation>
+        <translation>Whisperfish speichert Identitätsschlüssel, Sitzungsverläufe und lokale Nachrichten verschlüsselt ab. Das Passwort wird nicht gespeichert, ein Verlust dessen bedeutet, dass du die Daten nicht wiederherstellen kannst. Beachte: Anhänge werden derzeit unverschlüsselt gespeichert. Das Speichern von Anhängen kann in den Einstellungen deaktiviert werden.</translation>
     </message>
     <message id="whisperfish-register-accept">
         <location filename="../pages/Register.qml" line="25"/>
@@ -409,7 +409,7 @@
         <location filename="../pages/Register.qml" line="43"/>
         <source>Phone number (E.164 format)</source>
         <extracomment>Phone number input</extracomment>
-        <translation>Rufnummer (im E.164 Format</translation>
+        <translation>Rufnummer (im E.164 Format)</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../pages/Register.qml" line="46"/>
@@ -427,7 +427,7 @@
         <location filename="../pages/Register.qml" line="74"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write this down.</source>
         <extracomment>Registration directions</extracomment>
-        <translation>Signal wird dich anrufen, um Dir einen 6-Stelligen Code mitzuteilen. Sei bereit zum notieren.</translation>
+        <translation>Signal wird dich anrufen, um dir einen 6-stelligen Code mitzuteilen. Sei bereit zum Notieren.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../pages/ResetPeerIdentity.qml" line="24"/>
@@ -445,7 +445,7 @@
         <location filename="../pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>WARNUNG: %1 Identität wird nicht länger vertaut. Drücke Bestätige um die Identität zurückzusetzen</translation>
+        <translation>WARNUNG: %1 Identität wird nicht länger vertraut. Drücke Bestätigen um die Identität zurückzusetzen</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../pages/Settings.qml" line="25"/>
@@ -463,7 +463,7 @@
         <location filename="../pages/Settings.qml" line="39"/>
         <source>Refresh Contacts</source>
         <extracomment>Refresh contacts menu</extracomment>
-        <translation>Kontankte aktualisieren</translation>
+        <translation>Kontakte aktualisieren</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../pages/Settings.qml" line="56"/>
@@ -493,7 +493,7 @@
         <location filename="../pages/Settings.qml" line="87"/>
         <source>Notifications</source>
         <extracomment>Settings page notifications section</extracomment>
-        <translation>Mitteilung</translation>
+        <translation>Benachrichtigungen</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable">
         <location filename="../pages/Settings.qml" line="94"/>
@@ -607,13 +607,13 @@
         <location filename="../pages/Settings.qml" line="233"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
-        <translation>Aktivieren</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
         <location filename="../pages/Settings.qml" line="236"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
-        <translation>Deaktivieren</translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
         <location filename="../pages/Settings.qml" line="241"/>
@@ -625,25 +625,25 @@
         <location filename="../pages/Settings.qml" line="245"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
-        <translation>Aktivieren</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
         <location filename="../pages/Settings.qml" line="248"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
-        <translation>Deaktivieren</translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message id="whisperfish-verify-code-accept">
         <location filename="../pages/Verify.qml" line="25"/>
         <source>Verify</source>
         <extracomment>Verify code accept</extracomment>
-        <translation>Überprüft</translation>
+        <translation>Überprüfen</translation>
     </message>
     <message id="whisperfish-verify-code-title">
         <location filename="../pages/Verify.qml" line="33"/>
         <source>Verify Device</source>
         <extracomment>Verify code page title</extracomment>
-        <translation>Überprüfte Geräte</translation>
+        <translation>Überprüfe Gerät</translation>
     </message>
     <message id="whisperfish-verify-code-label">
         <location filename="../pages/Verify.qml" line="43"/>
@@ -661,14 +661,14 @@
         <location filename="../pages/Verify.qml" line="60"/>
         <source>Signal will call you with a 6-digit verification code. Please enter it here.</source>
         <extracomment>Verify code instructions</extracomment>
-        <translation>Signal wird dich anrufen, um Dir einen 6-Stellige Code mitzuteilen. Gib Ihn hier ein.</translation>
+        <translation>Signal wird dich anrufen, um dir einen 6-stelligen Code mitzuteilen. Gib ihn hier ein.</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../pages/VerifyIdentity.qml" line="44"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
-        <translation>Alter der Sicherheitsnummer</translation>
+        <translation>Überprüfe Sicherheitsnummern</translation>
     </message>
 </context>
 </TS>
