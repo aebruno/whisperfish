@@ -2,6 +2,15 @@
 ChangeLog
 ===============================================================================
 
+v0.4.1 (unreleased)
+---------------------------
+
+* Built using SailfishOSSDK-Beta-1611-Qt5-linux-64
+* Tested on Sailfish OS 2.0.5.6 (Haapajoki)
+* Fix #49 Local contacts are resolved in UI even with Shared Contacts disabled
+* Add better network online detection and websocket re-connect
+* Add new cover icons to show online status
+
 `v0.4.0`_ (2017-02-14)
 ---------------------------
 
