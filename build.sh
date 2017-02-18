@@ -35,7 +35,7 @@ case "$1" in
             go install .
             popd
             ;;
-        setup-mer)
+        setup-sdk)
             GOARCH=386 $GOROOT/src/run.bash
             ;;
         prep)

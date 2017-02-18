@@ -87,17 +87,17 @@ Building from source
 
     $ ./build.sh bootstrap-qt
 
-7. Run qtmoc and qtminimal (this is run on your local machine not the mersdk)::
+7. Run qtmoc and qtminimal (this is run on your local machine not the sdk)::
 
     $ ./build.sh prep
 
 8. Create i386 Go binary for use in Sailfish SDK. Note this only needs to be
    done once::
 
-    $ ./build.sh setup-mer
+    $ ./build.sh setup-sdk
 
-9. Login to mersdk and setup environment. Installing Go in your home directory
-   will provide mersdk access to the Go binaries for compiling whisperfish.
+9. Login to SDK and setup environment. Installing Go in your home directory
+   will provide SDK access to the Go binaries for compiling whisperfish.
    Note only needs to be done once::
 
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
@@ -109,7 +109,7 @@ Building from source
 
     $ source ~/.bashrc
 
-10. Login to mersdk, compile whisperfish, and deploy to emulator::
+10. Login to SDK, compile whisperfish, and deploy to emulator::
 
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
     $ cd $GOPATH/src/github.com/aebruno/whisperfish
