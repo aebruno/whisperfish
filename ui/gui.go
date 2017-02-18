@@ -228,7 +228,7 @@ func Run(version string) {
 		contactModel.Refresh()
 		sessionModel.Reload()
 		deviceModel.Reload()
-		clientWorker.Reconnect()
+		clientWorker.StartConnection()
 	})
 
 	messageModel.ConnectSendMessage(func(mid int64) {

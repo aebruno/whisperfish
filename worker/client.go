@@ -25,6 +25,7 @@ import (
 	"github.com/aebruno/whisperfish/settings"
 	"github.com/aebruno/whisperfish/store"
 	"github.com/therecipe/qt/core"
+	"github.com/therecipe/qt/network"
 )
 
 //go:generate qtmoc
@@ -32,12 +33,13 @@ type ClientWorker struct {
 	core.QObject
 
 	settings *settings.Settings
+	manager  *network.QNetworkConfigurationManager
 
 	_ bool                                                  `property:"connected"`
 	_ func()                                                `constructor:"init"`
 	_ func()                                                `signal:"disconnected"`
 	_ func()                                                `signal:"reconnect"`
-	_ func()                                                `signal:"disconnect"`
+	_ func()                                                `signal:"startConnection"`
 	_ func(sid int64, mid int64)                            `signal:"messageReceived"`
 	_ func(sid int64, mid int64)                            `signal:"messageReceipt"`
 	_ func(sid int64, source, message string, isGroup bool) `signal:"notifyMessage"`
@@ -45,38 +47,48 @@ type ClientWorker struct {
 
 func (c *ClientWorker) init() {
 	c.settings = settings.NewSettings(nil)
+	c.manager = network.NewQNetworkConfigurationManager(nil)
 	c.SetConnected(false)
+	c.ConnectReconnect(c.reconnect)
+	c.ConnectStartConnection(func() {
+		c.manager.ConnectConfigurationChanged(func(config *network.QNetworkConfiguration) {
+			// If we change network configurations (i.e. WLAN to Cellular) force reconnect
+			if config.State() == network.QNetworkConfiguration__Active {
+				c.reconnect()
+			}
+		})
 
-	c.ConnectDisconnect(c.stop)
-
-	c.ConnectReconnect(func() {
-		// Stop any existing threads
-		c.stop()
 		go c.start()
 	})
 }
 
-// Stop websocket listener
-func (c *ClientWorker) stop() {
-	log.Info("Stopping client websocket threads ")
+// Reconnect to Signal
+func (c *ClientWorker) reconnect() {
+	log.Info("Forcing reconnect of websockets")
 	textsecure.StopListening()
-	c.SetConnected(false)
-	time.Sleep(1 * time.Second)
 }
 
 // Start websocket listener
 func (c *ClientWorker) start() {
-	log.Debug("Starting client websocket listener")
-	c.SetConnected(true)
+	for {
+		time.Sleep(3 * time.Second)
 
-	if err := textsecure.StartListening(); err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Error processing Websocket event from Signal")
+		if !c.manager.IsOnline() {
+			log.Debug("No network connection found")
+			continue
+		}
+
+		log.Debug("Starting client websocket listener")
+		c.SetConnected(true)
+
+		if err := textsecure.StartListening(); err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Error processing Websocket event from Signal")
+		}
+
+		c.SetConnected(false)
 	}
-
-	c.SetConnected(false)
-	c.Disconnected()
 }
 
 // Process incoming message from Signal

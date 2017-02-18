@@ -1,6 +1,5 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import MeeGo.Connman 0.2
 import org.nemomobile.contacts 1.0
 import org.nemomobile.notifications 1.0
 import "pages"
@@ -13,9 +12,6 @@ ApplicationWindow
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
-
-    property bool connected: false
-    property var enumFlags: {'group': 1, 'received': 2, 'unread': 4, 'sent': 8, 'attachment': 16, 'outgoing': 32}
 
     ImagePicker {
         id: imagepicker
@@ -124,51 +120,6 @@ ApplicationWindow
     function newMessage(operationType) {
         showMainPage()
         pageStack.push(Qt.resolvedUrl("pages/NewMessage.qml"), { }, operationType)
-    }
-
-    function checkConnection() {
-        var connected = false
-
-        if(wifi.available && wifi.connected) {
-            connected = true
-        } else if(cellular.available && cellular.connected) {
-            connected = true
-        } else if(ethernet.available && ethernet.connected) {
-            connected = true
-        }
-
-        if(!SetupWorker.locked && connected && !ClientWorker.connected) {
-            ClientWorker.reconnect()
-        } else if(!SetupWorker.locked && !connected && ClientWorker.connected) {
-            ClientWorker.disconnect()
-        }
-    }
-
-    TechnologyModel {
-        id: wifi
-        name: "wifi"
-        onConnectedChanged: {
-            console.log("Wifi connection changed")
-            mainWindow.checkConnection()
-        }
-    }
-
-    TechnologyModel {
-        id: cellular
-        name: "cellular"
-        onConnectedChanged: {
-            console.log("Cellular connection changed")
-            mainWindow.checkConnection()
-        }
-    }
-
-    TechnologyModel {
-        id: ethernet
-        name: "ethernet"
-        onConnectedChanged: {
-            console.log("Ethernet connection changed")
-            mainWindow.checkConnection()
-        }
     }
 
     function logSectionHeaders() {
