@@ -18,6 +18,7 @@
 APPNAME=harbour-whisperfish
 VERSION=$(git describe --long --tags --dirty --always 2>/dev/null | cut -f2 -d'v')
 GOQT_VERSION=d874b0a4b22e34a1cc253218e2f4ca09c9fe686d
+QT_VERSION=5.7.0
 
 case "$1" in
         bootstrap-qt)
@@ -39,16 +40,16 @@ case "$1" in
             GOARCH=386 $GOROOT/src/run.bash
             ;;
         prep)
-            qtmoc $PWD/settings
-            qtmoc $PWD/model
-            qtmoc $PWD/worker
-            $GOPATH/bin/qtminimal sailfish-emulator $PWD
+            QT_VERSION=$QT_VERSION qtmoc $PWD/settings
+            QT_VERSION=$QT_VERSION qtmoc $PWD/model
+            QT_VERSION=$QT_VERSION qtmoc $PWD/worker
+            QT_VERSION=$QT_VERSION $GOPATH/bin/qtminimal sailfish-emulator $PWD
             ;;
         prep-arm)
-            qtmoc $PWD/settings
-            qtmoc $PWD/model
-            qtmoc $PWD/worker
-            $GOPATH/bin/qtminimal sailfish $PWD
+            QT_VERSION=$QT_VERSION qtmoc $PWD/settings
+            QT_VERSION=$QT_VERSION qtmoc $PWD/model
+            QT_VERSION=$QT_VERSION qtmoc $PWD/worker
+            QT_VERSION=$QT_VERSION $GOPATH/bin/qtminimal sailfish $PWD
             ;;
         compile)
             rm -f $APPNAME
