@@ -43,6 +43,28 @@ func (c *Contact) Len() int {
 	return len(c.contacts)
 }
 
+func (c *Contact) RegisteredContacts() int {
+	contacts, err := textsecure.GetRegisteredContacts()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to fetch signal contacts")
+		return 0
+	}
+
+	count := 0
+	for _, l := range c.contacts {
+		for _, r := range contacts {
+			if l.Tel == r.Tel {
+				count++
+				break
+			}
+		}
+	}
+
+	return count
+}
+
 func (c *Contact) Refresh(country string) {
 	contacts, err := SailfishContacts(country)
 	if err != nil {

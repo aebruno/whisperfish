@@ -63,7 +63,11 @@ func (c *Contact) init() {
 		return c.contactStore.FindName(tel)
 	})
 	c.ConnectTotal(func() int {
-		return c.contactStore.Len()
+		if !c.settings.GetBool("share_contacts") {
+			return 0
+		}
+
+		return c.contactStore.RegisteredContacts()
 	})
 	c.ConnectRefresh(func() {
 		c.contactStore.Refresh(c.settings.GetString("country_code"))
