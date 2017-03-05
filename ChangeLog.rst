@@ -2,13 +2,13 @@
 ChangeLog
 ===============================================================================
 
-v0.4.1 (unreleased)
+`v0.4.1`_ (2017-03-04)
 ---------------------------
 
 * Built using SailfishOSSDK-Beta-1611-Qt5-linux-64
 * Tested on Sailfish OS 2.0.5.6 (Haapajoki)
 * Fix #49 Local contacts are resolved in UI even with Shared Contacts disabled
-* Add better network online detection and websocket re-connect
+* Fix #72 Add better network online detection and websocket re-connect
 * Add new cover icons to show online status
 
 `v0.4.0`_ (2017-02-14)
@@ -66,3 +66,4 @@ v0.4.1 (unreleased)
 .. _v0.2.0: https://github.com/aebruno/whisperfish/releases/tag/v0.2.0
 .. _v0.3.0: https://github.com/aebruno/whisperfish/releases/tag/v0.3.0
 .. _v0.4.0: https://github.com/aebruno/whisperfish/releases/tag/v0.4.0
+.. _v0.4.1: https://github.com/aebruno/whisperfish/releases/tag/v0.4.1

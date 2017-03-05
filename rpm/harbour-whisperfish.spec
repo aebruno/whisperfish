@@ -1,7 +1,7 @@
 
 Name:       harbour-whisperfish
 Summary:    Signal client for SailfishOS
-Version:    0.4.0
+Version:    0.4.1
 Release:    1
 Group:      Qt/Qt
 License:    GPL
