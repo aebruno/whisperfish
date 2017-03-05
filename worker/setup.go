@@ -124,11 +124,20 @@ func (s *SetupWorker) Run(client *textsecure.Client) {
 	}
 	client.GetLocalContacts = func() ([]textsecure.Contact, error) {
 		log.Debug("Get local contacts handler")
+		contacts := make([]textsecure.Contact, 0)
+
 		if s.settings.GetBool("share_contacts") {
-			return store.SailfishContacts(s.settings.GetString("country_code"))
+			local, err := store.SailfishContacts(s.settings.GetString("country_code"))
+			if err != nil {
+				return contacts, nil
+			}
+
+			for _, c := range local {
+				contacts = append(contacts, textsecure.Contact{Name: c.Name, Tel: c.Tel})
+			}
 		}
 
-		return make([]textsecure.Contact, 0), nil
+		return contacts, nil
 	}
 
 	err := textsecure.Setup(client)

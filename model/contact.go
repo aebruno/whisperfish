@@ -25,19 +25,21 @@ import (
 	"github.com/aebruno/whisperfish/settings"
 	"github.com/aebruno/whisperfish/store"
 	"github.com/therecipe/qt/core"
+	"github.com/ttacon/libphonenumber"
 )
 
 //go:generate qtmoc
-type Contact struct {
+type ContactModel struct {
 	core.QObject
 
-	settings     *settings.Settings
-	contactStore *store.Contact
+	contacts           []*store.Contact
+	registeredContacts []textsecure.Contact
+	settings           *settings.Settings
 
 	_ func()                  `constructor:"init"`
 	_ func()                  `signal:"refreshComplete"`
 	_ func(tel string) string `slot:"format"`
-	_ func(tel string) bool   `slot:"exists"`
+	_ func(tel string) bool   `slot:"registered"`
 	_ func(tel string) string `slot:"identity"`
 	_ func(tel string) string `slot:"name"`
 	_ func() int              `slot:"total"`
@@ -45,38 +47,90 @@ type Contact struct {
 }
 
 // Setup connections
-func (c *Contact) init() {
-	c.settings = settings.NewSettings(nil)
-	c.contactStore = store.NewContact()
+func (model *ContactModel) init() {
+	model.settings = settings.NewSettings(nil)
+	model.contacts = make([]*store.Contact, 0)
+	model.registeredContacts = make([]textsecure.Contact, 0)
 
 	// Slot connections
-	c.ConnectIdentity(func(source string) string {
-		return c.identity(source)
-	})
-	c.ConnectFormat(func(tel string) string {
-		return c.contactStore.Format(tel, c.settings.GetString("country_code"))
-	})
-	c.ConnectExists(func(tel string) bool {
-		return c.contactStore.Exists(tel, c.settings.GetString("country_code"))
-	})
-	c.ConnectName(func(tel string) string {
-		return c.contactStore.FindName(tel)
-	})
-	c.ConnectTotal(func() int {
-		if !c.settings.GetBool("share_contacts") {
-			return 0
-		}
+	model.ConnectIdentity(model.identity)
+	model.ConnectFormat(model.format)
+	model.ConnectRegistered(model.registered)
+	model.ConnectName(model.name)
+	model.ConnectTotal(model.total)
+	model.ConnectRefresh(model.refresh)
+}
 
-		return c.contactStore.RegisteredContacts()
-	})
-	c.ConnectRefresh(func() {
-		c.contactStore.Refresh(c.settings.GetString("country_code"))
-		c.RefreshComplete()
-	})
+// Format contact number
+func (model *ContactModel) format(tel string) string {
+	num, err := libphonenumber.Parse(tel, model.settings.GetString("country_code"))
+	if err != nil {
+		return ""
+	}
+
+	n := libphonenumber.Format(num, libphonenumber.E164)
+	return n
+}
+
+// Returns the name of the contact
+func (model *ContactModel) name(tel string) string {
+	for _, r := range model.contacts {
+		if r.Tel == tel {
+			return r.Name
+		}
+	}
+
+	// name not found. just return number
+	return tel
+}
+
+// Returns the total number of contacts registered with signal
+func (model *ContactModel) total() int {
+	return len(model.registeredContacts)
+}
+
+// Refresh contacts
+func (model *ContactModel) refresh() {
+	var err error
+	model.contacts, err = store.SailfishContacts(model.settings.GetString("country_code"))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to fetch local contacts")
+		model.contacts = make([]*store.Contact, 0)
+	}
+
+	if model.settings.GetBool("share_contacts") {
+		model.registeredContacts, err = textsecure.GetRegisteredContacts()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Failed to fetch signal contacts")
+			model.registeredContacts = make([]textsecure.Contact, 0)
+		}
+	}
+}
+
+// Check if contact is registered with signal
+func (model *ContactModel) registered(tel string) bool {
+	num, err := libphonenumber.Parse(tel, model.settings.GetString("country_code"))
+	if err != nil {
+		return false
+	}
+
+	n := libphonenumber.Format(num, libphonenumber.E164)
+
+	for _, r := range model.registeredContacts {
+		if r.Tel == n {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Returns identity of contact
-func (c *Contact) identity(source string) string {
+func (model *ContactModel) identity(source string) string {
 	id, err := textsecure.ContactIdentityKey(source)
 	if err != nil {
 		log.WithFields(log.Fields{

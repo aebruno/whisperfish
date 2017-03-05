@@ -86,7 +86,7 @@ Page {
                                 var contact = selectedContacts.get(i)
                                 if (contact.property !== undefined && contact.propertyType === "phoneNumber") {
                                     var tel = ContactModel.format(contact.property.number)
-                                    exists = ContactModel.exists(contact.property.number)
+                                    exists = ContactModel.registered(contact.property.number)
                                     if(tel.length != 0){
                                         recipients[tel] = true
                                     } else {

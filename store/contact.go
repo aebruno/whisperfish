@@ -19,7 +19,6 @@ package store
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/aebruno/textsecure"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mutecomm/go-sqlcipher"
 	"github.com/ttacon/libphonenumber"
@@ -31,103 +30,12 @@ const (
 )
 
 type Contact struct {
-	contacts []textsecure.Contact
-}
-
-func NewContact() *Contact {
-	c := &Contact{}
-	return c
-}
-
-func (c *Contact) Len() int {
-	return len(c.contacts)
-}
-
-func (c *Contact) RegisteredContacts() int {
-	contacts, err := textsecure.GetRegisteredContacts()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to fetch signal contacts")
-		return 0
-	}
-
-	count := 0
-	for _, l := range c.contacts {
-		for _, r := range contacts {
-			if l.Tel == r.Tel {
-				count++
-				break
-			}
-		}
-	}
-
-	return count
-}
-
-func (c *Contact) Refresh(country string) {
-	contacts, err := SailfishContacts(country)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to refresh contacts")
-		c.contacts = make([]textsecure.Contact, 0)
-	}
-
-	c.contacts = contacts
-}
-
-// Get name of contact with number tel
-func (c *Contact) FindName(tel string) string {
-	for _, r := range c.contacts {
-		if r.Tel == tel {
-			return r.Name
-		}
-	}
-
-	// name not found. just return number
-	return tel
-}
-
-// Format contact tel
-func (c *Contact) Format(tel, countryCode string) string {
-	num, err := libphonenumber.Parse(tel, countryCode)
-	if err != nil {
-		return ""
-	}
-
-	n := libphonenumber.Format(num, libphonenumber.E164)
-	return n
-}
-
-// Check if contact is registered with Signal
-func (c *Contact) Exists(tel, countryCode string) bool {
-	num, err := libphonenumber.Parse(tel, countryCode)
-	if err != nil {
-		return false
-	}
-
-	n := libphonenumber.Format(num, libphonenumber.E164)
-
-	contacts, err := textsecure.GetRegisteredContacts()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to fetch signal contacts")
-		return false
-	}
-
-	for _, r := range contacts {
-		if r.Tel == n {
-			return true
-		}
-	}
-
-	return false
+	Name string `db:"name"`
+	Tel  string `db:"tel"`
 }
 
 // Get local sailfish contacts
-func SailfishContacts(country string) ([]textsecure.Contact, error) {
+func SailfishContacts(country string) ([]*Contact, error) {
 	db, err := sqlx.Open("sqlite3", QtcontactsPath)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -136,7 +44,7 @@ func SailfishContacts(country string) ([]textsecure.Contact, error) {
 		return nil, err
 	}
 
-	contacts := []textsecure.Contact{}
+	contacts := []*Contact{}
 	err = db.Select(&contacts, `
 	select
 	   c.displayLabel as name,

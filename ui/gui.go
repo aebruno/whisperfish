@@ -130,7 +130,7 @@ func Run(version string) {
 	}
 
 	var filePicker = model.NewFilePicker(nil)
-	var contactModel = model.NewContact(nil)
+	var contactModel = model.NewContactModel(nil)
 	var prompt = model.NewPrompt(nil)
 	var sessionModel = model.NewSessionModel(nil)
 	var messageModel = model.NewMessageModel(nil)
@@ -224,11 +224,11 @@ func Run(version string) {
 			return
 		}
 
-		setupWorker.SetLocked(false)
 		contactModel.Refresh()
 		sessionModel.Reload()
 		deviceModel.Reload()
 		clientWorker.StartConnection()
+		setupWorker.SetLocked(false)
 	})
 
 	messageModel.ConnectSendMessage(func(mid int64) {
