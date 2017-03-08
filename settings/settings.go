@@ -23,10 +23,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"golang.org/x/sys/unix"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/therecipe/qt/core"
+	"golang.org/x/sys/unix"
 	"gopkg.in/yaml.v2"
 )
 
@@ -38,11 +37,13 @@ const (
 type Settings struct {
 	core.QObject
 
-	_ func(key string, val string) `slot:"stringSet"`
-	_ func(key string, val bool)   `slot:"boolSet"`
-	_ func(key string) string      `slot:"stringValue"`
-	_ func(key string) bool        `slot:"boolValue"`
-	_ func()                       `slot:"defaults"`
+	_ func(key string, val string)   `slot:"stringSet"`
+	_ func(key string, val []string) `slot:"stringListSet"`
+	_ func(key string, val bool)     `slot:"boolSet"`
+	_ func(key string) string        `slot:"stringValue"`
+	_ func(key string) []string      `slot:"stringListValue"`
+	_ func(key string) bool          `slot:"boolValue"`
+	_ func()                         `slot:"defaults"`
 
 	_ func() `constructor:"init"`
 }
@@ -53,11 +54,17 @@ func (s *Settings) init() {
 	s.ConnectStringSet(func(key string, val string) {
 		s.SetString(key, val)
 	})
+	s.ConnectStringListSet(func(key string, val []string) {
+		s.SetStringList(key, val)
+	})
 	s.ConnectBoolSet(func(key string, val bool) {
 		s.SetBool(key, val)
 	})
 	s.ConnectStringValue(func(key string) string {
 		return s.GetString(key)
+	})
+	s.ConnectStringListValue(func(key string) []string {
+		return s.GetStringList(key)
 	})
 	s.ConnectBoolValue(func(key string) bool {
 		return s.GetBool(key)
@@ -73,6 +80,12 @@ func (s *Settings) SetString(key string, val string) {
 	settings.SetValue(key, core.NewQVariant14(val))
 }
 
+// Set string list value
+func (s *Settings) SetStringList(key string, val []string) {
+	var settings = core.NewQSettings5(nil)
+	settings.SetValue(key, core.NewQVariant19(val))
+}
+
 // Set bool value
 func (s *Settings) SetBool(key string, val bool) {
 	var settings = core.NewQSettings5(nil)
@@ -83,6 +96,12 @@ func (s *Settings) SetBool(key string, val bool) {
 func (s *Settings) GetString(key string) string {
 	var settings = core.NewQSettings5(nil)
 	return settings.Value(key, core.NewQVariant14("")).ToString()
+}
+
+// Get string list value
+func (s *Settings) GetStringList(key string) []string {
+	var settings = core.NewQSettings5(nil)
+	return settings.Value(key, core.NewQVariant19([]string{})).ToStringList()
 }
 
 // Get bool value
@@ -188,5 +207,27 @@ func (s *Settings) Setup(configDir, storageDir string) error {
 	}
 
 	log.Infof("Attachments dir: %s", attachDir)
+
+	searchPaths := s.GetStringList("search_paths")
+	if len(searchPaths) == 0 || (len(searchPaths) == 1 && searchPaths[0] == "") {
+		log.Infof("Empty search path found. Using defaults")
+		searchPaths = []string{
+			filepath.Join(core.QStandardPaths_WritableLocation(core.QStandardPaths__HomeLocation), "Pictures"),
+		}
+		s.SetStringList("search_paths", searchPaths)
+	}
+
+	for _, p := range searchPaths {
+		log.Infof("Checking search path: %s", p)
+		stat, err := os.Stat(p)
+		if os.IsNotExist(err) {
+			return fmt.Errorf("Search path does not exist: %s", err)
+		} else if err != nil {
+			return fmt.Errorf("Failed to read search path: %s", err)
+		} else if !stat.IsDir() {
+			return fmt.Errorf("Invalid setting for search_path. Path is not a directory")
+		}
+	}
+	log.Infof("Attachment search paths: %s", searchPaths)
 	return nil
 }

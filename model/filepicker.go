@@ -18,10 +18,8 @@
 package model
 
 import (
-	"os"
-	"path/filepath"
-
 	log "github.com/Sirupsen/logrus"
+	"github.com/aebruno/whisperfish/settings"
 	"github.com/therecipe/qt/core"
 )
 
@@ -29,8 +27,9 @@ import (
 type FilePicker struct {
 	core.QAbstractListModel
 
-	paths      []string
-	searchPath string
+	paths       []string
+	nameFilters []string
+	settings    *settings.Settings
 
 	_ map[int]*core.QByteArray `property:"roles"`
 	_ func()                   `slot:"search"`
@@ -38,13 +37,22 @@ type FilePicker struct {
 }
 
 func (f *FilePicker) init() {
+	f.settings = settings.NewSettings(nil)
 	f.SetRoles(map[int]*core.QByteArray{
 		RolePath: core.NewQByteArray2("path", len("path")),
 	})
 
-	// XXX Limit to Pictures folder for now? Consider making this configurable
-	f.searchPath = filepath.Join(core.QStandardPaths_WritableLocation(core.QStandardPaths__HomeLocation), "Pictures")
 	f.paths = make([]string, 0)
+	f.nameFilters = []string{
+		"*.jpg",
+		"*.JPG",
+		"*.jpeg",
+		"*.JPEG",
+		"*.png",
+		"*.PNG",
+		"*.gif",
+		"*.GIF",
+	}
 
 	f.ConnectData(f.data)
 	f.ConnectRowCount(f.rowCount)
@@ -84,29 +92,29 @@ func (f *FilePicker) roleNames() map[int]*core.QByteArray {
 	return f.Roles()
 }
 
+func (f *FilePicker) searchPath(path string) {
+	var dir = core.NewQDir2(path)
+	for _, info := range dir.EntryInfoList(f.nameFilters, core.QDir__AllDirs|core.QDir__NoDot|core.QDir__NoSymLinks|core.QDir__Files, core.QDir__DirsFirst|core.QDir__Time) {
+		if info.FileName() == ".." {
+			continue
+		} else if info.IsDir() {
+			f.searchPath(info.FilePath())
+		} else if info.IsFile() {
+			log.Debugf("Found image: %s", path)
+			f.BeginInsertRows(core.NewQModelIndex(), len(f.paths), len(f.paths))
+			f.paths = append(f.paths, info.AbsoluteFilePath())
+			f.EndInsertRows()
+		}
+	}
+}
+
 func (f *FilePicker) search() {
-	log.Infof("Searching for files in path: %s", f.searchPath)
 	f.BeginResetModel()
 	f.paths = make([]string, 0)
 	f.EndResetModel()
 
-	count := 0
-	filepath.Walk(f.searchPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() {
-			return nil
-		}
-
-		switch filepath.Ext(path) {
-		case ".jpg", ".JPG", ".jpeg", ".JPEG", ".png", ".PNG", ".gif", ".GIF":
-			log.Debugf("Found image: %s", path)
-			f.BeginInsertRows(core.NewQModelIndex(), len(f.paths), len(f.paths))
-			f.paths = append(f.paths, path)
-			f.EndInsertRows()
-			count++
-		}
-
-		return nil
-	})
-
-	log.Infof("Found %d files", count)
+	for _, path := range f.settings.GetStringList("search_paths") {
+		log.Infof("Searching for files in path: %s", path)
+		f.searchPath(path)
+	}
 }
