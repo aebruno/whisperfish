@@ -2,6 +2,14 @@
 ChangeLog
 ===============================================================================
 
+`v0.4.2`_ (2017-03-07)
+---------------------------
+
+* Built using SailfishOSSDK-Beta-1611-Qt5-linux-64
+* Tested on Sailfish OS 2.0.5.6 (Haapajoki)
+* Fix #73 Add config option for attachment search paths
+* Update German translation (PR #71)
+
 `v0.4.1`_ (2017-03-04)
 ---------------------------
 
@@ -67,3 +75,4 @@ ChangeLog
 .. _v0.3.0: https://github.com/aebruno/whisperfish/releases/tag/v0.3.0
 .. _v0.4.0: https://github.com/aebruno/whisperfish/releases/tag/v0.4.0
 .. _v0.4.1: https://github.com/aebruno/whisperfish/releases/tag/v0.4.1
+.. _v0.4.2: https://github.com/aebruno/whisperfish/releases/tag/v0.4.2
