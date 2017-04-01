@@ -10,43 +10,43 @@
         <translation>Neu</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../delegates/Session.qml" line="72"/>
+        <location filename="../delegates/Session.qml" line="69"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>Anhang</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../delegates/Session.qml" line="117"/>
+        <location filename="../delegates/Session.qml" line="114"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
         <translation>Alle Nachrichten löschen</translation>
     </message>
     <message id="whisperfish-delete-session">
-        <location filename="../delegates/Session.qml" line="132"/>
+        <location filename="../delegates/Session.qml" line="129"/>
         <source>Delete Conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Unterhaltung löschen</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../harbour-whisperfish.qml" line="59"/>
+        <location filename="../harbour-whisperfish.qml" line="49"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Neue Nachricht</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../harbour-whisperfish.qml" line="183"/>
+        <location filename="../harbour-whisperfish.qml" line="128"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Heute</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../harbour-whisperfish.qml" line="187"/>
+        <location filename="../harbour-whisperfish.qml" line="132"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Gestern</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../harbour-whisperfish.qml" line="191"/>
+        <location filename="../harbour-whisperfish.qml" line="136"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Älter</translation>
@@ -100,25 +100,27 @@
         <translation>Installiere Signal Desktop. Nutze einen QR-Code Scanner um die URL aus dem QR-Code hinzuzufügen.</translation>
     </message>
     <message id="whisperfish-attachment-from-self">
-        <location filename="../pages/AttachmentPage.qml" line="53"/>
+        <location filename="../pages/AttachmentPage.qml" line="25"/>
+        <location filename="../pages/VideoAttachment.qml" line="24"/>
         <source>Me</source>
         <extracomment>Personalized placeholder showing the attachment is from oneself</extracomment>
         <translation>Ich</translation>
     </message>
     <message id="whisperfish-attachment-from-contact">
-        <location filename="../pages/AttachmentPage.qml" line="56"/>
+        <location filename="../pages/AttachmentPage.qml" line="28"/>
+        <location filename="../pages/VideoAttachment.qml" line="27"/>
         <source>From %1</source>
         <extracomment>Personalized placeholder showing the attachment is from contact</extracomment>
         <translation>Von %1</translation>
     </message>
     <message id="whisperfish-chatinput-contact">
-        <location filename="../pages/ChatTextInput.qml" line="104"/>
+        <location filename="../pages/ChatTextInput.qml" line="101"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
         <translation>Hallo %1</translation>
     </message>
     <message id="whisperfish-chatinput-generic">
-        <location filename="../pages/ChatTextInput.qml" line="107"/>
+        <location filename="../pages/ChatTextInput.qml" line="104"/>
         <source>Hi</source>
         <extracomment>Generic placeholder for chat input</extracomment>
         <translation>Hallo</translation>
@@ -244,37 +246,37 @@
         <translation>Gesperrt</translation>
     </message>
     <message id="whisperfish-group-label">
-        <location filename="../pages/MessagesView.qml" line="90"/>
+        <location filename="../pages/MessagesView.qml" line="88"/>
         <source>Group: %1</source>
         <extracomment>Group message label</extracomment>
         <translation>Gruppe: %1</translation>
     </message>
     <message id="whisperfish-delete-message">
-        <location filename="../pages/MessagesView.qml" line="99"/>
+        <location filename="../pages/MessagesView.qml" line="97"/>
         <source>Deleteing</source>
         <extracomment>Deleteing message remorse</extracomment>
         <translation>Löschen</translation>
     </message>
     <message id="whisperfish-resend-message">
-        <location filename="../pages/MessagesView.qml" line="109"/>
+        <location filename="../pages/MessagesView.qml" line="107"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
         <translation>Erneut senden</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../pages/MessagesView.qml" line="132"/>
+        <location filename="../pages/MessagesView.qml" line="130"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>Kopieren</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
-        <location filename="../pages/MessagesView.qml" line="138"/>
+        <location filename="../pages/MessagesView.qml" line="136"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
         <translation>Löschen</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../pages/MessagesView.qml" line="144"/>
+        <location filename="../pages/MessagesView.qml" line="142"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
         <translation>Erneut senden</translation>
@@ -292,7 +294,7 @@
         <translation>Sichere Sitzung wird zurückgesetzt</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../pages/VerifyIdentity.qml" line="64"/>
+        <location filename="../pages/VerifyIdentity.qml" line="63"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Um die Sicherheit der Ende-zu-Ende-Verschlüsselung mit %1 zu verifizieren, vergleiche die obrigen Nummern mit denen auf dem Gerät des Gesprächspartners.</translation>
@@ -340,13 +342,13 @@
         <translation>Gruppenname</translation>
     </message>
     <message id="whisperfish-error-message-create">
-        <location filename="../pages/NewMessage.qml" line="180"/>
+        <location filename="../pages/NewMessage.qml" line="174"/>
         <source>Failed to create message</source>
         <extracomment>Failed to create message</extracomment>
         <translation>Erstellen der Nachricht ist fehlgeschlagen</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
-        <location filename="../pages/NewMessage.qml" line="185"/>
+        <location filename="../pages/NewMessage.qml" line="179"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
         <translation>Unzulässiger Empfänger</translation>

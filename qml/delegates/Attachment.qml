@@ -42,6 +42,11 @@ Thumbnail {
 
     source: isThumbnail ? messagePart.attachment : ""
 
+    function mimeToIcon(mimeType) {
+        var icon = Theme.iconForMimeType(mimeType)
+        return icon === "image://theme/icon-m-file-other" ? "image://theme/icon-m-attach" : icon
+    }
+
     Image {
         id: icon
         anchors.fill: parent
@@ -60,7 +65,7 @@ Thumbnail {
             else if (isVCard)
                 return "image://theme/icon-m-person" + (highlighted ? "?" + Theme.highlightColor : "")
             else
-                return "image://theme/icon-m-attach" + (highlighted ? "?" + Theme.highlightColor : "")
+                return mimeToIcon(messagePart.mimeType) + (highlighted ? "?" + Theme.highlightColor : "")
         }
 
         Rectangle {

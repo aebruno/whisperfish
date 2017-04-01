@@ -138,7 +138,12 @@ ListItem {
 
     onClicked: {
         if (modelData.hasAttachment && attachmentBox.height > 0) {
-            pageStack.push(Qt.resolvedUrl("../pages/AttachmentPage.qml"), { 'source': modelData.attachment, 'message': modelData })
+            if(modelData.mimeType == "video/mp4") {
+                pageStack.push(Qt.resolvedUrl("../pages/VideoAttachment.qml"), { 'message': modelData })
+            } else {
+                pageStack.push(Qt.resolvedUrl("../pages/AttachmentPage.qml"), { 'message': modelData })
+
+            }
         }
     }
 }

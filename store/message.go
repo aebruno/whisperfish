@@ -47,6 +47,12 @@ type Message struct {
 	Queued        bool   `db:"queued"`
 }
 
+func init() {
+	// Sailfish has no /etc/mime.types
+	mime.AddExtensionType(".mp4", "video/mp4")
+	mime.AddExtensionType(".jpg", "image/jpg")
+}
+
 func (m *Message) SaveAttachment(dir string, a *textsecure.Attachment) error {
 	g, err := fastuuid.NewGenerator()
 	if err != nil {
