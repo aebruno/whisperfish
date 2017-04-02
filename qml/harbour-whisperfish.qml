@@ -56,8 +56,8 @@ ApplicationWindow
             console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
-            pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), {}, PageStackAction.Immediate)
             mainWindow.activateSession(sid, name, source)
+            pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), {}, PageStackAction.Immediate)
         })
         // This is needed to call default action
         m.remoteActions = [ {
