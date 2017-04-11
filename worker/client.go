@@ -18,12 +18,16 @@
 package worker
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aebruno/textsecure"
 	"github.com/aebruno/whisperfish/settings"
 	"github.com/aebruno/whisperfish/store"
+	"github.com/janimo/textsecure/axolotl"
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/network"
 )
@@ -32,6 +36,7 @@ import (
 type ClientWorker struct {
 	core.QObject
 
+	config   *textsecure.Config
 	settings *settings.Settings
 	manager  *network.QNetworkConfigurationManager
 
@@ -43,6 +48,8 @@ type ClientWorker struct {
 	_ func(sid int64, mid int64)                            `signal:"messageReceived"`
 	_ func(sid int64, mid int64)                            `signal:"messageReceipt"`
 	_ func(sid int64, source, message string, isGroup bool) `signal:"notifyMessage"`
+	_ func(source string)                                   `signal:"promptResetPeerIdentity"`
+	_ func(confirm string)                                  `signal:"resetPeerIdentity"`
 }
 
 func (c *ClientWorker) init() {
@@ -60,6 +67,10 @@ func (c *ClientWorker) init() {
 
 		go c.start()
 	})
+}
+
+func (c *ClientWorker) SetConfig(config *textsecure.Config) {
+	c.config = config
 }
 
 // Reconnect to Signal
@@ -85,10 +96,45 @@ func (c *ClientWorker) start() {
 			log.WithFields(log.Fields{
 				"error": err,
 			}).Error("Error processing Websocket event from Signal")
+
+			if nerr, ok := err.(axolotl.NotTrustedError); ok {
+				remoteIdentityPath := filepath.Join(c.config.StorageDir, "identity", fmt.Sprintf("remote_%s", nerr.ID))
+				log.WithFields(log.Fields{
+					"source":         nerr.ID,
+					"remoteIdentity": remoteIdentityPath,
+				}).Error("Peer identity not trusted")
+
+				confirm := c.getConfirmResetPeerIdentity(nerr.ID)
+				if confirm == "yes" {
+					err = os.Remove(remoteIdentityPath)
+					if err != nil {
+						log.WithFields(log.Fields{
+							"error":          err,
+							"source":         nerr.ID,
+							"remoteIdentity": remoteIdentityPath,
+						}).Error("Failed to remove peer identity")
+					}
+				} else {
+					log.Info("Peer identity not trusted. Will not accept message")
+				}
+			}
 		}
 
 		c.SetConnected(false)
 	}
+}
+
+// Prompt the user to confirm reset peer identity
+func (c *ClientWorker) getConfirmResetPeerIdentity(source string) string {
+	log.Infof("Prompting to reset peer identity: %s", source)
+	ch := make(chan string)
+	c.ConnectResetPeerIdentity(func(confirm string) {
+		ch <- confirm
+	})
+
+	c.PromptResetPeerIdentity(source)
+	confirm := <-ch
+	return confirm
 }
 
 // Process incoming message from Signal

@@ -139,6 +139,7 @@ func Run(version string) {
 	var sendWorker = worker.NewSendWorker(nil)
 
 	sendWorker.SetConfig(config)
+	clientWorker.SetConfig(config)
 
 	// Implement proper copy to clipboard support
 	messageModel.ConnectCopyToClipboard(func(text string) {

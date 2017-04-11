@@ -95,6 +95,9 @@ ApplicationWindow
         onNotifyMessage: {
             newMessageNotification(sid, ContactModel.name(source), source, message, isGroup)
         }
+        onPromptResetPeerIdentity: {
+            pageStack.push(Qt.resolvedUrl("pages/PeerIdentityChanged.qml"), { source: source })
+        }
     }
 
     Connections {
