@@ -86,3 +86,4 @@ ChangeLog
 .. _v0.4.0: https://github.com/aebruno/whisperfish/releases/tag/v0.4.0
 .. _v0.4.1: https://github.com/aebruno/whisperfish/releases/tag/v0.4.1
 .. _v0.4.2: https://github.com/aebruno/whisperfish/releases/tag/v0.4.2
+.. _v0.4.3: https://github.com/aebruno/whisperfish/releases/tag/v0.4.3
