@@ -2,6 +2,16 @@
 ChangeLog
 ===============================================================================
 
+`v0.4.3`_ (2017-04-11)
+---------------------------
+
+* Built using SailfishOSSDK-Beta-1611-Qt5-linux-64
+* Tested on Sailfish OS 2.0.5.6 (Haapajoki)
+* Fix #57, #75 Fix notifications crash from home screen
+* Add support for playing video attachments
+* Handle reset peer identity on incoming messages
+* Tempory fix for 0 byte messages
+
 `v0.4.2`_ (2017-03-07)
 ---------------------------
 
