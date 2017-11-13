@@ -253,8 +253,8 @@
     </message>
     <message id="whisperfish-delete-message">
         <location filename="../pages/MessagesView.qml" line="97"/>
-        <source>Deleteing</source>
-        <extracomment>Deleteing message remorse</extracomment>
+        <source>Deleting</source>
+        <extracomment>Deleting message remorse</extracomment>
         <translation>Löschen</translation>
     </message>
     <message id="whisperfish-resend-message">
@@ -314,7 +314,7 @@
     <message id="whisperfish-error-verify-contact">
         <location filename="../pages/NewMessage.qml" line="108"/>
         <source>Warning: could not verify contact in Signal</source>
-        <extracomment>Could verify contact is registered with signal</extracomment>
+        <extracomment>Could not verify contact is registered with signal</extracomment>
         <translation>Warnung: Kontakt konnte nicht verifiziert werden</translation>
     </message>
     <message id="whisperfish-recipient">
