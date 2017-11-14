@@ -34,19 +34,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../harbour-whisperfish.qml" line="128"/>
+        <location filename="../harbour-whisperfish.qml" line="131"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../harbour-whisperfish.qml" line="132"/>
+        <location filename="../harbour-whisperfish.qml" line="135"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../harbour-whisperfish.qml" line="136"/>
+        <location filename="../harbour-whisperfish.qml" line="139"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation type="unfinished"></translation>
@@ -253,8 +253,9 @@
     </message>
     <message id="whisperfish-delete-message">
         <location filename="../pages/MessagesView.qml" line="97"/>
-        <source>Deleting</source>
-        <extracomment>Deleting message remorse</extracomment>
+        <source>Deleteing</source>
+        <oldsource>Deleting</oldsource>
+        <extracomment>Deleteing message remorse</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-resend-message">
@@ -314,7 +315,7 @@
     <message id="whisperfish-error-verify-contact">
         <location filename="../pages/NewMessage.qml" line="108"/>
         <source>Warning: could not verify contact in Signal</source>
-        <extracomment>Could not verify contact is registered with signal</extracomment>
+        <extracomment>Could verify contact is registered with signal</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-recipient">
@@ -432,18 +433,21 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
+        <location filename="../pages/PeerIdentityChanged.qml" line="24"/>
         <location filename="../pages/ResetPeerIdentity.qml" line="24"/>
         <source>Confirm</source>
         <extracomment>Reset peer identity accept text</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-peer-not-trusted">
+        <location filename="../pages/PeerIdentityChanged.qml" line="32"/>
         <location filename="../pages/ResetPeerIdentity.qml" line="32"/>
         <source>Peer identity is not trusted</source>
         <extracomment>Peer identity not trusted</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-peer-not-trusted-message">
+        <location filename="../pages/PeerIdentityChanged.qml" line="42"/>
         <location filename="../pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>

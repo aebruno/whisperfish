@@ -33,7 +33,7 @@ Features
 - [x] Encrypted message store
 - [x] Advanced user settings
 - [ ] Multi-Device support (links with Signal Desktop)
-- [ ] Encrypted attachments
+- [ ] Encrypted local attachment store
 - [ ] Archiving conversations
 
 -------------------------------------------------------------------------------

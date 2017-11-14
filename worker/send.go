@@ -25,8 +25,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aebruno/textsecure"
+	"github.com/aebruno/textsecure/axolotl"
 	"github.com/aebruno/whisperfish/store"
-	"github.com/janimo/textsecure/axolotl"
 	"github.com/therecipe/qt/core"
 )
 

@@ -1,10 +1,15 @@
-hash: d20595e0e07aacf2ab1cb75d208d7040cc10a278c45dd9ff28b150edeff511ac
-updated: 2017-02-10T23:17:44.544203704-05:00
+hash: 0579ebcdc96a4a0455ac04a3d07d5382b8963d82936667c2fcfd7e81fb65608d
+updated: 2017-11-14T18:42:17.316920429-05:00
 imports:
 - name: bitbucket.org/taruti/mimemagic
   version: e5179c80a024fe516da65f0b006f56fa7800694e
 - name: github.com/aebruno/textsecure
-  version: 31e330a410333771e1354ce57a0d70b946780c85
+  version: 7ce5880f67b2d0f3e93a0dba88069ae555d13131
+  subpackages:
+  - axolotl
+  - axolotl/protobuf
+  - curve25519sign
+  - protobuf
 - name: github.com/agl/ed25519
   version: 278e1ec8e8a6e017cd07577924d6766039146ced
   subpackages:
@@ -15,13 +20,6 @@ imports:
   - proto
 - name: github.com/gorilla/websocket
   version: 1f512fc3f05332ba7117626cdfb4e07474e58e60
-- name: github.com/janimo/textsecure
-  version: f2c1d0dc203b097e4035d6605979f7a328ef804f
-  subpackages:
-  - axolotl
-  - axolotl/protobuf
-  - curve25519sign
-  - protobuf
 - name: github.com/jmoiron/sqlx
   version: 398dd5876282499cdfd4cb8ea0f31a672abe9495
   subpackages:

@@ -16,7 +16,7 @@
 #
 
 APPNAME=harbour-whisperfish
-VERSION=$(git describe --long --tags --dirty --always 2>/dev/null | cut -f2 -d'v')
+VERSION=$(git describe --long --tags --always 2>/dev/null | cut -f2 -d'v')
 GOQT_VERSION=c6ada02b904734c7f78a8032acd2e6fee3e58dba
 QT_VERSION=5.7.0
 

@@ -6,8 +6,6 @@ ignore:
 import:
 - package: github.com/Sirupsen/logrus
 - package: github.com/aebruno/textsecure
-  version: websocket-updates
-- package: github.com/janimo/textsecure
   subpackages:
   - axolotl
   - curve25519sign

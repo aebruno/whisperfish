@@ -2,6 +2,14 @@
 ChangeLog
 ===============================================================================
 
+`v0.4.4`_ (2017-11-14)
+---------------------------
+
+* Built using SailfishOSSDK-Beta-1611-Qt5-linux-64
+* Tested on Sailfish OS 2.1.2.3 (Kiiminkijoki)
+* Fix #85 signal protocol updates
+* Add Polish translation by paytchoo PR #84
+
 `v0.4.3`_ (2017-04-11)
 ---------------------------
 
@@ -87,3 +95,4 @@ ChangeLog
 .. _v0.4.1: https://github.com/aebruno/whisperfish/releases/tag/v0.4.1
 .. _v0.4.2: https://github.com/aebruno/whisperfish/releases/tag/v0.4.2
 .. _v0.4.3: https://github.com/aebruno/whisperfish/releases/tag/v0.4.3
+.. _v0.4.4: https://github.com/aebruno/whisperfish/releases/tag/v0.4.4
