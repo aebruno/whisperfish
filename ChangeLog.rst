@@ -2,6 +2,13 @@
 ChangeLog
 ===============================================================================
 
+`v0.4.5`_ (2017-12-16)
+---------------------------
+
+* Built using SailfishOSSDK-Beta-1611-Qt5-linux-64
+* Tested on Sailfish OS 2.1.3.7 (Kymijoki)
+* Fix #78 add check for unsupported legacy messages
+
 `v0.4.4`_ (2017-11-14)
 ---------------------------
 
@@ -96,3 +103,4 @@ ChangeLog
 .. _v0.4.2: https://github.com/aebruno/whisperfish/releases/tag/v0.4.2
 .. _v0.4.3: https://github.com/aebruno/whisperfish/releases/tag/v0.4.3
 .. _v0.4.4: https://github.com/aebruno/whisperfish/releases/tag/v0.4.4
+.. _v0.4.5: https://github.com/aebruno/whisperfish/releases/tag/v0.4.5
