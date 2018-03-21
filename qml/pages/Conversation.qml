@@ -8,7 +8,11 @@ Page {
     property bool editorFocus
     onStatusChanged: {
         if(status == PageStatus.Active) {
-            pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
+            if(MessageModel.group) {
+                pageStack.pushAttached(Qt.resolvedUrl("Group.qml"))
+            } else {
+                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
+            }
         }
     }
 

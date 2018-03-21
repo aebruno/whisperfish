@@ -66,6 +66,13 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
             MenuItem {
+                //: Whisperfish new group menu item
+                //% "New Group"
+                text: qsTrId("whisperfish-new-group-menu")
+                enabled: !SetupWorker.locked
+                onClicked: pageStack.push(Qt.resolvedUrl("NewGroup.qml"))
+            }
+            MenuItem {
                 //: Whisperfish new message menu item
                 //% "New Message"
                 text: qsTrId("whisperfish-new-message-menu")

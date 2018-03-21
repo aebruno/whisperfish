@@ -20,8 +20,8 @@ package model
 import (
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aebruno/whisperfish/store"
+	log "github.com/sirupsen/logrus"
 	"github.com/therecipe/qt/core"
 )
 
@@ -34,6 +34,7 @@ type SessionModel struct {
 	_ map[int]*core.QByteArray        `property:"roles"`
 	_ int                             `property:"unread"`
 	_ func(index int)                 `slot:"remove"`
+	_ func(sid int64)                 `slot:"removeById"`
 	_ func() int                      `slot:"count"`
 	_ func()                          `slot:"reload"`
 	_ func(sid int64, markRead bool)  `slot:"add"`
@@ -68,6 +69,7 @@ func (model *SessionModel) init() {
 	model.ConnectColumnCount(model.columnCount)
 	model.ConnectRowCount(model.rowCount)
 	model.ConnectRemove(model.remove)
+	model.ConnectRemoveById(model.removeById)
 	model.ConnectReload(model.reload)
 	model.ConnectAdd(model.add)
 	model.ConnectMarkRead(model.markRead)
@@ -284,6 +286,21 @@ func (model *SessionModel) remove(index int) {
 	model.BeginRemoveRows(core.NewQModelIndex(), index, index)
 	model.sessions = append(model.sessions[:index], model.sessions[index+1:]...)
 	model.EndRemoveRows()
+}
+
+// Removes session by id. This removes the session from the list model and
+// deletes it from the database.
+func (model *SessionModel) removeById(sid int64) {
+	for idx, s := range model.sessions {
+		if s.ID == sid {
+			model.remove(idx)
+			return
+		}
+	}
+
+	log.WithFields(log.Fields{
+		"sid": sid,
+	}).Info("Session ID not found in session model")
 }
 
 func (model *SessionModel) SetSection(s *store.Session) {

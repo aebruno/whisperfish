@@ -24,9 +24,9 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aebruno/textsecure"
 	"github.com/aebruno/whisperfish/store"
+	log "github.com/sirupsen/logrus"
 	"github.com/therecipe/qt/core"
 )
 
@@ -40,6 +40,7 @@ type MessageModel struct {
 	_ string                                                              `property:"peerIdentity"`
 	_ string                                                              `property:"peerName"`
 	_ string                                                              `property:"peerTel"`
+	_ string                                                              `property:"groupMembers"`
 	_ int64                                                               `property:"sessionId"`
 	_ bool                                                                `property:"group"`
 	_ func(text string)                                                   `slot:"copyToClipboard"`
@@ -52,6 +53,7 @@ type MessageModel struct {
 	_ func(id int64)                                                      `slot:"markReceived"`
 	_ func(source, message, groupName, attachment string, add bool) int64 `slot:"createMessage"`
 	_ func(source string)                                                 `slot:"endSession"`
+	_ func()                                                              `slot:"leaveGroup"`
 	_ func(localID, remoteID string) string                               `slot:"numericFingerprint"`
 	_ func(mid int64)                                                     `signal:"sendMessage"`
 	_ func()                                                              `constructor:"init"`
@@ -88,6 +90,7 @@ func (model *MessageModel) init() {
 	model.ConnectMarkReceived(model.markReceived)
 	model.ConnectCreateMessage(model.createMessage)
 	model.ConnectEndSession(model.endSession)
+	model.ConnectLeaveGroup(model.leaveGroup)
 	model.ConnectNumericFingerprint(model.numericFingerprint)
 
 	model.ConnectTotal(func() int {
@@ -236,6 +239,9 @@ func (model *MessageModel) load(sid int64, peerName string) {
 	model.SetPeerTel(sess.Source)
 	model.PeerTelChanged(sess.Source)
 
+	model.SetGroupMembers(sess.Members)
+	model.GroupMembersChanged(sess.Members)
+
 	remoteIdentity, err := textsecure.ContactIdentityKey(sess.Source)
 	if err == nil {
 		identity := fmt.Sprintf("% 0X", remoteIdentity)
@@ -292,9 +298,9 @@ func (model *MessageModel) remove(index int) {
 func (model *MessageModel) createMessage(source, message, groupName, attachment string, add bool) int64 {
 	var group *textsecure.Group
 
-	// If source is a comma separated list then create a group.
+	// If group name or source is a comma separated list then create a group.
 	m := strings.Split(source, ",")
-	if len(m) > 1 {
+	if len(groupName) > 0 || len(m) > 1 {
 		var err error
 		group, err = textsecure.NewGroup(groupName, m)
 		if err != nil {
@@ -397,7 +403,27 @@ func (model *MessageModel) endSession(source string) {
 	model.SendMessage(message.ID)
 }
 
+// Leave group
+func (model *MessageModel) leaveGroup() {
+	if !model.IsGroup() || len(model.PeerTel()) == 0 {
+		return
+	}
+
+	err := textsecure.LeaveGroup(model.PeerTel())
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":      err,
+			"groupHexID": model.PeerTel(),
+			"groupName":  model.PeerName(),
+		}).Error("Failed to leave group")
+	}
+}
+
 func (model *MessageModel) numericFingerprint(localID, remoteID string) string {
+	if model.IsGroup() {
+		return ""
+	}
+
 	localKey := textsecure.MyIdentityKey()
 	remoteKey, err := textsecure.ContactIdentityKey(remoteID)
 	if err != nil {
