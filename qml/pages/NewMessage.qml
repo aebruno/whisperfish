@@ -37,6 +37,22 @@ Page {
 
         RemorsePopup { id: remorse }
 
+        PullDownMenu {
+            MenuItem {
+                //: Menu option to enter phone number
+                //% "Enter phone number"
+                text: qsTrId("whisperfish-new-message-menu-enter-number")
+                onClicked: {
+                    var c = pageStack.push(Qt.resolvedUrl("EnterPhoneNumber.qml"))
+                    c.selected.connect(function(tel) {
+                        console.log("Entered phone number: "+tel)
+                        recipientNumber = tel
+                        recipientName = ""
+                    })
+                }
+            }
+        }
+
         Column {
             id: content
             y: newMessagePage.isLandscape ? Theme.paddingMedium : 0
