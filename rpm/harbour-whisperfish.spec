@@ -1,7 +1,7 @@
 
 Name:       harbour-whisperfish
 Summary:    Signal client for SailfishOS
-Version:    0.4.5
+Version:    0.5.0
 Release:    1
 Group:      Qt/Qt
 License:    GPL
@@ -11,7 +11,6 @@ BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
-#BuildRequires:  openssl-devel
 BuildRequires:  desktop-file-utils
 
 %description
