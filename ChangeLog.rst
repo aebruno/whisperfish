@@ -2,7 +2,7 @@
 ChangeLog
 ===============================================================================
 
-`v0.5.0`_ (unlreleased)
+`v0.5.0`_ (unreleased)
 ---------------------------
 
 * Built using SailfishOSSDK-Beta-1801-Qt5-linux-64 and go v1.10
