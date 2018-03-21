@@ -41,16 +41,22 @@ case "$1" in
             GOARCH=arm GOARM=7 $GOROOT/src/run.bash
             ;;
         prep)
+            # XXX hack to prevent qtmoc from searching vendor directory
+            mv vendor ..
             QT_VERSION=$QT_VERSION qtmoc $PWD/settings
             QT_VERSION=$QT_VERSION qtmoc $PWD/model
             QT_VERSION=$QT_VERSION qtmoc $PWD/worker
             QT_VERSION=$QT_VERSION $GOPATH/bin/qtminimal sailfish-emulator $PWD
+            mv ../vendor .
             ;;
         prep-arm)
+            # XXX hack to prevent qtmoc from searching vendor directory
+            mv vendor ..
             QT_VERSION=$QT_VERSION qtmoc $PWD/settings
             QT_VERSION=$QT_VERSION qtmoc $PWD/model
             QT_VERSION=$QT_VERSION qtmoc $PWD/worker
             QT_VERSION=$QT_VERSION $GOPATH/bin/qtminimal sailfish $PWD
+            mv ../vendor .
             ;;
         compile)
             rm -f $APPNAME
