@@ -28,25 +28,25 @@
         <translation>Gesprek verwijderen</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../harbour-whisperfish.qml" line="49"/>
+        <location filename="../harbour-whisperfish.qml" line="51"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Nieuw bericht</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../harbour-whisperfish.qml" line="131"/>
+        <location filename="../harbour-whisperfish.qml" line="133"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Vandaag</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../harbour-whisperfish.qml" line="135"/>
+        <location filename="../harbour-whisperfish.qml" line="137"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Gisteren</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../harbour-whisperfish.qml" line="139"/>
+        <location filename="../harbour-whisperfish.qml" line="141"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Ouder</translation>
@@ -114,16 +114,22 @@
         <translation>Van %1</translation>
     </message>
     <message id="whisperfish-chatinput-contact">
-        <location filename="../pages/ChatTextInput.qml" line="101"/>
+        <location filename="../pages/ChatTextInput.qml" line="102"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
         <translation>Hé %1</translation>
     </message>
     <message id="whisperfish-chatinput-generic">
-        <location filename="../pages/ChatTextInput.qml" line="104"/>
+        <location filename="../pages/ChatTextInput.qml" line="105"/>
         <source>Hi</source>
         <extracomment>Generic placeholder for chat input</extracomment>
         <translation>Hé</translation>
+    </message>
+    <message id="whisperfish-select-file">
+        <location filename="../pages/ChatTextInput.qml" line="187"/>
+        <source>Select file</source>
+        <extracomment>Title for file picker page</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <location filename="../pages/CountryCodeDialog.qml" line="17"/>
@@ -301,55 +307,61 @@
         <translation>Vergelijk de nummers hierboven met de nummers op het apparaat van %1 om de veiligheid van je eind-tot-eind-versleuteling met hen te verifiëren.</translation>
     </message>
     <message id="whisperfish-new-message-title">
-        <location filename="../pages/NewMessage.qml" line="67"/>
+        <location filename="../pages/NewMessage.qml" line="54"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
         <translation>Nieuw bericht</translation>
     </message>
     <message id="whisperfish-error-contact-number-format">
-        <location filename="../pages/NewMessage.qml" line="99"/>
         <source>Error: invalid phone number for %1</source>
         <extracomment>Could not format contact phone number error message</extracomment>
-        <translation>Fout: ongeldig telefoonnummer voor %1</translation>
+        <translation type="vanished">Fout: ongeldig telefoonnummer voor %1</translation>
     </message>
     <message id="whisperfish-error-verify-contact">
-        <location filename="../pages/NewMessage.qml" line="108"/>
         <source>Warning: could not verify contact in Signal</source>
         <extracomment>Could verify contact is registered with signal</extracomment>
-        <translation>Waarschuwing: kon niet verifiëren dat contact geregistreerd is bij Signal</translation>
+        <translation type="vanished">Waarschuwing: kon niet verifiëren dat contact geregistreerd is bij Signal</translation>
     </message>
     <message id="whisperfish-recipient">
-        <location filename="../pages/NewMessage.qml" line="118"/>
         <source>Recipient</source>
         <extracomment>A single recipient</extracomment>
-        <translation>Ontvanger</translation>
+        <translation type="vanished">Ontvanger</translation>
     </message>
     <message id="whisperfish-recipients">
-        <location filename="../pages/NewMessage.qml" line="122"/>
         <source>Recipients</source>
         <extracomment>Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extracomment>
-        <translation>Ontvangers</translation>
+        <translation type="vanished">Ontvangers</translation>
     </message>
     <message id="whisperfish-group-name-label">
-        <location filename="../pages/NewMessage.qml" line="138"/>
         <source>Group Name</source>
         <extracomment>Group name label</extracomment>
-        <translation>Naam van groep</translation>
+        <translation type="vanished">Naam van groep</translation>
     </message>
     <message id="whisperfish-group-name-placeholder">
-        <location filename="../pages/NewMessage.qml" line="141"/>
         <source>Group Name</source>
         <extracomment>Group name placeholder</extracomment>
-        <translation>Naam van groep</translation>
+        <translation type="vanished">Naam van groep</translation>
+    </message>
+    <message id="whisperfish-new-message-recipient">
+        <location filename="../pages/NewMessage.qml" line="62"/>
+        <source>Recipient</source>
+        <extracomment>New message recipient label</extracomment>
+        <translation type="unfinished">Ontvanger</translation>
+    </message>
+    <message id="whisperfish-new-message-recipient-select-default">
+        <location filename="../pages/NewMessage.qml" line="71"/>
+        <source>Select</source>
+        <extracomment>New message recipient select default label</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-error-message-create">
-        <location filename="../pages/NewMessage.qml" line="174"/>
+        <location filename="../pages/NewMessage.qml" line="112"/>
         <source>Failed to create message</source>
         <extracomment>Failed to create message</extracomment>
         <translation>Maken van bericht mislukt</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
-        <location filename="../pages/NewMessage.qml" line="179"/>
+        <location filename="../pages/NewMessage.qml" line="117"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
         <translation>Ongeldige ontvanger</translation>
@@ -472,169 +484,169 @@
         <translation>Contacten verversen</translation>
     </message>
     <message id="whisperfish-settings-title">
-        <location filename="../pages/Settings.qml" line="56"/>
+        <location filename="../pages/Settings.qml" line="57"/>
         <source>Whisperfish Settings</source>
         <extracomment>Settings page title</extracomment>
         <translation>Instellingen</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
-        <location filename="../pages/Settings.qml" line="61"/>
+        <location filename="../pages/Settings.qml" line="62"/>
         <source>My Identity</source>
         <extracomment>Settings page My identity section label</extracomment>
         <translation>Mijn identiteit</translation>
     </message>
     <message id="whisperfish-settings-my-phone-number">
-        <location filename="../pages/Settings.qml" line="70"/>
+        <location filename="../pages/Settings.qml" line="71"/>
         <source>Phone</source>
         <extracomment>Settings page My phone number</extracomment>
         <translation>Telefoon</translation>
     </message>
     <message id="whisperfish-settings-identity-label">
-        <location filename="../pages/Settings.qml" line="81"/>
+        <location filename="../pages/Settings.qml" line="82"/>
         <source>Identity</source>
         <extracomment>Settings page Identity label</extracomment>
         <translation>Identiteit</translation>
     </message>
     <message id="whisperfish-settings-notifications-section">
-        <location filename="../pages/Settings.qml" line="87"/>
+        <location filename="../pages/Settings.qml" line="88"/>
         <source>Notifications</source>
         <extracomment>Settings page notifications section</extracomment>
         <translation>Meldingen</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable">
-        <location filename="../pages/Settings.qml" line="94"/>
+        <location filename="../pages/Settings.qml" line="95"/>
         <source>Enabled</source>
         <extracomment>Settings page notifications enable</extracomment>
         <translation>Ingeschakeld</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
-        <location filename="../pages/Settings.qml" line="106"/>
+        <location filename="../pages/Settings.qml" line="107"/>
         <source>Show Message Body</source>
         <extracomment>Settings page notifications show message body</extracomment>
         <translation>Berichtinhoud weergeven</translation>
     </message>
     <message id="whisperfish-settings-general-section">
-        <location filename="../pages/Settings.qml" line="117"/>
+        <location filename="../pages/Settings.qml" line="118"/>
         <source>General</source>
         <extracomment>Settings page general section</extracomment>
         <translation>Algemeen</translation>
     </message>
     <message id="whisperfish-settings-country-code">
-        <location filename="../pages/Settings.qml" line="124"/>
+        <location filename="../pages/Settings.qml" line="125"/>
         <source>Country Code</source>
         <extracomment>Settings page country code</extracomment>
         <translation>Landcode</translation>
     </message>
     <message id="whisperfish-settings-save-attachments">
-        <location filename="../pages/Settings.qml" line="139"/>
+        <location filename="../pages/Settings.qml" line="140"/>
         <source>Save Attachments</source>
         <extracomment>Settings page save attachments</extracomment>
         <translation>Bijlagen opslaan</translation>
     </message>
     <message id="Share Contacts">
-        <location filename="../pages/Settings.qml" line="152"/>
+        <location filename="../pages/Settings.qml" line="153"/>
         <source>Share Contacts</source>
         <extracomment>Settings page share contacts</extracomment>
         <translation>Contacten delen</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
-        <location filename="../pages/Settings.qml" line="163"/>
+        <location filename="../pages/Settings.qml" line="164"/>
         <source>Advanced</source>
         <extracomment>Settings page advanced section</extracomment>
         <translation>Geavanceerd</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode">
-        <location filename="../pages/Settings.qml" line="170"/>
+        <location filename="../pages/Settings.qml" line="171"/>
         <source>Incognito Mode</source>
         <extracomment>Settings page incognito mode</extracomment>
         <translation>Incognitomodus</translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
-        <location filename="../pages/Settings.qml" line="177"/>
+        <location filename="../pages/Settings.qml" line="178"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
         <translation>Herstart Whisperfish...</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../pages/Settings.qml" line="188"/>
+        <location filename="../pages/Settings.qml" line="189"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>Statistieken</translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../pages/Settings.qml" line="193"/>
+        <location filename="../pages/Settings.qml" line="194"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation>Websocketstatus</translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../pages/Settings.qml" line="197"/>
+        <location filename="../pages/Settings.qml" line="198"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation>Verbonden</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../pages/Settings.qml" line="200"/>
+        <location filename="../pages/Settings.qml" line="201"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation>Verbinding verbroken</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../pages/Settings.qml" line="205"/>
+        <location filename="../pages/Settings.qml" line="206"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation>Niet-verzonden berichten</translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../pages/Settings.qml" line="211"/>
+        <location filename="../pages/Settings.qml" line="212"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation>Totaal aantal sessies</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../pages/Settings.qml" line="217"/>
+        <location filename="../pages/Settings.qml" line="218"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation>Totaal aantal berichten</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../pages/Settings.qml" line="223"/>
+        <location filename="../pages/Settings.qml" line="224"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation>Contacten op Signal</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
-        <location filename="../pages/Settings.qml" line="229"/>
+        <location filename="../pages/Settings.qml" line="230"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
         <translation>Versleutelde sleutelopslag</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
-        <location filename="../pages/Settings.qml" line="233"/>
+        <location filename="../pages/Settings.qml" line="234"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
         <translation>Ingeschakeld</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
-        <location filename="../pages/Settings.qml" line="236"/>
+        <location filename="../pages/Settings.qml" line="237"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
         <translation>Uitgeschakeld</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../pages/Settings.qml" line="241"/>
+        <location filename="../pages/Settings.qml" line="242"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation>Versleutelde database</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../pages/Settings.qml" line="245"/>
+        <location filename="../pages/Settings.qml" line="246"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>Ingeschakeld</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../pages/Settings.qml" line="248"/>
+        <location filename="../pages/Settings.qml" line="249"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>Uitgeschakeld</translation>
@@ -675,6 +687,12 @@
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
         <translation>Veiligheidsnummers verifiëren</translation>
+    </message>
+    <message id="whisperfish-select-contact">
+        <location filename="../pages/SelectContact.qml" line="22"/>
+        <source>Select contact</source>
+        <extracomment>Title for select contact page</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
