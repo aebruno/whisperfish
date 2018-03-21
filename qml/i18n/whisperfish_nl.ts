@@ -129,7 +129,7 @@
         <location filename="../pages/ChatTextInput.qml" line="187"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Selecteer bestand</translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <location filename="../pages/CountryCodeDialog.qml" line="17"/>
@@ -262,7 +262,7 @@
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
-        <translation type="unfinished">Wordt verwijderd</translation>
+        <translation>Wordt verwijderd</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../pages/MessagesView.qml" line="107"/>
@@ -346,13 +346,13 @@
         <location filename="../pages/NewMessage.qml" line="62"/>
         <source>Recipient</source>
         <extracomment>New message recipient label</extracomment>
-        <translation type="unfinished">Ontvanger</translation>
+        <translation>Ontvanger</translation>
     </message>
     <message id="whisperfish-new-message-recipient-select-default">
         <location filename="../pages/NewMessage.qml" line="71"/>
         <source>Select</source>
         <extracomment>New message recipient select default label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Selecteren</translation>
     </message>
     <message id="whisperfish-error-message-create">
         <location filename="../pages/NewMessage.qml" line="112"/>
@@ -692,7 +692,7 @@
         <location filename="../pages/SelectContact.qml" line="22"/>
         <source>Select contact</source>
         <extracomment>Title for select contact page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Selecteer contact</translation>
     </message>
 </context>
 </TS>
