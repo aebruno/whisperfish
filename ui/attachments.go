@@ -26,7 +26,7 @@ import (
 	"strings"
 	"syscall"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aebruno/whisperfish/settings"
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/sailfish"

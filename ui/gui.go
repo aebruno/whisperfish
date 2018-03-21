@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aebruno/textsecure"
 	"github.com/aebruno/whisperfish/model"
 	"github.com/aebruno/whisperfish/settings"

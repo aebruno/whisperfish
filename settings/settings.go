@@ -23,7 +23,7 @@ import (
 	"os"
 	"path/filepath"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/therecipe/qt/core"
 	"golang.org/x/sys/unix"
 	"gopkg.in/yaml.v2"

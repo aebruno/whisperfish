@@ -67,7 +67,7 @@ func TestMessage(t *testing.T) {
 			t.Errorf("Incorrect source: got '%s' should be '%s'", m.Source, tel)
 		}
 		if m.SID != sess.ID {
-			t.Errorf("Incorrect session_id: got '%s' should be '%s'", m.SID, sess.ID)
+			t.Errorf("Incorrect session_id: got '%d' should be '%d'", m.SID, sess.ID)
 		}
 		if m.Message != text {
 			t.Errorf("Incorrect message text: got '%s' should be '%s'", m.Message, text)
@@ -80,7 +80,7 @@ func TestMessage(t *testing.T) {
 	}
 
 	if total != 1 {
-		t.Error("Failed to total messages: got '%d' should be '%d'", total, 1)
+		t.Errorf("Failed to total messages: got '%d' should be '%d'", total, 1)
 	}
 
 	m, err := ds.FetchMessage(msg.ID)
@@ -89,7 +89,7 @@ func TestMessage(t *testing.T) {
 	}
 
 	if m.ID != msg.ID {
-		t.Error("Failed to fetch message by id: got '%d' should be '%d'", m.ID, msg.ID)
+		t.Errorf("Failed to fetch message by id: got '%d' should be '%d'", m.ID, msg.ID)
 	}
 
 	if m.Queued {

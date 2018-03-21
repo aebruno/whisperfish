@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aebruno/textsecure"
 	"github.com/aebruno/textsecure/axolotl"
 	"github.com/aebruno/whisperfish/settings"

@@ -1,51 +1,56 @@
-hash: 72e239be9e020592f5cbf5aab13f6ff0a84ff22082c271111c7d4d861baf194d
-updated: 2017-12-16T11:51:16.523243634-05:00
+hash: 176b75b1582601544efecc16335dd03b7ce6f81469a3fd89d4d0207fc2150908
+updated: 2018-03-20T22:59:43.25380268-04:00
 imports:
 - name: bitbucket.org/taruti/mimemagic
   version: e5179c80a024fe516da65f0b006f56fa7800694e
 - name: github.com/aebruno/textsecure
-  version: d7577713f00fe4a79a2361b12f63689cfc0dac7b
+  version: 0b581ec7bada7a6817ff1fbbd7b069e3fed384fc
   subpackages:
   - axolotl
   - axolotl/protobuf
   - curve25519sign
   - protobuf
 - name: github.com/agl/ed25519
-  version: 278e1ec8e8a6e017cd07577924d6766039146ced
+  version: 5312a61534124124185d41f09206b9fef1d88403
   subpackages:
   - edwards25519
 - name: github.com/golang/protobuf
-  version: 8ee79997227bf9b34611aee7946ae64735e6fd93
+  version: bbd03ef6da3a115852eaf24c8a1c46aeb39aa175
   subpackages:
   - proto
 - name: github.com/gorilla/websocket
-  version: 1f512fc3f05332ba7117626cdfb4e07474e58e60
+  version: eb925808374e5ca90c83401a40d711dc08c0c0f6
 - name: github.com/jmoiron/sqlx
-  version: 398dd5876282499cdfd4cb8ea0f31a672abe9495
+  version: cf35089a197953c69420c8d0cecda90809764b1d
   subpackages:
   - reflectx
 - name: github.com/mutecomm/go-sqlcipher
-  version: 23f3da79a822938b308480e190972e41323adda9
+  version: f799951b4ab269c2ce24913961af2cb5d681cc43
 - name: github.com/rogpeppe/fastuuid
   version: 6724a57986aff9bff1a1770e9347036def7c89f6
-- name: github.com/Sirupsen/logrus
-  version: cd7d1bbe41066b6c1f19780f895901052150a575
+- name: github.com/sirupsen/logrus
+  version: 90150a8ed11b6ce285e77e8af2b0109559ce4777
 - name: github.com/ttacon/builder
-  version: 7f152c3cf4714fd6318739f8f3dbcd14c2a18b39
+  version: c099f663e1c235176c175644792c5eb282017ad7
 - name: github.com/ttacon/libphonenumber
-  version: 1197dfb91fa03c779576ad248ad5ca0a43fb3a31
+  version: 8ff0c76f75b1e4d840054e4bac021eac597c66da
 - name: golang.org/x/crypto
-  version: b6789ab629056511030d652d851e7dc10c9e9c9e
+  version: 80db560fac1fb3e6ac81dbc7f8ae4c061f5257bd
   subpackages:
   - curve25519
   - hkdf
   - pbkdf2
   - scrypt
   - ssh/terminal
+- name: golang.org/x/net
+  version: 6078986fec03a1dcc236c34816c71b0e05018fda
+  subpackages:
+  - context
 - name: golang.org/x/sys
-  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
+  version: 7ceb54c8418b8f9cdf0177b511d5cbb06e9fae39
   subpackages:
   - unix
+  - windows
 - name: gopkg.in/yaml.v2
-  version: a83829b6f1293c91addabc89d0571c246397bbf4
+  version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
 testImports: []

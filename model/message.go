@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aebruno/textsecure"
 	"github.com/aebruno/whisperfish/store"
 	"github.com/therecipe/qt/core"

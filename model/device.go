@@ -20,7 +20,7 @@ package model
 import (
 	"net/url"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aebruno/textsecure"
 	"github.com/therecipe/qt/core"
 )

@@ -4,9 +4,9 @@ license: GPLv3
 ignore:
 - github.com/therecipe/qt
 import:
-- package: github.com/Sirupsen/logrus
+- package: github.com/sirupsen/logrus
 - package: github.com/aebruno/textsecure
-  version: d7577713f00fe4a79a2361b12f63689cfc0dac7b
+  version: 0b581ec7bada7a6817ff1fbbd7b069e3fed384fc
   subpackages:
   - axolotl
   - curve25519sign
