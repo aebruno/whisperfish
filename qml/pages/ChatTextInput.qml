@@ -18,8 +18,9 @@
  * You can visit <https://sailfishos.org/legal/> for more information
  */
 
-import QtQuick 2.0
+import QtQuick 2.2
 import Sailfish.Silica 1.0
+import Sailfish.Pickers 1.0
 
 InverseMouseArea {
     id: chatInputArea
@@ -131,9 +132,7 @@ InverseMouseArea {
         visible: true
         onPressAndHold: {
             chatInputArea.attachmentPath = ""
-            FilePicker.search()
-            pageStack.push(imagepicker)
-            imagepicker.selected.connect(chatInputArea.setAttachmentPath)
+            pageStack.push(contentPickerPage)
         }
     }
 
@@ -180,4 +179,15 @@ InverseMouseArea {
         text: attachmentPath.length == 0 ? "" : "(1) Attachment" 
     }
 
+    Component {
+        id: contentPickerPage
+        ContentPickerPage {
+            //: Title for file picker page
+            //% "Select file"
+            title: qsTrId("whisperfish-select-file")
+            onSelectedContentPropertiesChanged: {
+                chatInputArea.attachmentPath = selectedContentProperties.filePath
+            }
+        }
+    }
 }
