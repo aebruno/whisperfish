@@ -1,5 +1,5 @@
 
-import QtQuick 2.0
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 Page {
@@ -39,6 +39,7 @@ Page {
                 text: qsTrId("whisperfish-settings-refresh-contacts-menu")
                 onClicked: {
                     ContactModel.refresh()
+                    contactList.refresh()
                     SessionModel.reload()
                 }
             }

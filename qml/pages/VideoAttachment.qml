@@ -1,7 +1,7 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 import QtMultimedia 5.0
-import org.nemomobile.thumbnailer 1.0
+import Nemo.Thumbnailer 1.0
 
 Page {
     id: videoAttachment

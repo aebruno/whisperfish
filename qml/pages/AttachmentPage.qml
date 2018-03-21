@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 // Adopted from https://github.com/0312birdzhang/harbour-one/blob/master/qml/pages/ImagePage.qml
