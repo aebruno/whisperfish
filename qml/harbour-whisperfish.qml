@@ -1,7 +1,6 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import Sailfish.Silica 1.0
-import org.nemomobile.contacts 1.0
-import org.nemomobile.notifications 1.0
+import Nemo.Notifications 1.0
 import "pages"
 
 ApplicationWindow
@@ -13,13 +12,16 @@ ApplicationWindow
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
 
-    ImagePicker {
-        id: imagepicker
-    }
-
-    PeopleModel {
-        id: peopleModel
-        filterType: PeopleModel.FilterNone
+    ListModel {
+        id: contactList
+       
+        function refresh() {
+            contactList.clear()
+            for (var i = 0; i < ContactModel.rowCount(); i++) {
+                var c = ContactModel.get(i)
+                contactList.append(c)
+            }
+        }
     }
 
     Component {

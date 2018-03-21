@@ -18,32 +18,19 @@
  * You can visit <https://sailfishos.org/legal/> for more information
  */
 
-import QtQuick 2.0
+import QtQuick 2.2
 import Sailfish.Silica 1.0
-import Sailfish.Contacts 1.0
-import org.nemomobile.contacts 1.0
-import org.nemomobile.commhistory 1.0
-
 
 Page {
     id: newMessagePage
     property Label errorLabel
+    property string recipientNumber
+    property string recipientName
 
     _clickablePageIndicators: !(isLandscape && recipientField.activeFocus)
 
-    onStatusChanged: {
-        if (status === PageStatus.Active) {
-            recipientField.forceActiveFocus()
-        }
-    }
-
-    Component {
-        id: personComponent
-        Person {}
-    }
-
     SilicaFlickable {
-        id: messages
+        id: newMessage
         focus: true
         contentHeight: content.y + content.height
         anchors.fill: parent
@@ -53,10 +40,10 @@ Page {
         Column {
             id: content
             y: newMessagePage.isLandscape ? Theme.paddingMedium : 0
-            width: messages.width
+            width: newMessage.width
             Item {
-                width: messages.width
-                height: Math.max(recipientHeader.height + (errorLabel.visible ? Theme.paddingLarge + errorLabel.height : 0), messages.height - textInput.height - content.y)
+                width: newMessage.width
+                height: Math.max(recipientField.height, newMessage.height - textInput.height - content.y)
 
                 Column {
                     id: recipientHeader
@@ -67,81 +54,32 @@ Page {
                         title: qsTrId("whisperfish-new-message-title")
                         visible: newMessagePage.isPortrait
                     }
-                    RecipientField {
+
+                    ValueButton {
                         id: recipientField
-                        property int validContacts
-                        property var recipients: new Object()
-                        width: parent.width
-                        requiredProperty: PeopleModel.PhoneNumberRequired
-                        showLabel: newMessagePage.isPortrait
-                        contactSearchModel: peopleModel
-                        multipleAllowed: true
-
-                        onEmptyChanged: if (empty) errorLabel.text = ""
-
-                        function updateConversation() {
-                            var invalidContactFound = false
-                            var exists = true
-                            for (var i = 0; i < selectedContacts.count; i++) {
-                                var contact = selectedContacts.get(i)
-                                if (contact.property !== undefined && contact.propertyType === "phoneNumber") {
-                                    var tel = ContactModel.format(contact.property.number)
-                                    exists = ContactModel.registered(contact.property.number)
-                                    if(tel.length != 0){
-                                        recipients[tel] = true
-                                    } else {
-                                        invalidContactFound = true
-                                        var p = personComponent.createObject(null)
-                                        p.resolvePhoneNumber(contact.property.number, true)
-                                        if (p.id) {
-                                            //: Could not format contact phone number error message
-                                            //% "Error: invalid phone number for %1"
-                                            errorLabel.text = qsTrId("whisperfish-error-contact-number-format").arg(p.firstName)
-                                        }
-                                    }
-                                }
-                            }
-
-                            if(!exists && invalidContactFound == false && Object.keys(recipients).length > 0){
-                                //: Could verify contact is registered with signal
-                                //% "Warning: could not verify contact in Signal"
-                                errorLabel.text = qsTrId("whisperfish-error-verify-contact")
-                                validContacts = Object.keys(recipients).length
-                            } else if(invalidContactFound == false && Object.keys(recipients).length > 0){
-                                validContacts = Object.keys(recipients).length
-                                errorLabel.text = ""
-                            }
-                        }
-
-                        //: A single recipient
+                        //: New message recipient label
                         //% "Recipient"
-                        placeholderText: qsTrId("whisperfish-recipient")
-
-                        //: Summary of all selected recipients, e.g. "Bob, Jane, 75553243"
-                        //% "Recipients"
-                        summaryPlaceholderText: qsTrId("whisperfish-recipients")
-
-                        onFinishedEditing: {
-                            textInput.forceActiveFocus()
+                        label: qsTrId("whisperfish-new-message-recipient")
+                        value: {
+                            if (recipientName != "") {
+                                return recipientName
+                            } else if (recipientNumber != "") {
+                                return recipientNumber
+                            } else {
+                                //: New message recipient select default label
+                                //% "Select"
+                                return qsTrId("whisperfish-new-message-recipient-select-default")
+                            }
                         }
-
-                        onSelectionChanged: {
-                            updateConversation()
+                        onClicked: {
+                            contactList.refresh()
+                            var c = pageStack.push(Qt.resolvedUrl("SelectContact.qml"), {contactList: contactList})
+                            c.selected.connect(function(name, tel) {
+                                console.log("Selected contact: "+name+' '+tel)
+                                recipientNumber = tel
+                                recipientName = name
+                            })
                         }
-                    }
-
-                    TextField {
-                        id: groupName
-                        width: parent.width
-                        //: Group name label
-                        //% "Group Name"
-                        label: qsTrId("whisperfish-group-name-label")
-                        //: Group name placeholder
-                        //% "Group Name"
-                        placeholderText: qsTrId("whisperfish-group-name-placeholder")
-                        placeholderColor: Theme.highlightColor
-                        visible: recipientField.validContacts > 1
-                        horizontalAlignment: TextInput.AlignLeft
                     }
                 }
                 ErrorLabel {
@@ -157,13 +95,13 @@ Page {
             ChatTextInput {
                 id: textInput
                 width: parent.width
-                enabled: recipientField && !recipientField.empty
-                clearAfterSend: recipientField.validContacts > 0
+                enabled: recipientNumber.length != 0
+                clearAfterSend: recipientNumber.length != 0
 
                 onSendMessage: {
-                    if (recipientField.validContacts > 0) {
-                        var source = Object.keys(recipientField.recipients).join(",")
-                        var sid = MessageModel.createMessage(source, text, groupName.text, attachmentPath, false)
+                    if (recipientNumber.length != 0) {
+                        var source = recipientNumber
+                        var sid = MessageModel.createMessage(source, text, "", "", false)
                         if(sid > 0) {
                             pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
                             MessageModel.load(sid, ContactModel.name(source))

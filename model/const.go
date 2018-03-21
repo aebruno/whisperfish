@@ -45,4 +45,5 @@ const (
 	RoleName
 	RoleCreated
 	RoleLastSeen
+	RoleTel
 )
