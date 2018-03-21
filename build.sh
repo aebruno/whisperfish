@@ -7,7 +7,7 @@
 # This script performs the following functions:
 #
 # - Bootstrap github.com/therecipe/qt Go bindings
-# - Create i386 go binary for use on mersdk
+# - Create i386/arm go binary for use on mersdk with sb2
 # - Runs qtmoc and qtminmal code generation
 # - Compiles whisperfish
 # - Build translation *.qm files using lrelease
@@ -38,6 +38,7 @@ case "$1" in
             ;;
         setup-sdk)
             GOARCH=386 $GOROOT/src/run.bash
+            GOARCH=arm GOARM=7 $GOROOT/src/run.bash
             ;;
         prep)
             QT_VERSION=$QT_VERSION qtmoc $PWD/settings
@@ -53,27 +54,40 @@ case "$1" in
             ;;
         compile)
             rm -f $APPNAME
-            GOOS=linux GOARCH=386 CGO_ENABLED=1 CC=/opt/cross/bin/i486-meego-linux-gnu-gcc \
-            CXX=/opt/cross/bin/i486-meego-linux-gnu-g++ CPATH=/srv/mer/targets/SailfishOS-i486/usr/include \
-            LIBRARY_PATH=/srv/mer/targets/SailfishOS-i486/usr/lib:/srv/mer/targets/SailfishOS-i486/lib \
-            CGO_LDFLAGS=--sysroot=/srv/mer/targets/SailfishOS-i486/ \
-            go build -ldflags="-s -w -X main.Version=$VERSION" -tags="minimal sailfish_emulator" \
-            -installsuffix=sailfish_emulator -o $APPNAME 2>&1 | egrep '\.go'
-            #-installsuffix=sailfish_emulator -o $APPNAME
+            sb2 -O use-global-tmp -t SailfishOS-2.1.4.13-i486 -m sdk-build env \
+            CGO_ENABLED=1 GOOS=linux GOARCH=386 CC=/srv/mer/toolings/SailfishOS-2.1.4.13/opt/cross/bin/i486-meego-linux-gnu-gcc \
+            CXX=/srv/mer/toolings/SailfishOS-2.1.4.13/opt/cross/bin/i486-meego-linux-gnu-g++ \
+            CGO_CFLAGS_ALLOW='.*' \
+            CGO_CXXFLAGS_ALLOW='.*' \
+            CGO_LDFLAGS_ALLOW='.*' \
+            CPATH=/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/include:/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/include/qt5/QtCore:/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/include/qt5:/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/include/qt5/QtGui:/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/include/qt5/QtNetwork:/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/include/qt5/QtQuick:/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/include/qt5/QtQml:/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/include/sailfishapp \
+            LIBRARY_PATH=/srv/mer/targets/SailfishOS-2.1.4.13-i486/usr/lib:/srv/mer/targets/SailfishOS-2.1.4.13-i486/lib \
+            CGO_LDFLAGS="--sysroot=/srv/mer/targets/SailfishOS-2.1.4.13-i486/" \
+            CGO_CFLAGS="--sysroot=/srv/mer/targets/SailfishOS-2.1.4.13-i486/" \
+            /home/src1/projects/goroot/go/bin/linux_386/go build \
+            -ldflags="-s -w -X main.Version=$VERSION" -tags="minimal sailfish_emulator" \
+            -installsuffix=sailfish_emulator -o $APPNAME
             if [ ! -f $APPNAME ]; then echo "Failed to compile."; fi
             ;;
         rpm)
             rm -f $APPNAME
-            GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 CC=/opt/cross/bin/armv7hl-meego-linux-gnueabi-gcc \
-            CXX=/opt/cross/bin/armv7hl-meego-linux-gnueabi-g++ CPATH=/srv/mer/targets/SailfishOS-armv7hl/usr/include \
-            LIBRARY_PATH=/srv/mer/targets/SailfishOS-armv7hl/usr/lib:/srv/mer/targets/SailfishOS-armv7hl/lib \
-            CGO_LDFLAGS=--sysroot=/srv/mer/targets/SailfishOS-armv7hl/ \
-            go build -ldflags="-s -w -X main.Version=$VERSION" -tags="minimal sailfish" \
-            -installsuffix=sailfish -o $APPNAME 2>&1 | egrep '\.go'
+            sb2 -O use-global-tmp -t SailfishOSgo-armv7hl -m sdk-build env \
+            CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 \
+            CGO_CFLAGS_ALLOW='.*' \
+            CGO_CXXFLAGS_ALLOW='.*' \
+            CGO_LDFLAGS_ALLOW='.*' \
+            CGO_FFLAGS_ALLOW='.*' \
+            CPATH=/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/include:/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/include/qt5/QtCore:/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/include/qt5:/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/include/qt5/QtGui:/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/include/qt5/QtNetwork:/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/include/qt5/QtQuick:/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/include/qt5/QtQml:/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/include/sailfishapp \
+            LIBRARY_PATH=/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/usr/lib:/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/lib \
+            CGO_LDFLAGS="--sysroot=/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/" \
+            CGO_CFLAGS="--sysroot=/srv/mer/targets/SailfishOS-2.1.4.13-armv7hl/" \
+            /home/src1/projects/goroot/go/bin/linux_arm/go build -x \
+            -ldflags="-v -s -w -X main.Version=$VERSION" -tags="minimal sailfish" \
+            -installsuffix=sailfish -o $APPNAME
             if [ ! -f $APPNAME ]; then
                 echo "Failed to compile."
             else
-                mb2 -x -t SailfishOS-armv7hl build
+                mb2 -x -t SailfishOS-2.1.4.13-armv7hl build
             fi
             ;;
         i18n-up)
@@ -90,7 +104,7 @@ case "$1" in
             done
             ;;
         deploy)
-            mb2 -x -s rpm/$APPNAME.spec -d "SailfishOS Emulator" deploy  --sdk
+            mb2 -x -s rpm/$APPNAME.spec -d "Sailfish OS Emulator" deploy  --sdk
             ;;
         clean)
             rm -f settings/moc*
