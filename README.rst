@@ -65,7 +65,7 @@ Building from source
 
 *These instructions assume you're running Linux*
 
-1. Install Go >= 1.7.1 and setup a proper `GOPATH <https://golang.org/doc/code.html#GOPATH>`_ 
+1. Install Go >= 1.10 and setup a proper `GOPATH <https://golang.org/doc/code.html#GOPATH>`_
    somewhere in your home directory, for example ``GOROOT=$HOME/projects/goroot/go`` and
    ``GOPATH=$HOME/projects/go``.
 
@@ -73,7 +73,9 @@ Building from source
 
 3. Install Qt 5.7.0 the official `prebuilt package <https://download.qt.io/official_releases/qt/5.7/5.7.0/qt-opensource-linux-x64-android-5.7.0.run>`_
 
-4. Install `Sailfish OS SDK <https://sailfishos.org/wiki/Application_SDK_Installation>`_
+4. Install `Sailfish OS SDK <https://sailfishos.org/wiki/Application_SDK_Installation>`_ (version
+   Beta-1801 or later). Ensure ``~/SailfishOS/vmshare/devices.xml`` exists. If not,
+   run ``~/SailfishOS/bin/qtcreator`` once and it should create this file.
 
 5. Clone whisperfish and download dependencies::
 
@@ -91,12 +93,12 @@ Building from source
 
     $ ./build.sh prep
 
-8. Create i386 Go binary for use in Sailfish SDK. Note this only needs to be
-   done once::
+8. Create i386 and arm Go binaries for use in Sailfish SDK. Note this only
+   needs to be done once::
 
     $ ./build.sh setup-sdk
 
-9. Login to SDK and setup environment. Installing Go in your home directory
+9a.Login to SDK and setup environment. Installing Go in your home directory
    will provide SDK access to the Go binaries for compiling whisperfish.
    Note only needs to be done once::
 
@@ -108,6 +110,21 @@ Building from source
     export PATH=$GOROOT/bin/linux_386:$PATH
 
     $ source ~/.bashrc
+
+
+9b.Compile newer version of qemu and create new target for sb2. Older versions
+   of qemu don't work well with Go::
+
+    $ sudo zypper -n install libtool zlib-devel glib2-devel flex bison gcc pkgconfig glib2-static glibc-static make pcre-static
+    $ cd $HOME
+    $ mkdir src; cd src
+    $ curl -O -L https://download.qemu.org/qemu-2.5.1.tar.bz2
+    $ tar xjf qemu-2.5.1.tar.bz2
+    $ ./configure --target-list=arm-softmmu,arm-linux-user
+    $ make
+    $ sudo make install
+    $ sb2-init -L --sysroot=/ -C --sysroot=/ -c /usr/local/bin/qemu-arm -m sdk-build -n -N -t / SailfishOSgo-armv7hl /srv/mer/toolings/SailfishOS-2.1.4.13/opt/cross/bin/armv7hl-meego-linux-gnueabi-gcc
+
 
 10. Login to SDK, compile whisperfish, and deploy to emulator::
 
@@ -133,31 +150,11 @@ translate the application strings in your language run (for example German)::
 
 Currently translations are only accepted through github pull requests.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Making new releases
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*Note*: The latest tag from the current git branch is used in the package
-version (``mb2 -x``). To add git hashes to the package version modify the
-``/usr/bin/mb2`` script with the following patch::
-
-    --- mb2.orig    2016-05-19 02:44:04.015412275 +0000
-    +++ /usr/bin/mb2        2016-05-19 02:44:13.722084593 +0000
-    @@ -154,7 +154,7 @@
-     fix_package_version() {
-         [[ ! $OPT_FIX_VERSION ]] && return
-     
-    -    local tag=$(git describe --tags --abbrev=0 2>/dev/null)
-    +    local tag=$(git describe --long --tags --dirty --always 2>/dev/null)
-         if [[ -n $tag ]]; then
-             # tagver piece copied from tar_git service
-             if [[ $(echo $tag | grep "/") ]] ; then
-
 -------------------------------------------------------------------------------
 License
 -------------------------------------------------------------------------------
 
-Copyright (C) 2016-2017 Andrew E. Bruno
+Copyright (C) 2016-2018 Andrew E. Bruno
 
 Whisperfish is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
