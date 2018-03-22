@@ -4,7 +4,7 @@ Whisperfish - Signal client for Sailfish OS
 
 Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
 `Sailfish OS <https://sailfishos.org/>`_. Whisperfish uses the `Signal client
-library for Go <https://github.com/janimo/textsecure>`_ and `Qt binding for Go
+library for Go <https://github.com/aebruno/textsecure>`_ and `Qt binding for Go
 <https://github.com/therecipe/qt>`_.  The user interface is heavily based on
 the jolla-messages application written by Jolla Ltd.
   
