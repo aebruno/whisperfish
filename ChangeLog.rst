@@ -8,6 +8,8 @@ ChangeLog
 * Built using SailfishOSSDK-Beta-1801-Qt5-linux-64 and go v1.10
 * Tested on Sailfish OS 2.1.4.14 (Lapuanjoki)
 * Fix #26,#83 Support sending files as attachments using new content file pickers
+* Fix #46 Add better group management. Leave group and Add group member are now
+  supported
 * Refactor QML to only use allowed Harbour imports
 * Add new contact picker for composing new messages
 
