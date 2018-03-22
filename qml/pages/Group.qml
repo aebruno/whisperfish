@@ -79,7 +79,7 @@ Page {
                             members.push(ContactModel.name(lst[i]))
                         }
                     }
-                    return members.join(",")
+                    return members.join(", ")
                 }
             }
         }
