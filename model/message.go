@@ -54,6 +54,7 @@ type MessageModel struct {
 	_ func(source, message, groupName, attachment string, add bool) int64 `slot:"createMessage"`
 	_ func(source string)                                                 `slot:"endSession"`
 	_ func()                                                              `slot:"leaveGroup"`
+	_ func(localID, remoteID string)                                      `slot:"addMember"`
 	_ func(localID, remoteID string) string                               `slot:"numericFingerprint"`
 	_ func(mid int64)                                                     `signal:"sendMessage"`
 	_ func()                                                              `constructor:"init"`
@@ -91,6 +92,7 @@ func (model *MessageModel) init() {
 	model.ConnectCreateMessage(model.createMessage)
 	model.ConnectEndSession(model.endSession)
 	model.ConnectLeaveGroup(model.leaveGroup)
+	model.ConnectAddMember(model.addMember)
 	model.ConnectNumericFingerprint(model.numericFingerprint)
 
 	model.ConnectTotal(func() int {
@@ -416,6 +418,43 @@ func (model *MessageModel) leaveGroup() {
 			"groupHexID": model.PeerTel(),
 			"groupName":  model.PeerName(),
 		}).Error("Failed to leave group")
+	}
+}
+
+// Add group member
+func (model *MessageModel) addMember(localID, remoteID string) {
+	if !model.IsGroup() || len(model.PeerTel()) == 0 || len(remoteID) == 0 {
+		return
+	}
+
+	newMembers := make([]string, 0)
+	members := strings.Split(model.GroupMembers(), ",")
+
+	for _, m := range members {
+		if m == remoteID {
+			log.WithFields(log.Fields{
+				"groupHexID": model.PeerTel(),
+				"groupName":  model.PeerName(),
+				"remoteID":   remoteID,
+			}).Warn("Already a group member")
+			return
+		}
+
+		if m != localID {
+			newMembers = append(newMembers, m)
+		}
+	}
+
+	newMembers = append(newMembers, remoteID)
+
+	_, err := textsecure.UpdateGroup(model.PeerTel(), model.PeerName(), newMembers)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":      err,
+			"groupHexID": model.PeerTel(),
+			"groupName":  model.PeerName(),
+			"remoteID":   remoteID,
+		}).Error("Failed to add group member")
 	}
 }
 

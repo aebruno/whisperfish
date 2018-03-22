@@ -755,21 +755,34 @@
         <extracomment>placeholder showing selected group contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
-    <message id="whisperfish-group-leave-menu">
+    <message id="whisperfish-group-add-member-menu">
         <location filename="../pages/Group.qml" line="18"/>
+        <source>Add Member</source>
+        <extracomment>Add group member menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-add-member-remorse">
+        <location filename="../pages/Group.qml" line="27"/>
+        <source>Adding %1 to group</source>
+        <oldsource>%1 added to group</oldsource>
+        <extracomment>Add group member remorse message</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-leave-menu">
+        <location filename="../pages/Group.qml" line="38"/>
         <source>Leave</source>
         <extracomment>Leave group menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../pages/Group.qml" line="22"/>
+        <location filename="../pages/Group.qml" line="42"/>
         <source>Leaving group and removing ALL messages!</source>
         <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
         <extracomment>Leave group remorse message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-members-title">
-        <location filename="../pages/Group.qml" line="45"/>
+        <location filename="../pages/Group.qml" line="65"/>
         <source>Group members</source>
         <extracomment>Group members</extracomment>
         <translation type="unfinished"></translation>
