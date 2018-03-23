@@ -158,6 +158,19 @@ Page {
                     }
                 }
             }
+            TextSwitch {
+                id: enableEnterSend
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page enable enter send
+                //% "EnterKey Send"
+                text: qsTrId("whisperfish-settings-enable-enter-send")
+                checked: SettingsBridge.boolValue("enable_enter_send")
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.boolValue("enable_enter_send")) {
+                        SettingsBridge.boolSet("enable_enter_send", checked)
+                    }
+                }
+            }
             SectionHeader {
                 //: Settings page advanced section
                 //% "Advanced"

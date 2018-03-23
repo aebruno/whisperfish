@@ -46,6 +46,10 @@ InverseMouseArea {
         Qt.inputMethod.commit()
         if (text.length < 1 && attachmentPath.length < 1)
             return
+
+        if(SettingsBridge.boolValue("enable_enter_send")) {
+            text = text.replace(/(\r\n\t|\n|\r\t)/gm,"")
+        }
         sendMessage(text, attachmentPath)
         if (clearAfterSend) {
             text = ""
@@ -93,6 +97,12 @@ InverseMouseArea {
         focusOutBehavior: FocusBehavior.KeepFocus
         textRightMargin: 0
         font.pixelSize: Theme.fontSizeSmall
+
+        EnterKey.onClicked: {
+            if(SettingsBridge.boolValue("enable_enter_send")) {
+                chatInputArea.send()
+            }
+        }
 
         property bool empty: text.length === 0 && !inputMethodComposing
 

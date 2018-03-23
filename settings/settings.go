@@ -119,6 +119,7 @@ func (s *Settings) SetDefaults() {
 	settings.SetValue("encrypt_database", core.NewQVariant11(true))
 	settings.SetValue("save_attachments", core.NewQVariant11(true))
 	settings.SetValue("share_contacts", core.NewQVariant11(true))
+	settings.SetValue("enable_enter_send", core.NewQVariant11(false))
 	settings.SetValue("country_code", core.NewQVariant14(""))
 	settings.Sync()
 }
