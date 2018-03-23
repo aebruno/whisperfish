@@ -1,365 +1,365 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.1" language="es_GT">
 <context>
     <name></name>
     <message id="whisperfish-cover-new-label">
         <location filename="../cover/UnreadLabel.qml" line="25"/>
         <source>New</source>
         <extracomment>Cover new message label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
         <location filename="../delegates/Session.qml" line="69"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Adjunto archivo</translation>
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../delegates/Session.qml" line="114"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Borrando todos los mensajes</translation>
     </message>
     <message id="whisperfish-delete-session">
         <location filename="../delegates/Session.qml" line="129"/>
         <source>Delete Conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Borrar la conversación</translation>
     </message>
     <message id="whisperfish-notification-default-message">
         <location filename="../harbour-whisperfish.qml" line="51"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo mensaje</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../harbour-whisperfish.qml" line="133"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hoy</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
         <location filename="../harbour-whisperfish.qml" line="137"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ayer</translation>
     </message>
     <message id="whisperfish-session-section-older">
         <location filename="../harbour-whisperfish.qml" line="141"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mayor que</translation>
     </message>
     <message id="whisperfish-about">
         <location filename="../pages/About.qml" line="20"/>
         <source>About Whisperfish</source>
         <extracomment>Title for about page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Acerca de</translation>
     </message>
     <message id="whisperfish-version">
         <location filename="../pages/About.qml" line="33"/>
         <source>Whisperfish v%1</source>
         <extracomment>Whisperfish version string</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish v%1</translation>
     </message>
     <message id="whisperfish-description">
         <location filename="../pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Un Cliente no oficial de Sailfish OS</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../pages/About.qml" line="58"/>
         <source>Source Code</source>
         <extracomment>Source Code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Código fuente</translation>
     </message>
     <message id="whisperfish-bug-report">
         <location filename="../pages/About.qml" line="68"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reportar un bicho</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../pages/About.qml" line="77"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Derechos de autor</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../pages/AddDevice.qml" line="31"/>
         <source>Add Device</source>
         <extracomment>Add Device</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Agregar dispositivo</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
         <location filename="../pages/AddDevice.qml" line="52"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Instalar Signal Escritorio. Usar la apl de lector código para escanear el código QR que se muestra en Signal Escritorio y copie y pega la URL aquí.</translation>
     </message>
     <message id="whisperfish-attachment-from-self">
         <location filename="../pages/AttachmentPage.qml" line="25"/>
         <location filename="../pages/VideoAttachment.qml" line="24"/>
         <source>Me</source>
         <extracomment>Personalized placeholder showing the attachment is from oneself</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Yo</translation>
     </message>
     <message id="whisperfish-attachment-from-contact">
         <location filename="../pages/AttachmentPage.qml" line="28"/>
         <location filename="../pages/VideoAttachment.qml" line="27"/>
         <source>From %1</source>
         <extracomment>Personalized placeholder showing the attachment is from contact</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Desde %1</translation>
     </message>
     <message id="whisperfish-chatinput-contact">
         <location filename="../pages/ChatTextInput.qml" line="102"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hola %1</translation>
     </message>
     <message id="whisperfish-chatinput-generic">
         <location filename="../pages/ChatTextInput.qml" line="105"/>
         <source>Hi</source>
         <extracomment>Generic placeholder for chat input</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hola</translation>
     </message>
     <message id="whisperfish-select-file">
         <location filename="../pages/ChatTextInput.qml" line="187"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Elegir un archivo </translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <location filename="../pages/CountryCodeDialog.qml" line="17"/>
         <source>Choose Country Code</source>
         <extracomment>Directions for choosing country code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Eligir código de país</translation>
     </message>
     <message id="whisperfish-select-picture">
         <location filename="../pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar imagen</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../pages/LinkedDevices.qml" line="17"/>
         <source>Add</source>
         <extracomment>Menu option to add new linked device</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Agregar</translation>
     </message>
     <message id="whisperfish-refresh-linked-devices">
         <location filename="../pages/LinkedDevices.qml" line="30"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Refrescar</translation>
     </message>
     <message id="whisperfish-linked-devices">
         <location filename="../pages/LinkedDevices.qml" line="39"/>
         <source>Linked Devices</source>
         <extracomment>Title for Linked Devices page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivos vinculados</translation>
     </message>
     <message id="whisperfish-device-unlink-message">
         <location filename="../pages/LinkedDevices.qml" line="49"/>
         <source>Unlinking</source>
         <extracomment>Unlinking remorse info message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Desvincular</translation>
     </message>
     <message id="whisperfish-device-name">
         <location filename="../pages/LinkedDevices.qml" line="64"/>
         <source>Device %1</source>
         <extracomment>Linked device name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivo %1</translation>
     </message>
     <message id="whisperfish-device-link-date">
         <location filename="../pages/LinkedDevices.qml" line="76"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vincular %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../pages/LinkedDevices.qml" line="94"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Último Activo: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../pages/LinkedDevices.qml" line="114"/>
         <source>Unlink</source>
         <extracomment>Device unlink menu option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Desconectar</translation>
     </message>
     <message id="whisperfish-registration-complete">
         <location filename="../pages/Main.qml" line="27"/>
         <source>Registration complete!</source>
         <extracomment>Registration complete remorse message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Registro completo!</translation>
     </message>
     <message id="whisperfish-error-invalid-datastore">
         <location filename="../pages/Main.qml" line="32"/>
         <source>ERROR - Failed to setup datastore</source>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ERROR: no se puede configurar la base datos</translation>
     </message>
     <message id="whisperfish-error-invalid-number">
         <location filename="../pages/Main.qml" line="37"/>
         <source>ERROR - Invalid phone number registered with Signal</source>
         <extracomment>Invalid phone number error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ERROR: número de teléfono inválido registrado con Signal</translation>
     </message>
     <message id="whisperfish-error-setup-client">
         <location filename="../pages/Main.qml" line="42"/>
         <source>ERROR - Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ERROR: error al configurar el cliente de Signal</translation>
     </message>
     <message id="whisperfish-about-menu">
         <location filename="../pages/Main.qml" line="58"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translationAcerca de></translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../pages/Main.qml" line="64"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ajustes</translation>
     </message>
     <message id="whisperfish-new-group-menu">
         <location filename="../pages/Main.qml" line="71"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo grupo</translation>
     </message>
     <message id="whisperfish-new-message-menu">
         <location filename="../pages/Main.qml" line="78"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo mensaje</translation>
     </message>
     <message id="whisperfish-no-messages-found">
         <location filename="../pages/Main.qml" line="92"/>
         <source>No messages</source>
         <extracomment>Whisperfish no messages found message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>No hay mensajes</translation>
     </message>
     <message id="whisperfish-registration-required-message">
         <location filename="../pages/Main.qml" line="97"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Registro requerido</translation>
     </message>
     <message id="whisperfish-locked-message">
         <location filename="../pages/Main.qml" line="101"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bloqueado</translation>
     </message>
     <message id="whisperfish-group-label">
         <location filename="../pages/MessagesView.qml" line="88"/>
         <source>Group: %1</source>
         <extracomment>Group message label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Grupo: %1</translation>
     </message>
     <message id="whisperfish-delete-message">
         <location filename="../pages/MessagesView.qml" line="97"/>
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Borrando</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../pages/MessagesView.qml" line="107"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reenviando</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../pages/MessagesView.qml" line="130"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Copiar</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
         <location filename="../pages/MessagesView.qml" line="136"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Borrar</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
         <location filename="../pages/MessagesView.qml" line="142"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reenviar</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../pages/VerifyIdentity.qml" line="18"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reiniciar sesión segura</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../pages/VerifyIdentity.qml" line="23"/>
         <source>Resetting secure session</source>
         <extracomment>Reset secure session remorse message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reiniciando sesión segura</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../pages/VerifyIdentity.qml" line="63"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Si desea verificar seguridad de su encriptación de extremo a extremo con %1, comparar números anteriores con  números en su dispositivo.</translation>
     </message>
     <message id="whisperfish-new-message-menu-enter-number">
         <location filename="../pages/NewMessage.qml" line="44"/>
         <source>Enter phone number</source>
         <extracomment>Menu option to enter phone number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Marcar número telefónico</translation>
     </message>
     <message id="whisperfish-new-message-title">
         <location filename="../pages/NewMessage.qml" line="70"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo mensaje</translation>
     </message>
     <message id="whisperfish-new-group-title">
         <location filename="../pages/NewGroup.qml" line="32"/>
         <source>New Group</source>
         <extracomment>New group page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo grupo</translation>
     </message>
     <message id="whisperfish-group-name-label">
         <location filename="../pages/NewGroup.qml" line="41"/>
         <source>Group Name</source>
         <extracomment>Group name label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nombre del grupo</translation>
     </message>
     <message id="whisperfish-group-name-placeholder">
         <location filename="../pages/NewGroup.qml" line="44"/>
         <source>Group Name</source>
         <extracomment>Group name placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nombre del grupo</translation>
     </message>
     <message id="whisperfish-new-group-message-members">
         <location filename="../pages/NewGroup.qml" line="53"/>
         <source>Members</source>
         <extracomment>New group message members label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Miembros</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
         <location filename="../pages/NewMessage.qml" line="78"/>
         <source>Recipient</source>
         <extracomment>New message recipient label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Recipiente</translation>
     </message>
     <message id="whisperfish-new-message-recipient-select-default">
         <location filename="../pages/NewGroup.qml" line="61"/>
         <location filename="../pages/NewMessage.qml" line="87"/>
         <source>Select</source>
         <extracomment>New message recipient select default label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar</translation>
     </message>
     <message id="whisperfish-error-invalid-group-name">
         <location filename="../pages/NewGroup.qml" line="99"/>
