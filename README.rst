@@ -118,8 +118,8 @@ Building from source
     $ sudo zypper -n install libtool zlib-devel glib2-devel flex bison gcc pkgconfig glib2-static glibc-static make pcre-static
     $ cd $HOME
     $ mkdir src; cd src
-    $ curl -O -L https://download.qemu.org/qemu-2.5.1.tar.bz2
-    $ tar xjf qemu-2.5.1.tar.bz2
+    $ curl -O -L https://download.qemu.org/qemu-2.6.2.tar.bz2
+    $ tar xjf qemu-2.6.2.tar.bz2
     $ ./configure --target-list=arm-softmmu,arm-linux-user
     $ make
     $ sudo make install
