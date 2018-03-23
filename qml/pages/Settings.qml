@@ -196,6 +196,19 @@ Page {
                     }
                 }
             }
+            TextSwitch {
+                id: scaleImageAttachments
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page scale image attachments
+                //% "Scale JPEG Attachments"
+                text: qsTrId("whisperfish-settings-scale-image-attachments")
+                checked: SettingsBridge.boolValue("scale_image_attachments")
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.boolValue("scale_image_attachments")) {
+                        SettingsBridge.boolSet("scale_image_attachments", checked)
+                    }
+                }
+            }
             SectionHeader {
                 //: Settings page stats section
                 //% "Statistics"

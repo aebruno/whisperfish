@@ -18,15 +18,19 @@
 package worker
 
 import (
+	"bytes"
 	"fmt"
+	"image/jpeg"
 	"io"
 	"os"
 	"path/filepath"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aebruno/textsecure"
 	"github.com/aebruno/textsecure/axolotl"
+	"github.com/aebruno/whisperfish/settings"
 	"github.com/aebruno/whisperfish/store"
+	"github.com/nfnt/resize"
+	log "github.com/sirupsen/logrus"
 	"github.com/therecipe/qt/core"
 )
 
@@ -34,7 +38,8 @@ import (
 type SendWorker struct {
 	core.QObject
 
-	config *textsecure.Config
+	config   *textsecure.Config
+	settings *settings.Settings
 
 	_ func()                               `constructor:"init"`
 	_ func(sid int64)                      `signal:"sendMessage"`
@@ -44,6 +49,7 @@ type SendWorker struct {
 }
 
 func (s *SendWorker) init() {
+	s.settings = settings.NewSettings(nil)
 	s.ConnectSendMessage(func(sid int64) {
 		go s.sendMessage(sid)
 	})
@@ -51,6 +57,29 @@ func (s *SendWorker) init() {
 
 func (s *SendWorker) SetConfig(config *textsecure.Config) {
 	s.config = config
+}
+
+func (s *SendWorker) scaleImage(file io.Reader) (io.Reader, error) {
+	log.Info("Scaling image attachment")
+
+	img, err := jpeg.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	// XXX We currently do not detect image orientation and will always scale
+	// width. This can cause the scaled image to be rotated depending on it's
+	// original orientation. Consider fixing in the future
+	m := resize.Resize(960, 0, img, resize.NearestNeighbor)
+
+	buf := new(bytes.Buffer)
+
+	err = jpeg.Encode(buf, m, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewReader(buf.Bytes()), nil
 }
 
 // Send message to Signal server
@@ -65,9 +94,26 @@ func (s *SendWorker) send(m *store.Message) error {
 	}
 
 	if m.Attachment != "" {
-		att, err = os.Open(m.Attachment)
+		file, err := os.Open(m.Attachment)
 		if err != nil {
 			return err
+		}
+		defer file.Close()
+		att = file
+
+		if s.settings.GetBool("scale_image_attachments") {
+			// XXX Currently on JPEGs are supported. We attempt to open as JPEG
+			// and if error we do nothing to attachment. Consider changing this
+			// to properly detect mimetype in future or support other image formats
+			scaledAtt, err := s.scaleImage(file)
+			if err == nil {
+				att = scaledAtt
+			} else {
+				log.WithFields(log.Fields{
+					"error": err,
+					"path":  m.Attachment,
+				}).Error("Failed to scale JPEG attachment")
+			}
 		}
 	}
 

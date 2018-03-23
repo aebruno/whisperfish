@@ -21,3 +21,4 @@ import:
 - package: github.com/ttacon/builder
 - package: github.com/gorilla/websocket
 - package: github.com/mutecomm/go-sqlcipher
+- package: github.com/nfnt/resize

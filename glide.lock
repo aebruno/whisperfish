@@ -1,5 +1,5 @@
-hash: 176b75b1582601544efecc16335dd03b7ce6f81469a3fd89d4d0207fc2150908
-updated: 2018-03-20T22:59:43.25380268-04:00
+hash: a7eb11c330ddc1e181eb65b7ac4ee20ccfda5a5adb05353086cc2b5939f34f3a
+updated: 2018-03-22T21:18:33.352702355-04:00
 imports:
 - name: bitbucket.org/taruti/mimemagic
   version: e5179c80a024fe516da65f0b006f56fa7800694e
@@ -26,6 +26,8 @@ imports:
   - reflectx
 - name: github.com/mutecomm/go-sqlcipher
   version: f799951b4ab269c2ce24913961af2cb5d681cc43
+- name: github.com/nfnt/resize
+  version: 83c6a9932646f83e3267f353373d47347b6036b2
 - name: github.com/rogpeppe/fastuuid
   version: 6724a57986aff9bff1a1770e9347036def7c89f6
 - name: github.com/sirupsen/logrus
@@ -35,7 +37,7 @@ imports:
 - name: github.com/ttacon/libphonenumber
   version: 8ff0c76f75b1e4d840054e4bac021eac597c66da
 - name: golang.org/x/crypto
-  version: 80db560fac1fb3e6ac81dbc7f8ae4c061f5257bd
+  version: 88942b9c40a4c9d203b82b3731787b672d6e809b
   subpackages:
   - curve25519
   - hkdf
@@ -47,7 +49,7 @@ imports:
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: 7ceb54c8418b8f9cdf0177b511d5cbb06e9fae39
+  version: 91ee8cde435411ca3f1cd365e8f20131aed4d0a1
   subpackages:
   - unix
   - windows

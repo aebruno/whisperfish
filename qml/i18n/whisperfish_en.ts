@@ -114,19 +114,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-chatinput-contact">
-        <location filename="../pages/ChatTextInput.qml" line="108"/>
+        <location filename="../pages/ChatTextInput.qml" line="112"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-chatinput-generic">
-        <location filename="../pages/ChatTextInput.qml" line="111"/>
+        <location filename="../pages/ChatTextInput.qml" line="115"/>
         <source>Hi</source>
         <extracomment>Generic placeholder for chat input</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-select-file">
-        <location filename="../pages/ChatTextInput.qml" line="193"/>
+        <location filename="../pages/ChatTextInput.qml" line="197"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
         <translation type="unfinished"></translation>
@@ -601,86 +601,92 @@
         <extracomment>Restart whisperfish message</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message id="whisperfish-settings-scale-image-attachments">
+        <location filename="../pages/Settings.qml" line="204"/>
+        <source>Scale JPEG Attachments</source>
+        <extracomment>Settings page scale image attachments</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../pages/Settings.qml" line="202"/>
+        <location filename="../pages/Settings.qml" line="215"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../pages/Settings.qml" line="207"/>
+        <location filename="../pages/Settings.qml" line="220"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../pages/Settings.qml" line="211"/>
+        <location filename="../pages/Settings.qml" line="224"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../pages/Settings.qml" line="214"/>
+        <location filename="../pages/Settings.qml" line="227"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../pages/Settings.qml" line="219"/>
+        <location filename="../pages/Settings.qml" line="232"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../pages/Settings.qml" line="225"/>
+        <location filename="../pages/Settings.qml" line="238"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../pages/Settings.qml" line="231"/>
+        <location filename="../pages/Settings.qml" line="244"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../pages/Settings.qml" line="237"/>
+        <location filename="../pages/Settings.qml" line="250"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
-        <location filename="../pages/Settings.qml" line="243"/>
+        <location filename="../pages/Settings.qml" line="256"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
-        <location filename="../pages/Settings.qml" line="247"/>
+        <location filename="../pages/Settings.qml" line="260"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
-        <location filename="../pages/Settings.qml" line="250"/>
+        <location filename="../pages/Settings.qml" line="263"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../pages/Settings.qml" line="255"/>
+        <location filename="../pages/Settings.qml" line="268"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../pages/Settings.qml" line="259"/>
+        <location filename="../pages/Settings.qml" line="272"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../pages/Settings.qml" line="262"/>
+        <location filename="../pages/Settings.qml" line="275"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation type="unfinished"></translation>
