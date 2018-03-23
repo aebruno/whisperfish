@@ -129,7 +129,7 @@
         <location filename="../pages/ChatTextInput.qml" line="197"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Selecteer bestand</translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <location filename="../pages/CountryCodeDialog.qml" line="17"/>
@@ -268,7 +268,7 @@
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
-        <translation type="unfinished">Wordt verwijderd</translation>
+        <translation>Wordt verwijderd</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../pages/MessagesView.qml" line="107"/>
@@ -366,7 +366,7 @@
         <location filename="../pages/NewMessage.qml" line="78"/>
         <source>Recipient</source>
         <extracomment>New message recipient label</extracomment>
-        <translation type="unfinished">Ontvanger</translation>
+        <translation>Ontvanger</translation>
     </message>
     <message id="whisperfish-new-group-message-members">
         <location filename="../pages/NewGroup.qml" line="53"/>
@@ -379,7 +379,7 @@
         <location filename="../pages/NewMessage.qml" line="87"/>
         <source>Select</source>
         <extracomment>New message recipient select default label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Selecteren</translation>
     </message>
     <message id="whisperfish-error-invalid-group-name">
         <location filename="../pages/NewGroup.qml" line="99"/>
@@ -752,7 +752,7 @@
         <location filename="../pages/SelectContact.qml" line="22"/>
         <source>Select contact</source>
         <extracomment>Title for select contact page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Selecteer contact</translation>
     </message>
     <message id="whisperfish-select-group-contact">
         <location filename="../pages/SelectGroupContact.qml" line="29"/>
