@@ -601,18 +601,18 @@
         <extracomment>Restart whisperfish message</extracomment>
         <translation>Restaurar Whisperfish...</translation>
     </message>
+    <message id="whisperfish-settings-scale-image-attachments">
+        <location filename="../pages/Settings.qml" line="204"/>
+        <source>Scale JPEG Attachments</source>
+        <extracomment>Settings page scale image attachments</extracomment>
+        <translation>Escala JPEG archivos adjuntos</translation>
+    </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../pages/Settings.qml" line="202"/>
+        <location filename="../pages/Settings.qml" line="215"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>Estadísticas</translation>
     </message>
-    <message id="whisperfish-settings-scale-image-attachments">
-        <location filename="../pages/Settings.qml" line="215"/>
-        <source>Scale JPEG Attachments</source>
-        <extracomment>Settings page scale image attachments</extracomment>
-        <translation>Escala JPEG archivos adjuntos</translation>
-        </message>
     <message id="whisperfish-settings-websocket">
         <location filename="../pages/Settings.qml" line="220"/>
         <source>Websocket Status</source>
@@ -680,19 +680,19 @@
         <translation>Base de datos encriptada</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../pages/Settings.qml" line="262"/>
+        <location filename="../pages/Settings.qml" line="272"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>Habilitado</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
         <location filename="../pages/Settings.qml" line="275"/>
-        <source>Enabled</source>
-        <extracomment>Settings page encrypted db Enabled</extracomment>
-        <translation>Habilitado</translation>
+        <source>Disabled</source>
+        <extracomment>Settings page encrypted db Disabled</extracomment>
+        <translation>Deshabilitado</translation>
     </message>
     <message id="whisperfish-verify-code-accept">
-        <location filename="../pages/Verify.qml" line="275"/>
+        <location filename="../pages/Verify.qml" line="25"/>
         <source>Verify</source>
         <extracomment>Verify code accept</extracomment>
         <translation>Verificar</translation>
