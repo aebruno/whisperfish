@@ -12,6 +12,8 @@ ApplicationWindow
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
 
+    property var notificationMap: new Object()
+
     ListModel {
         id: contactList
        
@@ -55,6 +57,13 @@ ApplicationWindow
         m.previewBody = m.body
         m.summary = name
         m.clicked.connect(function() {
+            // Close out any existing notifications for the session
+            if(sid in notificationMap) {
+                for(var i = 0; i < notificationMap[sid].length; i++) {
+                    notificationMap[sid][i].close()
+                }
+                delete notificationMap[sid]
+            }
             console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
@@ -73,6 +82,11 @@ ApplicationWindow
             "arguments": [ "sid", sid ]
         } ]
         m.publish()
+        if(sid in notificationMap) {
+              notificationMap[sid].push(m)
+        } else {
+              notificationMap[sid] = [m]
+        }
     }
 
     Connections {
