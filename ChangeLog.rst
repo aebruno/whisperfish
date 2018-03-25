@@ -12,10 +12,11 @@ ChangeLog
   supported (needs more testing)
 * Refactor QML to only use allowed Harbour imports
 * Add new contact picker for composing new messages
-* Fix #86. Add setting to allow EnterKey to send messages
+* Fix #86 Add setting to allow EnterKey to send messages
 * Fix #92 Add option to scale image attachments
 * Fix #81 Add support for opening attachments using xdg-open
 * Fix #76 Close all notifications for session once one is opened
+* Add Spanish translation by Caballlero PR #97
 
 `v0.4.5`_ (2017-12-16)
 ---------------------------
