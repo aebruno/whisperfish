@@ -286,7 +286,7 @@
         <location filename="../pages/MessagesView.qml" line="140"/>
         <source>Open</source>
         <extracomment>Open attachment message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Openen</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
         <location filename="../pages/MessagesView.qml" line="147"/>
