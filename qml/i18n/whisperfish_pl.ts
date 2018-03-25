@@ -28,25 +28,25 @@
         <translation>Usuń Konwersację</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../harbour-whisperfish.qml" line="51"/>
+        <location filename="../harbour-whisperfish.qml" line="53"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Nowa Wiadomość</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../harbour-whisperfish.qml" line="133"/>
+        <location filename="../harbour-whisperfish.qml" line="147"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Dziś</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../harbour-whisperfish.qml" line="137"/>
+        <location filename="../harbour-whisperfish.qml" line="151"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Wczoraj</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../harbour-whisperfish.qml" line="141"/>
+        <location filename="../harbour-whisperfish.qml" line="155"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Starsze</translation>
