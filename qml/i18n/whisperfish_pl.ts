@@ -264,32 +264,38 @@
         <translation>Grupa: %1</translation>
     </message>
     <message id="whisperfish-delete-message">
-        <location filename="../pages/MessagesView.qml" line="97"/>
+        <location filename="../pages/MessagesView.qml" line="101"/>
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
         <translation type="unfinished">Usuwanie</translation>
     </message>
     <message id="whisperfish-resend-message">
-        <location filename="../pages/MessagesView.qml" line="107"/>
+        <location filename="../pages/MessagesView.qml" line="111"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
         <translation>Ponowne wysyłanie</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../pages/MessagesView.qml" line="130"/>
+        <location filename="../pages/MessagesView.qml" line="134"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>Kopiuj</translation>
     </message>
+    <message id="whisperfish-open-message-menu">
+        <location filename="../pages/MessagesView.qml" line="140"/>
+        <source>Open</source>
+        <extracomment>Open attachment message menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-delete-message-menu">
-        <location filename="../pages/MessagesView.qml" line="136"/>
+        <location filename="../pages/MessagesView.qml" line="147"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
         <translation>Usuń</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../pages/MessagesView.qml" line="142"/>
+        <location filename="../pages/MessagesView.qml" line="153"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
         <translation>Wyślij ponownie</translation>

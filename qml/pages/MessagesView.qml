@@ -91,6 +91,10 @@ SilicaListView {
         }
     }
 
+    function openAttachment(contentItem) {
+        MessageModel.openAttachment(contentItem.modelData.index)
+    }
+
     function remove(contentItem) {
         //: Deleteing message remorse
         //% "Deleteing"
@@ -129,6 +133,13 @@ SilicaListView {
                 //% "Copy"
                 text: qsTrId("whisperfish-copy-message-menu")
                 onClicked: copy(menu.parent)
+            }
+            MenuItem {
+                //: Open attachment message menu item
+                //% "Open"
+                text: qsTrId("whisperfish-open-message-menu")
+                visible: menu.parent && menu.parent.modelData.hasAttachment
+                onClicked: openAttachment(menu.parent)
             }
             MenuItem {
                 //: Delete message menu item

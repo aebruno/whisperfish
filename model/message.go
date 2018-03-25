@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -54,6 +55,7 @@ type MessageModel struct {
 	_ func(source, message, groupName, attachment string, add bool) int64 `slot:"createMessage"`
 	_ func(source string)                                                 `slot:"endSession"`
 	_ func()                                                              `slot:"leaveGroup"`
+	_ func(index int)                                                     `slot:"openAttachment"`
 	_ func(localID, remoteID string)                                      `slot:"addMember"`
 	_ func(localID, remoteID string) string                               `slot:"numericFingerprint"`
 	_ func(mid int64)                                                     `signal:"sendMessage"`
@@ -92,6 +94,7 @@ func (model *MessageModel) init() {
 	model.ConnectCreateMessage(model.createMessage)
 	model.ConnectEndSession(model.endSession)
 	model.ConnectLeaveGroup(model.leaveGroup)
+	model.ConnectOpenAttachment(model.openAttachment)
 	model.ConnectAddMember(model.addMember)
 	model.ConnectNumericFingerprint(model.numericFingerprint)
 
@@ -403,6 +406,31 @@ func (model *MessageModel) endSession(source string) {
 	model.EndInsertRows()
 
 	model.SendMessage(message.ID)
+}
+
+func (model *MessageModel) xdgOpen(path string) {
+	err := exec.Command("xdg-open", path).Run()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"path":  path,
+		}).Error("Failed to run xdg-open")
+	}
+}
+
+// Open attachment
+func (model *MessageModel) openAttachment(index int) {
+	if index < 0 || index > len(model.messages)-1 {
+		log.WithFields(log.Fields{
+			"index": index,
+		}).Info("Invalid index for message model")
+		return
+	}
+
+	message := model.messages[index]
+	if len(message.Attachment) > 0 {
+		go model.xdgOpen(message.Attachment)
+	}
 }
 
 // Leave group
