@@ -9,11 +9,13 @@ ChangeLog
 * Tested on Sailfish OS 2.1.4.14 (Lapuanjoki)
 * Fix #26,#83 Support sending files as attachments using new content file pickers
 * Fix #46 Add better group management. Leave group and Add group member are now
-  supported
+  supported (needs more testing)
 * Refactor QML to only use allowed Harbour imports
 * Add new contact picker for composing new messages
 * Fix #86. Add setting to allow EnterKey to send messages
 * Fix #92 Add option to scale image attachments
+* Fix #81 Add support for opening attachments using xdg-open
+* Fix #76 Close all notifications for session once one is opened
 
 `v0.4.5`_ (2017-12-16)
 ---------------------------
@@ -117,3 +119,4 @@ ChangeLog
 .. _v0.4.3: https://github.com/aebruno/whisperfish/releases/tag/v0.4.3
 .. _v0.4.4: https://github.com/aebruno/whisperfish/releases/tag/v0.4.4
 .. _v0.4.5: https://github.com/aebruno/whisperfish/releases/tag/v0.4.5
+.. _v0.5.0: https://github.com/aebruno/whisperfish/releases/tag/v0.5.0
