@@ -219,7 +219,7 @@
         <location filename="../pages/Main.qml" line="58"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translationAcerca de></translation>
+        <translation>Acerca de Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../pages/Main.qml" line="64"/>
@@ -264,32 +264,38 @@
         <translation>Grupo: %1</translation>
     </message>
     <message id="whisperfish-delete-message">
-        <location filename="../pages/MessagesView.qml" line="97"/>
+        <location filename="../pages/MessagesView.qml" line="101"/>
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
         <translation>Borrando</translation>
     </message>
     <message id="whisperfish-resend-message">
-        <location filename="../pages/MessagesView.qml" line="107"/>
+        <location filename="../pages/MessagesView.qml" line="111"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
         <translation>Reenviando</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../pages/MessagesView.qml" line="130"/>
+        <location filename="../pages/MessagesView.qml" line="134"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>Copiar</translation>
     </message>
+    <message id="whisperfish-open-message-menu">
+        <location filename="../pages/MessagesView.qml" line="140"/>
+        <source>Open</source>
+        <extracomment>Open attachment message menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-delete-message-menu">
-        <location filename="../pages/MessagesView.qml" line="136"/>
+        <location filename="../pages/MessagesView.qml" line="147"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
         <translation>Borrar</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../pages/MessagesView.qml" line="142"/>
+        <location filename="../pages/MessagesView.qml" line="153"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
         <translation>Reenviar</translation>
@@ -582,7 +588,7 @@
         <source>EnterKey Send</source>
         <extracomment>Settings page enable enter send</extracomment>
         <translation>Entrar enviar</translation>
-        </message>
+    </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../pages/Settings.qml" line="177"/>
         <source>Advanced</source>
@@ -688,7 +694,7 @@
     <message id="whisperfish-settings-encrypted-db-disabled">
         <location filename="../pages/Settings.qml" line="275"/>
         <source>Disabled</source>
-        <extracomment>Settings page encrypted db Disabled</extracomment>
+        <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>Deshabilitado</translation>
     </message>
     <message id="whisperfish-verify-code-accept">
