@@ -13,7 +13,7 @@
         <location filename="../delegates/Session.qml" line="69"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
-        <translation>Adjunto archivo</translation>
+        <translation>Archivo adjunto</translation>
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../delegates/Session.qml" line="114"/>
@@ -611,7 +611,7 @@
         <location filename="../pages/Settings.qml" line="204"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
-        <translation>Escala JPEG archivos adjuntos</translation>
+        <translation>Escalar archivos JPEG</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../pages/Settings.qml" line="215"/>
