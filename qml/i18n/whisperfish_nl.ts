@@ -97,7 +97,7 @@
         <location filename="../pages/AddDevice.qml" line="52"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation>Installeer Signal Desktop. Gebruik de app CodeReader om the QR-code te scannen die wordt weergegeven op Signal Desktop, en kopieer en plak de URL hier.</translation>
+        <translation>Installeer Signal Desktop. Gebruik de app CodeReader om de QR-code te scannen die wordt weergegeven op Signal Desktop, en kopieer en plak de URL hier.</translation>
     </message>
     <message id="whisperfish-attachment-from-self">
         <location filename="../pages/AttachmentPage.qml" line="25"/>
@@ -135,13 +135,13 @@
         <location filename="../pages/CountryCodeDialog.qml" line="17"/>
         <source>Choose Country Code</source>
         <extracomment>Directions for choosing country code</extracomment>
-        <translation>Kies landcode</translation>
+        <translation>Selecteer landcode</translation>
     </message>
     <message id="whisperfish-select-picture">
         <location filename="../pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Kies afbeelding</translation>
+        <translation>Selecteer afbeelding</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../pages/LinkedDevices.qml" line="17"/>
@@ -316,7 +316,7 @@
         <location filename="../pages/VerifyIdentity.qml" line="63"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation>Vergelijk de nummers hierboven met de nummers op het apparaat van %1 om de veiligheid van je eind-tot-eind-versleuteling met hen te verifiëren.</translation>
+        <translation>Vergelijk de nummers hierboven met de nummers op het apparaat van %1 om de veiligheid van jullie eind-tot-eind-versleuteling te verifiëren.</translation>
     </message>
     <message id="whisperfish-new-message-title">
         <location filename="../pages/NewMessage.qml" line="70"/>
