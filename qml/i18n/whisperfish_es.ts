@@ -371,7 +371,7 @@
         <location filename="../pages/NewGroup.qml" line="99"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
-        <translation>Escribir nombre del grupo</translation>
+        <translation>Entrar nombre del grupo</translation>
     </message>
     <message id="whisperfish-error-message-create">
         <location filename="../pages/NewGroup.qml" line="110"/>
@@ -665,7 +665,7 @@
         <location filename="../pages/Settings.qml" line="256"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
-        <translation>Encriptado almacén de llaves</translation>
+        <translation>Almacén de llaves encriptado</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
         <location filename="../pages/Settings.qml" line="260"/>
@@ -683,7 +683,7 @@
         <location filename="../pages/Settings.qml" line="268"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
-        <translation>Encriptado base de datos</translation>
+        <translation>Base de datos encriptado</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
         <location filename="../pages/Settings.qml" line="272"/>
