@@ -25,7 +25,7 @@
         <location filename="../delegates/Session.qml" line="129"/>
         <source>Delete Conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation>Borrar la conversación</translation>
+        <translation>Borrar conversación</translation>
     </message>
     <message id="whisperfish-notification-default-message">
         <location filename="../harbour-whisperfish.qml" line="53"/>
@@ -67,7 +67,7 @@
         <location filename="../pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation>Un Cliente no oficial de Sailfish OS</translation>
+        <translation>Un cliente no oficial de Signal para Sailfish OS</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../pages/About.qml" line="58"/>
@@ -79,7 +79,7 @@
         <location filename="../pages/About.qml" line="68"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
-        <translation>Reportar un bicho</translation>
+        <translation>Reportar bicho</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../pages/About.qml" line="77"/>
@@ -91,7 +91,7 @@
         <location filename="../pages/AddDevice.qml" line="31"/>
         <source>Add Device</source>
         <extracomment>Add Device</extracomment>
-        <translation>Agregar dispositivo</translation>
+        <translation>Añadir dispositivo</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
         <location filename="../pages/AddDevice.qml" line="52"/>
@@ -129,25 +129,25 @@
         <location filename="../pages/ChatTextInput.qml" line="197"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation>Elegir un archivo </translation>
+        <translation>Elegir un archivo</translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <location filename="../pages/CountryCodeDialog.qml" line="17"/>
         <source>Choose Country Code</source>
         <extracomment>Directions for choosing country code</extracomment>
-        <translation>Eligir código de país</translation>
+        <translation>Escoger código de país</translation>
     </message>
     <message id="whisperfish-select-picture">
         <location filename="../pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Seleccionar imagen</translation>
+        <translation>Escoger foto</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../pages/LinkedDevices.qml" line="17"/>
         <source>Add</source>
         <extracomment>Menu option to add new linked device</extracomment>
-        <translation>Agregar</translation>
+        <translation>Añadir</translation>
     </message>
     <message id="whisperfish-refresh-linked-devices">
         <location filename="../pages/LinkedDevices.qml" line="30"/>
@@ -201,25 +201,25 @@
         <location filename="../pages/Main.qml" line="32"/>
         <source>ERROR - Failed to setup datastore</source>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation>ERROR: no se puede configurar la base datos</translation>
+        <translation>ERROR: no se puede configurar el almacén de datos</translation>
     </message>
     <message id="whisperfish-error-invalid-number">
         <location filename="../pages/Main.qml" line="37"/>
         <source>ERROR - Invalid phone number registered with Signal</source>
         <extracomment>Invalid phone number error message</extracomment>
-        <translation>ERROR: número de teléfono inválido registrado con Signal</translation>
+        <translation>ERROR: número de teléfono registardo en Signal es inválido</translation>
     </message>
     <message id="whisperfish-error-setup-client">
         <location filename="../pages/Main.qml" line="42"/>
         <source>ERROR - Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>ERROR: error al configurar el cliente de Signal</translation>
+        <translation>ERROR: al configurar cliente de Signal</translation>
     </message>
     <message id="whisperfish-about-menu">
         <location filename="../pages/Main.qml" line="58"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation>Acerca de Whisperfish</translation>
+        <translation>Acerca de</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../pages/Main.qml" line="64"/>
@@ -365,13 +365,13 @@
         <location filename="../pages/NewMessage.qml" line="87"/>
         <source>Select</source>
         <extracomment>New message recipient select default label</extracomment>
-        <translation>Seleccionar</translation>
+        <translation>Elegir</translation>
     </message>
     <message id="whisperfish-error-invalid-group-name">
         <location filename="../pages/NewGroup.qml" line="99"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
-        <translation>Por favor nombre del grupo</translation>
+        <translation>Escribir nombre del grupo</translation>
     </message>
     <message id="whisperfish-error-message-create">
         <location filename="../pages/NewGroup.qml" line="110"/>
@@ -384,7 +384,7 @@
         <location filename="../pages/NewGroup.qml" line="95"/>
         <source>Please select group members</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation>Por favor elegir miembros del grupo</translation>
+        <translation>Elegir miembros del grupo</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
         <location filename="../pages/NewMessage.qml" line="133"/>
@@ -521,13 +521,13 @@
         <location filename="../pages/Settings.qml" line="57"/>
         <source>Whisperfish Settings</source>
         <extracomment>Settings page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ajustes</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../pages/Settings.qml" line="62"/>
         <source>My Identity</source>
         <extracomment>Settings page My identity section label</extracomment>
-        <translation>Ajustes</translation>
+        <translation>Mi identidad</translation>
     </message>
     <message id="whisperfish-settings-my-phone-number">
         <location filename="../pages/Settings.qml" line="71"/>
@@ -539,7 +539,7 @@
         <location filename="../pages/Settings.qml" line="82"/>
         <source>Identity</source>
         <extracomment>Settings page Identity label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Identidad</translation>
     </message>
     <message id="whisperfish-settings-notifications-section">
         <location filename="../pages/Settings.qml" line="88"/>
@@ -551,13 +551,13 @@
         <location filename="../pages/Settings.qml" line="95"/>
         <source>Enabled</source>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation>Habilitado</translation>
+        <translation>Habilitar</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../pages/Settings.qml" line="107"/>
         <source>Show Message Body</source>
         <extracomment>Settings page notifications show message body</extracomment>
-        <translation>Mostrar cuerpo del mensaje</translation>
+        <translation>Cuerpo del mensaje</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../pages/Settings.qml" line="118"/>
@@ -587,7 +587,7 @@
         <location filename="../pages/Settings.qml" line="166"/>
         <source>EnterKey Send</source>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation>Entrar enviar</translation>
+        <translation>Entrar(tecla) enviar</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../pages/Settings.qml" line="177"/>
@@ -665,37 +665,37 @@
         <location filename="../pages/Settings.qml" line="256"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
-        <translation>Encriptada base de llaves</translation>
+        <translation>Encriptado almacén de llaves</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
         <location filename="../pages/Settings.qml" line="260"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
-        <translation>Habilitado</translation>
+        <translation>Habilitar</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
         <location filename="../pages/Settings.qml" line="263"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
-        <translation>Deshabilitado</translation>
+        <translation>Deshabilitar</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
         <location filename="../pages/Settings.qml" line="268"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
-        <translation>Base de datos encriptada</translation>
+        <translation>Encriptado base de datos</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
         <location filename="../pages/Settings.qml" line="272"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
-        <translation>Habilitado</translation>
+        <translation>Habilitar</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
         <location filename="../pages/Settings.qml" line="275"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
-        <translation>Deshabilitado</translation>
+        <translation>Deshabilitar</translation>
     </message>
     <message id="whisperfish-verify-code-accept">
         <location filename="../pages/Verify.qml" line="25"/>
@@ -732,7 +732,7 @@
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
-        <translation>Verificar %1</translation>
+        <translation>Verificar números de seguridad</translation>
     </message>
     <message id="whisperfish-select-contact">
         <location filename="../pages/SelectContact.qml" line="22"/>
@@ -757,14 +757,14 @@
         <location filename="../pages/Group.qml" line="18"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
-        <translation>Agregar miembro</translation>
+        <translation>Añadir miembro</translation>
     </message>
     <message id="whisperfish-group-add-member-remorse">
         <location filename="../pages/Group.qml" line="27"/>
         <source>Adding %1 to group</source>
         <oldsource>%1 added to group</oldsource>
         <extracomment>Add group member remorse message</extracomment>
-        <translation>Agregando %1 al grupo</translation>
+        <translation>Añadiendo %1 al grupo</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../pages/Group.qml" line="38"/>
