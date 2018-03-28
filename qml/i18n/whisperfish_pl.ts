@@ -129,7 +129,7 @@
         <location filename="../pages/ChatTextInput.qml" line="197"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz plik</translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <location filename="../pages/CountryCodeDialog.qml" line="17"/>
@@ -231,7 +231,7 @@
         <location filename="../pages/Main.qml" line="71"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nowa Grupa</translation>
     </message>
     <message id="whisperfish-new-message-menu">
         <location filename="../pages/Main.qml" line="78"/>
@@ -268,7 +268,7 @@
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
-        <translation type="unfinished">Usuwanie</translation>
+        <translation>Usuwanie</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../pages/MessagesView.qml" line="111"/>
@@ -286,7 +286,7 @@
         <location filename="../pages/MessagesView.qml" line="140"/>
         <source>Open</source>
         <extracomment>Open attachment message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
         <location filename="../pages/MessagesView.qml" line="147"/>
@@ -360,38 +360,38 @@
         <location filename="../pages/NewMessage.qml" line="44"/>
         <source>Enter phone number</source>
         <extracomment>Menu option to enter phone number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Podaj numer telefonu</translation>
     </message>
     <message id="whisperfish-new-group-title">
         <location filename="../pages/NewGroup.qml" line="32"/>
         <source>New Group</source>
         <extracomment>New group page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nowa Grupa</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
         <location filename="../pages/NewMessage.qml" line="78"/>
         <source>Recipient</source>
         <extracomment>New message recipient label</extracomment>
-        <translation type="unfinished">Odbiorca</translation>
+        <translation>Odbiorca</translation>
     </message>
     <message id="whisperfish-new-group-message-members">
         <location filename="../pages/NewGroup.qml" line="53"/>
         <source>Members</source>
         <extracomment>New group message members label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Członkowie</translation>
     </message>
     <message id="whisperfish-new-message-recipient-select-default">
         <location filename="../pages/NewGroup.qml" line="61"/>
         <location filename="../pages/NewMessage.qml" line="87"/>
         <source>Select</source>
         <extracomment>New message recipient select default label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz</translation>
     </message>
     <message id="whisperfish-error-invalid-group-name">
         <location filename="../pages/NewGroup.qml" line="99"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nazwij grupę</translation>
     </message>
     <message id="whisperfish-error-message-create">
         <location filename="../pages/NewGroup.qml" line="110"/>
@@ -404,7 +404,7 @@
         <location filename="../pages/NewGroup.qml" line="95"/>
         <source>Please select group members</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz członków grupy</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
         <location filename="../pages/NewMessage.qml" line="133"/>
@@ -470,7 +470,7 @@
         <location filename="../pages/EnterPhoneNumber.qml" line="36"/>
         <source>Done</source>
         <extracomment>Enter phone number accept</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wykonano</translation>
     </message>
     <message id="whisperfish-phone-number-input-label">
         <location filename="../pages/EnterPhoneNumber.qml" line="46"/>
@@ -631,7 +631,7 @@
         <location filename="../pages/Settings.qml" line="204"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Skaluj załączniki JPEG</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../pages/Settings.qml" line="215"/>
@@ -758,52 +758,52 @@
         <location filename="../pages/SelectContact.qml" line="22"/>
         <source>Select contact</source>
         <extracomment>Title for select contact page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz kontakt</translation>
     </message>
     <message id="whisperfish-select-group-contact">
         <location filename="../pages/SelectGroupContact.qml" line="29"/>
         <source>Select group members</source>
         <oldsource>Select contacts</oldsource>
         <extracomment>Title for select group contact page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz kontakty</translation>
     </message>
     <message id="whisperfish-select-group-num-contacts">
         <location filename="../pages/SelectGroupContact.qml" line="32"/>
         <source>Selected %1</source>
         <extracomment>placeholder showing selected group contacts</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wybrane %1</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
         <location filename="../pages/Group.qml" line="18"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj Członka</translation>
     </message>
     <message id="whisperfish-group-add-member-remorse">
         <location filename="../pages/Group.qml" line="27"/>
         <source>Adding %1 to group</source>
         <oldsource>%1 added to group</oldsource>
         <extracomment>Add group member remorse message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 dodany do grupy</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../pages/Group.qml" line="38"/>
         <source>Leave</source>
         <extracomment>Leave group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Opuść</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../pages/Group.qml" line="42"/>
         <source>Leaving group and removing ALL messages!</source>
         <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
         <extracomment>Leave group remorse message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Opuszczasz grupę. Spowoduje to usunięcie na stałe WSZYSTKICH wiadomości grupowych!</translation>
     </message>
     <message id="whisperfish-group-members-title">
         <location filename="../pages/Group.qml" line="65"/>
         <source>Group members</source>
         <extracomment>Group members</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Członkowie grupy</translation>
     </message>
 </context>
 </TS>
