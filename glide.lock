@@ -1,10 +1,10 @@
-hash: e980672aa752c31e95796a0ac5da21e6197275d2214791284520098f1f8e59a9
-updated: 2018-03-24T21:31:40.986062581-04:00
+hash: 22677bf6cc551427ea7c8471a669cf4bbe5130d4b20765bd0ebdd8a52d9e6998
+updated: 2018-04-01T10:18:09.840424617-04:00
 imports:
 - name: bitbucket.org/taruti/mimemagic
   version: e5179c80a024fe516da65f0b006f56fa7800694e
 - name: github.com/aebruno/textsecure
-  version: 33bf22ae9aea148c4b8bb649c4713e9aaa6ef870
+  version: 05398ef3fedda484b1694d2512f85871cdf87c60
   subpackages:
   - axolotl
   - axolotl/protobuf
@@ -15,7 +15,7 @@ imports:
   subpackages:
   - edwards25519
 - name: github.com/golang/protobuf
-  version: bbd03ef6da3a115852eaf24c8a1c46aeb39aa175
+  version: e09c5db296004fbe3f74490e84dcd62c3c5ddb1b
   subpackages:
   - proto
 - name: github.com/gorilla/websocket
@@ -31,13 +31,13 @@ imports:
 - name: github.com/rogpeppe/fastuuid
   version: 6724a57986aff9bff1a1770e9347036def7c89f6
 - name: github.com/sirupsen/logrus
-  version: 90150a8ed11b6ce285e77e8af2b0109559ce4777
+  version: 778f2e774c725116edbc3d039dc0dfc1cc62aae8
 - name: github.com/ttacon/builder
   version: c099f663e1c235176c175644792c5eb282017ad7
 - name: github.com/ttacon/libphonenumber
-  version: 8ff0c76f75b1e4d840054e4bac021eac597c66da
+  version: 86899b0d756b360f27adbb420eb6a8138db5b29d
 - name: golang.org/x/crypto
-  version: 88942b9c40a4c9d203b82b3731787b672d6e809b
+  version: 12892e8c234f4fe6f6803f052061de9057903bb2
   subpackages:
   - curve25519
   - hkdf
@@ -45,14 +45,14 @@ imports:
   - scrypt
   - ssh/terminal
 - name: golang.org/x/net
-  version: 6078986fec03a1dcc236c34816c71b0e05018fda
+  version: b68f30494add4df6bd8ef5e82803f308e7f7c59c
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: 91ee8cde435411ca3f1cd365e8f20131aed4d0a1
+  version: 378d26f46672a356c46195c28f61bdb4c0a781dd
   subpackages:
   - unix
   - windows
 - name: gopkg.in/yaml.v2
-  version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
+  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 testImports: []
