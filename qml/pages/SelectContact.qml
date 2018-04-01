@@ -11,46 +11,56 @@ Dialog {
     property alias contactList: alphaMenu.dataSource
     signal selected(string name, string tel)
 
-    Column {
-        width: parent.width
-        spacing: Theme.paddingLarge
+    SilicaFlickable {
+        id: sc
+        focus: true
+        contentHeight: scc.y + scc.height
+        anchors.fill: parent
 
-        DialogHeader {
-            id: title
-            //: Title for select contact page
-            //% "Select contact"
-            title: qsTrId("whisperfish-select-contact")
-            acceptText: ""
-        }
+        Column {
+            id: scc
+            width: parent.width
+            spacing: Theme.paddingLarge
 
-        AlphaMenu {
-            id: alphaMenu
-            dataSource: ListModel{}
-            listDelegate:  BackgroundItem {
-                id: contactItem
-                width: parent.width
-                onClicked: {
-                    highlighted = !highlighted  
-                    page.selected(name, tel)
-                    page.close()
-                }
-                Row {
-                    spacing: 20
+            DialogHeader {
+                id: title
+                //: Title for select contact page
+                //% "Select contact"
+                title: qsTrId("whisperfish-select-contact")
+                acceptText: ""
+            }
 
-                    Column {
-                        Label {
-                            text: name
-                            font.pixelSize: Theme.fontSizeMedium
-                            color: Theme.primaryColor
-                        }
-                        Label {
-                            text: tel
-                            font.pixelSize: Theme.fontSizeExtraSmall
-                            color: Theme.secondaryColor
+            AlphaMenu {
+                id: alphaMenu
+                dataSource: ListModel{}
+                listDelegate:  BackgroundItem {
+                    id: contactItem
+                    width: parent.width
+                    onClicked: {
+                        highlighted = !highlighted  
+                        page.selected(name, tel)
+                        page.close()
+                    }
+                    Row {
+                        spacing: 20
+
+                        Column {
+                            Label {
+                                text: name
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: Theme.primaryColor
+                            }
+                            Label {
+                                text: tel
+                                font.pixelSize: Theme.fontSizeExtraSmall
+                                color: Theme.secondaryColor
+                            }
                         }
                     }
                 }
             }
         }
+
+        VerticalScrollDecorator {}
     }
 }

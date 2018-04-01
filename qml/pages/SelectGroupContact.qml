@@ -18,55 +18,65 @@ Dialog {
         }
     }
 
-    Column {
-        width: parent.width
-        spacing: Theme.paddingLarge
+    SilicaFlickable {
+        id: gsc
+        focus: true
+        contentHeight: gscc.y + gscc.height
+        anchors.fill: parent
 
-        DialogHeader {
-            id: title
-            //: Title for select group contact page
-            //% "Select group members"
-            title: qsTrId("whisperfish-select-group-contact")
-            //: placeholder showing selected group contacts
-            //% "Selected %1"
-            acceptText: selectedContacts > 0 ? qsTrId("whisperfish-select-group-num-contacts").arg(selectedContacts) : ""
-        }
+        Column {
+            id: gscc
+            width: parent.width
+            spacing: Theme.paddingLarge
 
-        AlphaMenu {
-            id: alphaMenu
-            dataSource: ListModel{}
-            listDelegate:  BackgroundItem {
-                id: contactItem
-                width: parent.width
-                highlighted: tel in recipients ? true : false
-                onClicked: {
-                    if(tel in recipients) {
-                         delete recipients[tel]
-                         page.selectedContacts = Object.keys(recipients).length
-                         highlighted = false
-                    } else {
-                         recipients[tel] = name
-                         page.selectedContacts = Object.keys(recipients).length
-                         highlighted = true
-                    }
-                }
-                Row {
-                    spacing: 20
+            DialogHeader {
+                id: title
+                //: Title for select group contact page
+                //% "Select group members"
+                title: qsTrId("whisperfish-select-group-contact")
+                //: placeholder showing selected group contacts
+                //% "Selected %1"
+                acceptText: selectedContacts > 0 ? qsTrId("whisperfish-select-group-num-contacts").arg(selectedContacts) : ""
+            }
 
-                    Column {
-                        Label {
-                            text: name
-                            font.pixelSize: Theme.fontSizeMedium
-                            color: Theme.primaryColor
+            AlphaMenu {
+                id: alphaMenu
+                dataSource: ListModel{}
+                listDelegate:  BackgroundItem {
+                    id: contactItem
+                    width: parent.width
+                    highlighted: tel in recipients ? true : false
+                    onClicked: {
+                        if(tel in recipients) {
+                             delete recipients[tel]
+                             page.selectedContacts = Object.keys(recipients).length
+                             highlighted = false
+                        } else {
+                             recipients[tel] = name
+                             page.selectedContacts = Object.keys(recipients).length
+                             highlighted = true
                         }
-                        Label {
-                            text: tel
-                            font.pixelSize: Theme.fontSizeExtraSmall
-                            color: Theme.secondaryColor
+                    }
+                    Row {
+                        spacing: 20
+
+                        Column {
+                            Label {
+                                text: name
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: Theme.primaryColor
+                            }
+                            Label {
+                                text: tel
+                                font.pixelSize: Theme.fontSizeExtraSmall
+                                color: Theme.secondaryColor
+                            }
                         }
                     }
                 }
             }
         }
+
+        VerticalScrollDecorator {}
     }
 }
