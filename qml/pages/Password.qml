@@ -62,7 +62,7 @@ Dialog {
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight? "red" : Theme.primaryColor
-            EnterKey.onClicked: parent.focus = true
+            EnterKey.onClicked: passwordDialog.accept()
             echoMode: TextInput.Password
         }
 
@@ -81,7 +81,7 @@ Dialog {
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight ? "red" : Theme.primaryColor
-            EnterKey.onClicked: parent.focus = true
+            EnterKey.onClicked: passwordDialog.accept()
             echoMode: TextInput.Password
         }
 
