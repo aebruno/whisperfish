@@ -755,20 +755,20 @@
         <translation>Veiligheidsnummers verifiëren</translation>
     </message>
     <message id="whisperfish-select-contact">
-        <location filename="../pages/SelectContact.qml" line="22"/>
+        <location filename="../pages/SelectContact.qml" line="29"/>
         <source>Select contact</source>
         <extracomment>Title for select contact page</extracomment>
         <translation>Selecteer contact</translation>
     </message>
     <message id="whisperfish-select-group-contact">
-        <location filename="../pages/SelectGroupContact.qml" line="29"/>
+        <location filename="../pages/SelectGroupContact.qml" line="36"/>
         <source>Select group members</source>
         <oldsource>Select contacts</oldsource>
         <extracomment>Title for select group contact page</extracomment>
         <translation>Selecteer contacten</translation>
     </message>
     <message id="whisperfish-select-group-num-contacts">
-        <location filename="../pages/SelectGroupContact.qml" line="32"/>
+        <location filename="../pages/SelectGroupContact.qml" line="39"/>
         <source>Selected %1</source>
         <extracomment>placeholder showing selected group contacts</extracomment>
         <translation>%1 geselecteerd</translation>
