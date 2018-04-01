@@ -57,13 +57,7 @@ ApplicationWindow
         m.previewBody = m.body
         m.summary = name
         m.clicked.connect(function() {
-            // Close out any existing notifications for the session
-            if(sid in notificationMap) {
-                for(var i = 0; i < notificationMap[sid].length; i++) {
-                    notificationMap[sid][i].close()
-                }
-                delete notificationMap[sid]
-            }
+            clearNotifications(sid)
             console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
@@ -128,6 +122,16 @@ ApplicationWindow
         }
         onPromptResetPeerIdentity: {
             pageStack.push(Qt.resolvedUrl("pages/ResetPeerIdentity.qml"), { source: source })
+        }
+    }
+
+    function clearNotifications(sid) {
+        // Close out any existing notifications for the session
+        if(sid in notificationMap) {
+            for(var i = 0; i < notificationMap[sid].length; i++) {
+                notificationMap[sid][i].close()
+            }
+            delete notificationMap[sid]
         }
     }
 

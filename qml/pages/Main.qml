@@ -117,6 +117,7 @@ Page {
         delegate: Session{
             onClicked: {
                 console.log("Activating session: "+model.id)
+                mainWindow.clearNotifications(model.id)
                 pageStack.push(Qt.resolvedUrl("Conversation.qml"));
                 if(model.unread) {
                     SessionModel.markRead(model.id)
