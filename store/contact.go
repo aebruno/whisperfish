@@ -18,9 +18,9 @@
 package store
 
 import (
-	log "github.com/sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mutecomm/go-sqlcipher"
+	log "github.com/sirupsen/logrus"
 	"github.com/ttacon/libphonenumber"
 )
 
@@ -51,7 +51,8 @@ func SailfishContacts(country string) ([]*Contact, error) {
 	   p.phoneNumber as tel
 	from Contacts as c
 	join PhoneNumbers p
-	on c.contactId = p.contactId`)
+	on c.contactId = p.contactId
+    order by name`)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
