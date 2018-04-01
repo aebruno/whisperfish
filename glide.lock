@@ -1,10 +1,10 @@
-hash: 22677bf6cc551427ea7c8471a669cf4bbe5130d4b20765bd0ebdd8a52d9e6998
-updated: 2018-04-01T10:18:09.840424617-04:00
+hash: 3eb56fb32be15d65aae4ff2078b35439925ac87c02b1d7b380e1c5230098ea6d
+updated: 2018-04-01T10:30:59.325823607-04:00
 imports:
 - name: bitbucket.org/taruti/mimemagic
   version: e5179c80a024fe516da65f0b006f56fa7800694e
 - name: github.com/aebruno/textsecure
-  version: 05398ef3fedda484b1694d2512f85871cdf87c60
+  version: 37163a4ec7f931f02003bdb89543ade75adc70b2
   subpackages:
   - axolotl
   - axolotl/protobuf
