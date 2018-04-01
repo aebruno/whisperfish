@@ -6,7 +6,7 @@ ignore:
 import:
 - package: github.com/sirupsen/logrus
 - package: github.com/aebruno/textsecure
-  version: 37163a4ec7f931f02003bdb89543ade75adc70b2
+  version: b6c5e09f570b1474141360d30bccb28ca14ce767
   subpackages:
   - axolotl
   - curve25519sign
