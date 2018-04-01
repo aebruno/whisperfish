@@ -1,3 +1,9 @@
+* Sun Apr 01 2018 Andrew E. Bruno <aeb@qnot.org> 0.5.1-1
+- Clear notifications when clicking on conversation (should help #76 and #101)
+- Fix #102 Enter on password dialog should accept 
+- Fix #100 Scrolling in select contact dialogs
+- Add Finnish translation by tuokiv PR #105
+- Add Hungarian translation by 1Zgp PR #110
 * Sun Mar 25 2018 Andrew E. Bruno <aeb@qnot.org> 0.5.0-1
 - Fix #26,#83 Support sending files as attachments using new content file
   pickers
@@ -10,9 +16,3 @@
 - Fix #81 Add support for opening attachments using xdg-open
 - Fix #76 Close all notifications for session once one is opened
 - Add Spanish translation by Caballlero PR #97
-* Sun Apr 01 2018 Andrew E. Bruno <aeb@qnot.org> 0.5.1-1
-- Clear notifications when clicking on conversation (should help #76 and #101)
-- Fix #102 Enter on password dialog should accept 
-- Fix #100 Scrolling in select contact dialogs
-- Add Finnish translation by tuokiv PR #105
-- Add Hungarian translation by 1Zgp PR #110
