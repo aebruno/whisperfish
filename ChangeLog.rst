@@ -2,6 +2,17 @@
 ChangeLog
 ===============================================================================
 
+`v0.5.1`_ (2018-04-01)
+---------------------------
+
+* Built using SailfishOSSDK-Beta-1801-Qt5-linux-64 and go v1.10
+* Tested on Sailfish OS 2.1.4.14 (Lapuanjoki)
+* Clear notifications when clicking on conversation (should help #76 and #101)
+* Fix #102 Enter on password dialog should accept 
+* Fix #100 Scrolling in select contact dialogs
+* Add Finnish translation by tuokiv PR #105
+* Add Hungarian translation by 1Zgp PR #110
+
 `v0.5.0`_ (2018-03-25)
 ---------------------------
 
