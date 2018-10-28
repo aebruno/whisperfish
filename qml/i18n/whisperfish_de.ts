@@ -286,7 +286,7 @@
         <location filename="../pages/MessagesView.qml" line="140"/>
         <source>Open</source>
         <extracomment>Open attachment message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Anhang öffnen</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
         <location filename="../pages/MessagesView.qml" line="147"/>
@@ -484,7 +484,7 @@
         <location filename="../pages/Register.qml" line="46"/>
         <source>18875550100</source>
         <extracomment>Phone number placeholder</extracomment>
-        <translation>4901751234567</translation>
+        <translation>491751234567</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../pages/Register.qml" line="58"/>
@@ -797,7 +797,7 @@
         <source>Leaving group and removing ALL messages!</source>
         <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
         <extracomment>Leave group remorse message</extracomment>
-        <translation type="unfinished">Verlassen der Gruppe und löschen ALLER Nachrichten!</translation>
+        <translation type="unfinished">Verlassen der Gruppe und Löschen ALLER Nachrichten!</translation>
     </message>
     <message id="whisperfish-group-members-title">
         <location filename="../pages/Group.qml" line="65"/>
