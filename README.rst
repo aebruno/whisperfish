@@ -1,24 +1,41 @@
 ===============================================================================
-Whisperfish - Signal client for Sailfish OS
+Whisperfish
 ===============================================================================
 
-Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
-`Sailfish OS <https://sailfishos.org/>`_. Whisperfish uses the `Signal client
-library for Go <https://github.com/aebruno/textsecure>`_ and `Qt binding for Go
-<https://github.com/therecipe/qt>`_.  The user interface is heavily based on
-the jolla-messages application written by Jolla Ltd.
-  
+**WARNING - DO NOT USE THIS CLIENT**
+
+Unfortunately I am no longer able to maintain this project and can not
+recommend anyone continue using Whisperfish. The code base is far from complete
+and does not implement the latest features of the Signal protocol. It's just a
+matter of time before this just completely stops working.  Rather than wait
+until that time, I'm archiving this project and recommend any remaining users
+switch to another client. This repository is archived and here for historical
+purposes only.
+
+Thanks to all who contributed and provided valuable feedback.
+
+Cheers!
+
+**WARNING - DO NOT USE THIS CLIENT**
+
 -------------------------------------------------------------------------------
 Project Status
 -------------------------------------------------------------------------------
 
+This project is no longer maintained. Do not use this client.
+
+The following text is outdated...
+
 Whisperfish should be considered alpha software and used at your own risk. The
 client is not an official Signal client and is not affiliated with Open Whisper
 Systems. The code has not been audited by an expert in computer security or
-cryptography. The goal of Whisperfish is to eventually become a stable, secure,
-and robust Signal client for Sailfish OS. Code review and contributions are
-welcome!
+cryptography. 
 
+Whisperfish uses the `Signal client library for Go
+<https://github.com/aebruno/textsecure>`_ and `Qt binding for Go
+<https://github.com/therecipe/qt>`_.  The user interface is heavily based on
+the jolla-messages application written by Jolla Ltd.
+  
 -------------------------------------------------------------------------------
 Features
 -------------------------------------------------------------------------------
@@ -147,8 +164,6 @@ translate the application strings in your language run (for example German)::
     $ sb2 lupdate qml/ -ts qml/i18n/whisperfish_de.ts
     [edit whisperfish_de.ts]
     $ sb2 lrelease -idbased qml/i18n/whisperfish_de.ts -qm qml/i18n/whisperfish_de.qm
-
-Currently translations are only accepted through github pull requests.
 
 -------------------------------------------------------------------------------
 License
